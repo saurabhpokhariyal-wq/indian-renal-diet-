@@ -1,0 +1,38 @@
+{
+  "summary": "Full end-to-end testing of Indian Renal Diet mobile app (Expo web preview) completed successfully. Backend: 21/21 pytest tests passed covering auth (register/login/me), foods (list/search/tier/detail with swap resolution), meal-logs (auth-gated CRUD with persistence verification), and AI ask (Claude Sonnet 4.5 via Emergent LLM key). Frontend: E2E playwright flow validated login → search with chips → RED food detail (Palak Paneer) showing Smart Swap Card recommending Lauki Sabzi → add to meal log → Meals tab showing correct summary pills (Safe/Caution/Avoid) and log entries → Ask AI returning full CKD-focused answer → Settings toggling English/Hindi (verified Hindi labels: सेटिंग्स/भाषा/साइन आउट) → Sign Out redirects back to Login. Seed data of 35 foods and 10 swaps confirmed. All testIDs work as documented.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "shadow* style props", "issue": "Console warning: 'shadow*' style props are deprecated. Use 'boxShadow' (or platform-specific shadow API). Non-blocking but should be migrated. Reference: styles across theme/components using shadowColor/shadowOffset/etc."},
+      {"component": "props.pointerEvents", "issue": "Console warning: props.pointerEvents is deprecated, use style.pointerEvents instead. Likely inside a react-native-web dependency (safe-area-context / keyboard-controller). Non-blocking."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_renal_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Non-blocking) Address shadow* deprecation warning by migrating any shadowColor/shadowOffset/etc. styles to boxShadow (RN 0.76+) or wrap them platform-conditionally.",
+    "(Non-blocking) Investigate props.pointerEvents deprecation - likely originates from a dependency; verify with react-native-web upgrade or wrapping component."
+  ],
+  "critical_code_review_comments": [
+    "server.py: clean, all routes prefixed with /api, MongoDB _id excluded from projections, async everywhere, JWT with 30-day exp, timing-safe login (dummy hash on missing user). Good.",
+    "seed_data.py: 35 foods + 10 swaps, stable string IDs, upsert-based seeding (idempotent). Good.",
+    "Frontend uses testIDs consistently, EXPO_PUBLIC_BACKEND_URL from env, no hardcoded URLs. StyleSheet.create used throughout; all text wrapped in <Text>. Good."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_renal_api.py (new)"
+  ],
+  "success_rate": {"backend": "100% (21/21)", "frontend": "100% (all core flows verified)"},
+  "seed_data_creation": "Registered a throwaway test user (test_<uuid>@renal.app) during register test — one-off, no cleanup needed. Demo user (demo@renal.app) already present and reused. Meal-log create test cleans up after itself via DELETE.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend base URL: https://kidney-safe-swap.preview.emergentagent.com/api. Demo user demo@renal.app / demo123. Tab labels are 'Search', 'Meals', 'Ask AI', 'Settings' (NOT 'Meal Log'). All 35 seeded foods have IDs like food-<slug>. Smart-swap only returned for RED tier foods.",
+  "rca_of_issue": "No app bugs found. Only two Playwright script issues on first run were self-inflicted: (a) matched Meal Log tab by wrong text ('Meal Log' vs actual 'Meals'), (b) counted AI response messages before the 30s Claude latency completed. Both were fixed and re-verified in a second run; app itself worked correctly the entire time."
+}
