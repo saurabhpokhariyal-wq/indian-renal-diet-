@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { SafetyCard } from "@/src/components/SafetyCard";
-import { api, type FoodOut } from "@/src/lib/api";
+import { api, type FoodOut, type SafetyTier } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
@@ -19,21 +19,32 @@ const QUICK_CHIPS: { label: string; query: string }[] = [
   { label: "Roti", query: "roti" },
 ];
 
+const TIER_FILTERS: { tier: SafetyTier; color: string; textKey: "summarySafe" | "summaryCaution" | "summaryAvoid" }[] = [
+  { tier: "GREEN", color: COLORS.greenStrong, textKey: "summarySafe" },
+  { tier: "YELLOW", color: COLORS.yellowStrong, textKey: "summaryCaution" },
+  { tier: "RED", color: COLORS.redStrong, textKey: "summaryAvoid" },
+];
+
 export default function SearchScreen() {
   const { user } = useAuth();
   const { t } = useLang();
   const [query, setQuery] = useState("");
+  const [selectedTiers, setSelectedTiers] = useState<Set<SafetyTier>>(new Set());
   const [foods, setFoods] = useState<FoodOut[]>([]);
   const [favorites, setFavorites] = useState<FoodOut[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (q: string) => {
+  const load = useCallback(async (q: string, tiers: Set<SafetyTier>) => {
     setLoading(true);
+    setError(null);
     try {
-      const list = await api.listFoods(q || undefined);
+      const tierParam = tiers.size ? Array.from(tiers).join(",") : undefined;
+      const list = await api.listFoods(q || undefined, tierParam);
       setFoods(list);
-    } catch {
+    } catch (e) {
       setFoods([]);
+      setError(e instanceof Error ? e.message : "Could not load foods");
     } finally {
       setLoading(false);
     }
@@ -44,22 +55,28 @@ export default function SearchScreen() {
       const list = await api.listFoods(undefined, undefined, true);
       setFavorites(list);
     } catch {
+      // favorites are best-effort; a failure here shouldn't block the screen
       setFavorites([]);
     }
   }, []);
-
-  useEffect(() => {
-    void load("");
-  }, [load]);
 
   useFocusEffect(useCallback(() => {
     void loadFavorites();
   }, [loadFavorites]));
 
   useEffect(() => {
-    const handle = setTimeout(() => void load(query), 250);
+    const handle = setTimeout(() => void load(query, selectedTiers), 250);
     return () => clearTimeout(handle);
-  }, [query, load]);
+  }, [query, selectedTiers, load]);
+
+  const toggleTier = (tier: SafetyTier) => {
+    setSelectedTiers((prev) => {
+      const next = new Set(prev);
+      if (next.has(tier)) next.delete(tier);
+      else next.add(tier);
+      return next;
+    });
+  };
 
   const quickLog = async (food: FoodOut) => {
     try {
@@ -68,9 +85,11 @@ export default function SearchScreen() {
       const date = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
       await api.addMealLog(food.id, date);
     } catch {
-      // ignore
+      // ignore — background quick action
     }
   };
+
+  const retry = () => void load(query, selectedTiers);
 
   const header = useMemo(
     () => (
@@ -106,6 +125,38 @@ export default function SearchScreen() {
           ) : null}
         </View>
 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tierRow}
+        >
+          {TIER_FILTERS.map((f) => {
+            const active = selectedTiers.has(f.tier);
+            return (
+              <TouchableOpacity
+                key={f.tier}
+                testID={`tier-filter-${f.tier.toLowerCase()}`}
+                onPress={() => toggleTier(f.tier)}
+                style={[
+                  styles.tierChip,
+                  { borderColor: f.color },
+                  active && { backgroundColor: f.color },
+                ]}
+              >
+                <View style={[styles.tierDot, { backgroundColor: active ? COLORS.textInverse : f.color }]} />
+                <Text
+                  style={[
+                    styles.tierChipText,
+                    { color: active ? COLORS.textInverse : f.color },
+                  ]}
+                >
+                  {t(f.textKey)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
         <View style={styles.chipsRow}>
           {QUICK_CHIPS.map((c) => (
             <TouchableOpacity
@@ -119,20 +170,7 @@ export default function SearchScreen() {
           ))}
         </View>
 
-        <View style={styles.legendRow}>
-          {[
-            { tier: "GREEN", label: t("summarySafe"), color: COLORS.greenStrong },
-            { tier: "YELLOW", label: t("summaryCaution"), color: COLORS.yellowStrong },
-            { tier: "RED", label: t("summaryAvoid"), color: COLORS.redStrong },
-          ].map((it) => (
-            <View key={it.tier} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: it.color }]} />
-              <Text style={styles.legendText}>{it.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        {favorites.length > 0 && !query ? (
+        {favorites.length > 0 && !query && selectedTiers.size === 0 ? (
           <View style={styles.favBlock}>
             <View style={styles.favHeader}>
               <Ionicons name="star" size={18} color={COLORS.yellowStrong} />
@@ -170,7 +208,7 @@ export default function SearchScreen() {
         ) : null}
       </View>
     ),
-    [user, t, query, favorites],
+    [user, t, query, favorites, selectedTiers],
   );
 
   return (
@@ -191,6 +229,16 @@ export default function SearchScreen() {
           loading ? (
             <View style={styles.emptyBox}>
               <ActivityIndicator size="large" color={COLORS.brand} />
+            </View>
+          ) : error ? (
+            <View testID="search-error" style={styles.emptyBox}>
+              <Ionicons name="cloud-offline-outline" size={40} color={COLORS.redStrong} />
+              <Text style={styles.errorTitle}>{t("somethingWrong")}</Text>
+              <Text style={styles.errorBody}>{t("couldNotLoad")}</Text>
+              <TouchableOpacity testID="search-retry" style={styles.retryBtn} onPress={retry}>
+                <Ionicons name="refresh" size={18} color={COLORS.textInverse} />
+                <Text style={styles.retryText}>{t("retry")}</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.emptyBox}>
@@ -227,12 +275,35 @@ const styles = StyleSheet.create({
   chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: COLORS.brandLight, borderWidth: 1, borderColor: COLORS.brand },
   chipText: { color: COLORS.brand, fontSize: FONT.label, fontWeight: "700" },
-  legendRow: { flexDirection: "row", gap: SIZE.m, marginTop: 4 },
-  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  legendDot: { width: 12, height: 12, borderRadius: 6 },
-  legendText: { fontSize: FONT.label, color: COLORS.textSecondary, fontWeight: "600" },
+  tierRow: { gap: SIZE.s, paddingRight: SIZE.m },
+  tierChip: {
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    backgroundColor: COLORS.bgSurface,
+  },
+  tierDot: { width: 10, height: 10, borderRadius: 5 },
+  tierChipText: { fontSize: FONT.label, fontWeight: "700" },
   emptyBox: { alignItems: "center", padding: SIZE.xl, gap: SIZE.s },
   emptyText: { fontSize: FONT.body, color: COLORS.textSecondary, textAlign: "center" },
+  errorTitle: { fontSize: FONT.h3, fontWeight: "800", color: COLORS.textPrimary },
+  errorBody: { fontSize: FONT.body, color: COLORS.textSecondary, textAlign: "center", lineHeight: 22 },
+  retryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: SIZE.l,
+    paddingVertical: 10,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.brand,
+    marginTop: SIZE.s,
+  },
+  retryText: { color: COLORS.textInverse, fontWeight: "700", fontSize: FONT.body },
   favBlock: { gap: 10, marginTop: 4 },
   favHeader: { flexDirection: "row", alignItems: "center", gap: 6 },
   favTitle: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },

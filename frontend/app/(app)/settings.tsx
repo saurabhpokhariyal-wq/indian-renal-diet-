@@ -58,6 +58,14 @@ export default function SettingsScreen() {
             <Ionicons name="information-circle" size={22} color={COLORS.brand} />
             <Text style={styles.disclaimer}>{t("disclaimer")}</Text>
           </View>
+          <TouchableOpacity
+            testID="review-disclaimer-button"
+            style={styles.reviewBtn}
+            onPress={() => router.push({ pathname: "/disclaimer", params: { readonly: "1" } })}
+          >
+            <Ionicons name="document-text-outline" size={18} color={COLORS.brand} />
+            <Text style={styles.reviewBtnText}>{t("reviewDisclaimer")}</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity testID="signout-button" style={styles.signOutBtn} onPress={doSignOut}>
@@ -113,6 +121,19 @@ const styles = StyleSheet.create({
   langBtnText: { fontSize: FONT.bodyL, color: COLORS.textSecondary, fontWeight: "600" },
   langBtnTextActive: { color: COLORS.brand, fontWeight: "800" },
   disclaimer: { flex: 1, color: COLORS.textPrimary, fontSize: FONT.body, lineHeight: 22 },
+  reviewBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: SIZE.m,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.bgSurface,
+    borderWidth: 1,
+    borderColor: COLORS.brand,
+  },
+  reviewBtnText: { color: COLORS.brand, fontWeight: "700", fontSize: FONT.body },
   signOutBtn: {
     flexDirection: "row",
     alignItems: "center",

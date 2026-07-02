@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { useLang } from "@/src/lib/language-context";
@@ -56,11 +56,16 @@ const styles = StyleSheet.create({
     borderRadius: SIZE.radiusLg,
     padding: SIZE.m,
     gap: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    ...Platform.select({
+      web: { boxShadow: "0 4px 8px rgba(0,0,0,0.05)" },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
+      },
+    }),
   },
   headerRow: {
     flexDirection: "row",

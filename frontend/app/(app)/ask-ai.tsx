@@ -1,21 +1,60 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { api } from "@/src/lib/api";
+import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { chatKey } from "@/src/lib/storage-keys";
+import { storage } from "@/src/utils/storage";
 import { COLORS, FONT, SIZE } from "@/src/theme";
 
 interface Msg { id: string; role: "user" | "ai"; text: string }
 
+const MAX_STORED = 100;
+
 export default function AskAiScreen() {
   const { t } = useLang();
+  const { user } = useAuth();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
+  const [restored, setRestored] = useState(false);
   const listRef = useRef<FlatList<Msg>>(null);
+
+  // Restore messages from storage on mount / when user changes
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const raw = await storage.getItem<string>(chatKey(user.id), "");
+      if (cancelled) return;
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as Msg[];
+          if (Array.isArray(parsed)) setMessages(parsed);
+        } catch {
+          // corrupt storage — reset
+          await storage.removeItem(chatKey(user.id));
+        }
+      } else {
+        setMessages([]);
+      }
+      setRestored(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // Persist messages whenever they change (after initial restore)
+  useEffect(() => {
+    if (!user || !restored) return;
+    const trimmed = messages.slice(-MAX_STORED);
+    void storage.setItem(chatKey(user.id), JSON.stringify(trimmed));
+  }, [messages, user, restored]);
 
   const send = useCallback(async () => {
     const question = input.trim();
@@ -37,6 +76,12 @@ export default function AskAiScreen() {
     }
   }, [input, loading]);
 
+  const clearChat = useCallback(async () => {
+    if (!user) return;
+    setMessages([]);
+    await storage.removeItem(chatKey(user.id));
+  }, [user]);
+
   const data: Msg[] = messages.length === 0
     ? [{ id: "welcome", role: "ai", text: t("askAiWelcome") }]
     : messages;
@@ -49,6 +94,17 @@ export default function AskAiScreen() {
           <Text style={styles.title}>{t("askAiTitle")}</Text>
           <Text style={styles.subtitle}>{t("askAiSubtitle")}</Text>
         </View>
+        {messages.length > 0 ? (
+          <TouchableOpacity
+            testID="clear-chat-button"
+            style={styles.clearBtn}
+            onPress={clearChat}
+            accessibilityLabel={t("clearChat")}
+            hitSlop={8}
+          >
+            <Ionicons name="trash-outline" size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={80} style={{ flex: 1 }}>
@@ -108,6 +164,7 @@ const styles = StyleSheet.create({
   headerIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.aiBlue, alignItems: "center", justifyContent: "center" },
   title: { fontSize: FONT.h2, fontWeight: "800", color: COLORS.textPrimary },
   subtitle: { fontSize: FONT.label, color: COLORS.textSecondary },
+  clearBtn: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.bgAlt },
   list: { padding: SIZE.m, gap: SIZE.s, paddingBottom: SIZE.m },
   bubble: { padding: SIZE.m, borderRadius: SIZE.radiusLg, marginBottom: SIZE.s, maxWidth: "88%" },
   aiBubble: { backgroundColor: COLORS.bgSurface, borderWidth: 1, borderColor: COLORS.border, alignSelf: "flex-start" },

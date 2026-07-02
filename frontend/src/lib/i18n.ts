@@ -60,6 +60,44 @@ export const translations = {
     en: "This app provides general dietary guidance for CKD/dialysis patients. Always consult your nephrologist for personal targets.",
     hi: "यह ऐप CKD/डायलिसिस रोगियों के लिए सामान्य आहार मार्गदर्शन देता है। व्यक्तिगत लक्ष्य के लिए हमेशा अपने नेफ्रोलॉजिस्ट से सलाह लें।",
   },
+  reviewDisclaimer: { en: "Review medical disclaimer", hi: "चिकित्सा अस्वीकरण देखें" },
+
+  // Full-screen disclaimer
+  disclaimerScreenTitle: { en: "Before you begin", hi: "शुरू करने से पहले" },
+  disclaimerScreenLead: {
+    en: "This app is an educational tool. It is not medical advice, diagnosis or treatment.",
+    hi: "यह ऐप एक शैक्षणिक साधन है। यह चिकित्सा सलाह, निदान या उपचार नहीं है।",
+  },
+  disclaimerP1: {
+    en: "Food safety colors (Green/Yellow/Red) are general guidance for CKD and dialysis patients — not a substitute for your care team's advice.",
+    hi: "भोजन सुरक्षा रंग (हरा/पीला/लाल) CKD और डायलिसिस रोगियों के लिए सामान्य मार्गदर्शन हैं — यह आपकी चिकित्सा टीम की सलाह का विकल्प नहीं है।",
+  },
+  disclaimerP2: {
+    en: "Always follow the personal potassium, phosphorus, sodium and fluid targets your nephrologist has set for you.",
+    hi: "अपने नेफ्रोलॉजिस्ट द्वारा तय किए गए व्यक्तिगत पोटैशियम, फ़ॉस्फ़ोरस, सोडियम और तरल लक्ष्यों का हमेशा पालन करें।",
+  },
+  disclaimerP3: {
+    en: "The AI food scanner and Ask-AI answers may be inaccurate. Do not act on them without confirming with your care team.",
+    hi: "AI भोजन स्कैनर और Ask-AI उत्तर गलत भी हो सकते हैं। इन्हें अपनी चिकित्सा टीम से पुष्टि किए बिना न मानें।",
+  },
+  disclaimerAccept: { en: "I understand", hi: "मैं समझ गया / गयी" },
+  disclaimerClose: { en: "Close", hi: "बंद करें" },
+
+  // Error state
+  somethingWrong: { en: "Something went wrong", hi: "कुछ गलत हो गया" },
+  couldNotLoad: { en: "We couldn't load this. Please check your connection and try again.", hi: "हम यह लोड नहीं कर सके। कृपया कनेक्शन जाँचें और पुनः प्रयास करें।" },
+  retry: { en: "Retry", hi: "पुनः प्रयास" },
+
+  // Filters
+  filterAll: { en: "All", hi: "सभी" },
+
+  // Meal-log date nav
+  today: { en: "Today", hi: "आज" },
+  prevDay: { en: "Previous day", hi: "पिछला दिन" },
+  nextDay: { en: "Next day", hi: "अगला दिन" },
+
+  // Ask AI
+  clearChat: { en: "Clear chat", hi: "बातचीत साफ़ करें" },
 
   // Onboarding
   onboardingWelcome: { en: "Welcome!", hi: "स्वागत है!" },
