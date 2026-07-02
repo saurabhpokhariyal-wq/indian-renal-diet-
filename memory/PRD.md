@@ -75,3 +75,28 @@ See `/app/memory/test_credentials.md`.
     bars (green→yellow→red at 60%/90% thresholds). Tier badges remain on items.
   - Food detail shows a per-portion nutrient table (fluid cell hidden for
     solids). Weekly report screen adds an avg-nutrient card.
+- Iteration 6 (health profile extension + AI patient context): 16/16 backend + full frontend ✅
+  - `UserOut` extended with `diabetic:bool` and `doctor_limits:{K?,P?,Na?,fluid?}|null`.
+  - New `PATCH /api/auth/profile` (partial) with `model_fields_set` semantics:
+    absent = no-op, `null` = explicit clear, empty-object = clear.
+  - Stage-based default limits: dialysis {K:2000,P:1000,Na:2000},
+    pre-dialysis / unknown {K:2400,P:1200,Na:2300}. Doctor-set values win
+    per-field, with unspecified fields falling back to defaults. Used by both
+    `/meal-logs/summary` and `/reports/weekly`.
+  - `personal_tier_for()` now also SOFTENS: pre_dialysis + YELLOW +
+    POTASSIUM → GREEN, with a KDOQI-2020 individualized-guidance note
+    surfaced via new `personalized_note` field. Sodium & phosphorus items
+    are NEVER softened.
+  - Ask AI accepts `lang` and builds a "PATIENT CONTEXT" system-prompt block
+    (stage, diabetic flag, doctor/default limits, today's nutrient totals);
+    when `lang=hi` the model is instructed to reply in Hindi Devanagari.
+  - Frontend: 3-step onboarding (stage → diabetic → optional doctor limits
+    with skip), Settings health-profile card (stage pills, diabetic switch,
+    editable K/P/Na limits + Save + Using-defaults reset), Food detail
+    surfaces `personalized-note` and a stage-neutral "Softened/Tightened
+    for your stage" chip, Ask AI passes the current UI language.
+- Iteration 7 (spot-fix confirmation): 6/6 backend + 3/3 frontend ✅
+  - `{"doctor_limits":null}` now correctly clears via `model_fields_set`.
+  - Food detail chip is stage-neutral and dynamic.
+  - Stale limit assertions in `test_nutrient_budget.py` updated to new
+    2400/1200/2300 defaults for unknown-stage users.
