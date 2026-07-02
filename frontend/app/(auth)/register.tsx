@@ -30,7 +30,7 @@ export default function Register() {
     setLoading(true);
     try {
       await signUp(email.trim(), password, fullName.trim() || undefined);
-      router.replace("/(app)");
+      router.replace("/");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Registration failed");
     } finally {
