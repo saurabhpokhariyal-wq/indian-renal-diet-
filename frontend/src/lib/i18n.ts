@@ -99,6 +99,18 @@ export const translations = {
   // Ask AI
   clearChat: { en: "Clear chat", hi: "बातचीत साफ़ करें" },
 
+  // Nutrients
+  nutrientPotassium: { en: "Potassium", hi: "पोटैशियम" },
+  nutrientPhosphorus: { en: "Phosphorus", hi: "फ़ॉस्फ़ोरस" },
+  nutrientSodium: { en: "Sodium", hi: "सोडियम" },
+  nutrientProtein: { en: "Protein", hi: "प्रोटीन" },
+  nutrientFluid: { en: "Fluid", hi: "तरल" },
+  perPortion: { en: "Per portion", hi: "प्रति सर्विंग" },
+  todaysBudget: { en: "Today's budget", hi: "आज का बजट" },
+  ofLimit: { en: "of", hi: "/" },
+  avgDaily: { en: "Average daily nutrients", hi: "प्रतिदिन औसत पोषक तत्व" },
+  avgVsLimit: { en: "Avg / daily limit", hi: "औसत / दैनिक सीमा" },
+
   // Onboarding
   onboardingWelcome: { en: "Welcome!", hi: "स्वागत है!" },
   onboardingIntro: {

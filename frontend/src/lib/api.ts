@@ -55,6 +55,12 @@ export interface FoodOut {
   primary_risk_factor: string;
   portion_limit_text: string;
   actionable_clinical_tip: string;
+  portion_g: number;
+  potassium_mg: number;
+  phosphorus_mg: number;
+  sodium_mg: number;
+  protein_g: number;
+  fluid_ml: number;
   personal_tier?: SafetyTier | null;
   is_favorite?: boolean;
 }
@@ -101,6 +107,27 @@ export interface WeeklyReportDay {
   red: number;
 }
 
+export interface NutrientTotals {
+  potassium_mg: number;
+  phosphorus_mg: number;
+  sodium_mg: number;
+  protein_g: number;
+  fluid_ml: number;
+}
+
+export interface NutrientLimits {
+  potassium_mg: number;
+  phosphorus_mg: number;
+  sodium_mg: number;
+}
+
+export interface MealLogSummary {
+  date: string;
+  total_meals: number;
+  totals: NutrientTotals;
+  limits: NutrientLimits;
+}
+
 export interface WeeklyReport {
   start_date: string;
   end_date: string;
@@ -111,6 +138,8 @@ export interface WeeklyReport {
   days: WeeklyReportDay[];
   top_safe_foods: string[];
   top_avoid_foods: string[];
+  avg_daily: NutrientTotals;
+  limits: NutrientLimits;
 }
 
 export interface FoodScan {
@@ -155,6 +184,8 @@ export const api = {
 
   listMealLogs: (date: string) =>
     request<MealLogOut[]>(`/meal-logs?date=${encodeURIComponent(date)}`, {}, true),
+  getMealSummary: (date: string) =>
+    request<MealLogSummary>(`/meal-logs/summary?date=${encodeURIComponent(date)}`, {}, true),
   addMealLog: (food_id: string, date: string, meal_type: string = "meal") =>
     request<MealLogOut>(
       "/meal-logs",

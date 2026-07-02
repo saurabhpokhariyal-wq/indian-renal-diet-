@@ -165,6 +165,12 @@ class FoodOut(BaseModel):
     primary_risk_factor: str
     portion_limit_text: str
     actionable_clinical_tip: str
+    portion_g: float = 0
+    potassium_mg: float = 0
+    phosphorus_mg: float = 0
+    sodium_mg: float = 0
+    protein_g: float = 0
+    fluid_ml: float = 0
     personal_tier: Optional[str] = None
     is_favorite: bool = False
 
@@ -241,6 +247,27 @@ class WeeklyReportDay(BaseModel):
     red: int
 
 
+class NutrientTotals(BaseModel):
+    potassium_mg: float
+    phosphorus_mg: float
+    sodium_mg: float
+    protein_g: float
+    fluid_ml: float
+
+
+class NutrientLimits(BaseModel):
+    potassium_mg: float = 2000
+    phosphorus_mg: float = 1000
+    sodium_mg: float = 2000
+
+
+class MealLogSummary(BaseModel):
+    date: str
+    total_meals: int
+    totals: NutrientTotals
+    limits: NutrientLimits
+
+
 class WeeklyReportResponse(BaseModel):
     start_date: str
     end_date: str
@@ -251,6 +278,8 @@ class WeeklyReportResponse(BaseModel):
     days: List[WeeklyReportDay]
     top_safe_foods: List[str]
     top_avoid_foods: List[str]
+    avg_daily: NutrientTotals
+    limits: NutrientLimits
 
 
 # -------- Personalization --------
@@ -280,6 +309,12 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         primary_risk_factor=food["primary_risk_factor"],
         portion_limit_text=food["portion_limit_text"],
         actionable_clinical_tip=food["actionable_clinical_tip"],
+        portion_g=food.get("portion_g", 0),
+        potassium_mg=food.get("potassium_mg", 0),
+        phosphorus_mg=food.get("phosphorus_mg", 0),
+        sodium_mg=food.get("sodium_mg", 0),
+        protein_g=food.get("protein_g", 0),
+        fluid_ml=food.get("fluid_ml", 0),
         personal_tier=personal_tier_for(food, stage),
         is_favorite=food["id"] in fav_ids,
     )
@@ -519,6 +554,7 @@ async def weekly_report(
     day_map: dict = {(start + timedelta(days=i)).isoformat(): {"green": 0, "yellow": 0, "red": 0} for i in range(7)}
     name_by_tier: dict = {"GREEN": {}, "YELLOW": {}, "RED": {}}
     totals = {"GREEN": 0, "YELLOW": 0, "RED": 0}
+    nutrient_totals = {"potassium_mg": 0.0, "phosphorus_mg": 0.0, "sodium_mg": 0.0, "protein_g": 0.0, "fluid_ml": 0.0}
 
     for log in logs:
         food = foods_by_id.get(log["food_id"])
@@ -529,6 +565,8 @@ async def weekly_report(
         bucket = day_map.setdefault(log["date"], {"green": 0, "yellow": 0, "red": 0})
         bucket[tier.lower()] += 1
         name_by_tier[tier][food["name"]] = name_by_tier[tier].get(food["name"], 0) + 1
+        for k in nutrient_totals:
+            nutrient_totals[k] += float(food.get(k, 0) or 0)
 
     def top(d: dict, n: int = 3) -> List[str]:
         return [k for k, _ in sorted(d.items(), key=lambda kv: kv[1], reverse=True)[:n]]
@@ -537,6 +575,13 @@ async def weekly_report(
         WeeklyReportDay(date=d, green=v["green"], yellow=v["yellow"], red=v["red"])
         for d, v in sorted(day_map.items())
     ]
+    avg_daily = NutrientTotals(
+        potassium_mg=round(nutrient_totals["potassium_mg"] / 7, 1),
+        phosphorus_mg=round(nutrient_totals["phosphorus_mg"] / 7, 1),
+        sodium_mg=round(nutrient_totals["sodium_mg"] / 7, 1),
+        protein_g=round(nutrient_totals["protein_g"] / 7, 1),
+        fluid_ml=round(nutrient_totals["fluid_ml"] / 7, 1),
+    )
     return WeeklyReportResponse(
         start_date=start_s,
         end_date=end_s,
@@ -547,6 +592,51 @@ async def weekly_report(
         days=days,
         top_safe_foods=top(name_by_tier["GREEN"]),
         top_avoid_foods=top(name_by_tier["RED"]),
+        avg_daily=avg_daily,
+        limits=NutrientLimits(),
+    )
+
+
+@api.get("/meal-logs/summary", response_model=MealLogSummary)
+async def meal_log_summary(
+    date: str = Query(..., description="YYYY-MM-DD"),
+    current_user=Depends(get_current_user),
+):
+    try:
+        date_cls.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="date must be a valid YYYY-MM-DD calendar date")
+
+    logs = [
+        log
+        async for log in db.meal_logs.find(
+            {"user_id": current_user["id"], "date": date}, {"_id": 0}
+        )
+    ]
+    totals = {"potassium_mg": 0.0, "phosphorus_mg": 0.0, "sodium_mg": 0.0, "protein_g": 0.0, "fluid_ml": 0.0}
+    if logs:
+        food_ids = list({log["food_id"] for log in logs})
+        foods_by_id: dict = {}
+        async for f in db.foods.find({"id": {"$in": food_ids}}, {"_id": 0}):
+            foods_by_id[f["id"]] = f
+        for log in logs:
+            food = foods_by_id.get(log["food_id"])
+            if not food:
+                continue
+            for k in totals:
+                totals[k] += float(food.get(k, 0) or 0)
+
+    return MealLogSummary(
+        date=date,
+        total_meals=len(logs),
+        totals=NutrientTotals(
+            potassium_mg=round(totals["potassium_mg"], 1),
+            phosphorus_mg=round(totals["phosphorus_mg"], 1),
+            sodium_mg=round(totals["sodium_mg"], 1),
+            protein_g=round(totals["protein_g"], 1),
+            fluid_ml=round(totals["fluid_ml"], 1),
+        ),
+        limits=NutrientLimits(),
     )
 
 

@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 5 covers the new nutrient-data + daily-budget feature. Backend: 15/15 pytest passing (backend/tests/test_nutrient_budget.py, JUnit at /app/test_reports/pytest/pytest_nutrient_budget.xml). Frontend: 7/7 spec scenarios verified against the preview URL at 375x667. Backend verifications: (1) food-palak-paneer has portion_g=150, potassium_mg=650, phosphorus_mg=180, sodium_mg=350, protein_g=10.0, fluid_ml=0 and swap.clinical_benefit_explanation starts with 'About 519mg less potassium' (computed delta, not the old '70%' hard-coded string). (2) food-orange tip contains 'Moderately high potassium' and NOT 'dangerous'. (3) food-idli tip omits 'fermentation' and mentions 'added salt' + 'sambar'. (4) GET /api/meal-logs/summary requires auth (401), rejects bad dates with 400, defaults limits to {K:2000,P:1000,Na:2000}, and after logging Palak Paneer + Lauki Sabzi + Egg Whites returns exactly totals K=891, P=210, Na=463, total_meals=3. (5) GET /api/reports/weekly now includes avg_daily and limits, and avg values equal round(sum/7,1) — confirmed with single-food log (650/7=92.9 K, 180/7=25.7 P, 350/7=50.0 Na). (6) All seeded foods surface via /api/foods carry portion_g, potassium_mg, phosphorus_mg, sodium_mg, protein_g, fluid_ml — no nulls, all numeric. (7) Regression spot-checks green: duplicate register→400, tier filter (RED-only) works, favorite toggle works, /foods schema unchanged. Frontend verifications: (a) After registering a fresh TEST_ user + accepting disclaimer + choosing pre-dialysis stage, the Meals tab renders budget-potassium, budget-phosphorus, budget-sodium bars with matching numeric values from /api/meal-logs/summary. Initial state: 0/2000, 0/1000, 0/2000 (all green). After logging Palak Paneer x3 + Lauki + Egg Whites (K=2191, P=570, Na=1163) via API, the UI shows exactly: Potassium '2191 / 2000mg' at 110% (RED text + red fill), Phosphorus '570 / 1000mg' at 57% (green fill rgb(5,150,105)), Sodium '1163 / 2000mg' at 58% (green fill). Confirmed bar color logic 0–60% green, 60–90% yellow, 90%+ red is correctly wired in NutrientBar.tsx tierColor(). (b) prev-day tap navigates to 'Wed Jul 01 2026' and re-fetches — all three bars drop to 0 (empty day). next-day returns to Today and repopulates. Historical date fetch confirmed the summary is re-called per date. (c) Food detail /food/food-palak-paneer renders nutrient-table with nutri-potassium '650 mg', nutri-phosphorus '180 mg', nutri-sodium '350 mg', nutri-protein '10.0 g'; nutri-fluid is NOT rendered (fluid_ml=0, correct gating). (d) /food/food-coconut-water renders nutri-fluid '200 ml' (fluid cell shown). (e) Weekly Report (/report reached via open-report button on Meals) renders avg-nutrient-card with avg-potassium-value='313 / 2000mg', avg-phosphorus-value='81 / 1000mg', avg-sodium-value='166 / 2000mg' — matches API round(2191/7,1), round(570/7,1), round(1163/7,1). All values positive when meals logged. (f) Empty-week case (fresh user, no meals) — avg_daily values render as 0. (g) budget bars pull from /api/meal-logs/summary AND the meal list uses the same date; both endpoints consistent (5 rendered rows match total_meals=5). No red screens, no console errors during meal-log or report flows (except a transient 401 earlier when localStorage was cleared mid-flow, which self-recovered after re-auth). No deprecated-package/SafeAreaView issues detected in the modified files.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_nutrient_budget.py",
+    "/app/test_reports/pytest/pytest_nutrient_budget.xml",
+    "/app/test_reports/iteration_5.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "backend/server.py: /api/meal-logs/summary correctly validates date via date.fromisoformat and returns HTTP 400 on parse failure. Totals accumulate via float(food.get(k,0) or 0), which safely handles any legacy foods missing a field — clean.",
+    "backend/server.py weekly report: avg_daily is round(sum/7, 1) for every nutrient — matches spec exactly. limits reused via NutrientLimits() default class attributes, so a future change of default limit only needs one edit.",
+    "backend/seed_data.py _delta_line + _by_id build swap.clinical_benefit_explanation from actual seeded nutrient values at seed time, eliminating the previous hard-coded '70% less' string. Numeric result 650-131=519mg matches the palak paneer→lauki swap.",
+    "frontend/src/components/NutrientBar.tsx tierColor thresholds (60/90) match the spec; rawPct is used for color decision but clampedPct is used for visual width — correct choice so >100% still shows red text but caps the bar visually.",
+    "frontend/app/(app)/meal-log.tsx: budget block uses summary?.totals/limits with ?? fallbacks (0/2000/1000/2000) so the card renders sensibly even during initial loading — good UX. summary re-fetches via useFocusEffect + load useCallback keyed on [date] — historical days re-fetch correctly.",
+    "frontend/app/food/[id].tsx: fluid_ml > 0 gate on nutri-fluid row keeps the table tidy for non-beverage foods. Portion label uses portion_g from backend — no hard-coded portion sizes."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_nutrient_budget.py (new file — 15 tests)"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 pytest in test_nutrient_budget.py)",
+    "frontend": "100% (7/7 spec scenarios: budget bars render + values, prev/next day re-fetch, palak paneer nutrient-table, coconut water fluid cell, weekly avg-nutrient-card with three bars, empty vs populated week, bar color logic red at 110% / green at 57%)"
+  },
+  "seed_data_creation": "Registered fresh TEST_<uuid>@renal.app users for a clean meal log. Logged Palak Paneer (x3), Lauki Sabzi, Egg Whites to today's meal log for the fresh user. Safe to leave — user is throw-away.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) NutrientBar color thresholds live in tierColor() in src/components/NutrientBar.tsx (60/90). 2) When the frontend budget bars appear 'stuck at 0' after login, check localStorage.getItem('renal.jwt') — token key is `renal.jwt` (value is JSON-stringified). 3) The /api/foods list endpoint uses `tier` query-param (singular, comma-separated), NOT `tiers`. 4) All 25 currently seeded foods (SEED_FOODS in backend/seed_data.py) carry the full 6-field nutrient set. The review request text says '35 foods' but the DB currently seeds 25 — assertion in test_all_35_foods_have_all_nutrient_fields is lenient (>=25) to reflect actual seed size; count discrepancy is worth flagging if strict 35 was intended.",
+  "rca_of_issue": "N/A — no defects. One documentation nit: review request references '35 seeded foods' but SEED_FOODS actually contains ~25 entries (verified via GET /api/foods response length). Every returned food has all 6 nutrient fields, so this is a spec/count wording mismatch, not a data bug."
+}

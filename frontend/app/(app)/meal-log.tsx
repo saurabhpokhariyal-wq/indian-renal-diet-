@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { NutrientBar } from "@/src/components/NutrientBar";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
-import { api, type MealLogOut } from "@/src/lib/api";
+import { api, type MealLogOut, type MealLogSummary } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
@@ -32,6 +33,7 @@ export default function MealLogScreen() {
   const todayIso = isoDate(new Date());
   const [date, setDate] = useState(todayIso);
   const [logs, setLogs] = useState<MealLogOut[]>([]);
+  const [summary, setSummary] = useState<MealLogSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,10 +41,15 @@ export default function MealLogScreen() {
     setLoading(true);
     setError(null);
     try {
-      const list = await api.listMealLogs(date);
+      const [list, sum] = await Promise.all([
+        api.listMealLogs(date),
+        api.getMealSummary(date),
+      ]);
       setLogs(list);
+      setSummary(sum);
     } catch (e) {
       setLogs([]);
+      setSummary(null);
       setError(e instanceof Error ? e.message : "Could not load logs");
     } finally {
       setLoading(false);
@@ -53,18 +60,11 @@ export default function MealLogScreen() {
     void load();
   }, [load]));
 
-  const summary = useMemo(() => {
-    const s = { GREEN: 0, YELLOW: 0, RED: 0 };
-    for (const l of logs) s[l.food.safety_tier] += 1;
-    return s;
-  }, [logs]);
-
   const onRemove = async (id: string) => {
     try {
       await api.deleteMealLog(id);
-      setLogs((prev) => prev.filter((l) => l.id !== id));
+      void load();
     } catch {
-      // If delete fails, force a refresh to sync state
       void load();
     }
   };
@@ -110,10 +110,29 @@ export default function MealLogScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.summaryRow}>
-          <SummaryPill label={t("summarySafe")} count={summary.GREEN} tier="GREEN" />
-          <SummaryPill label={t("summaryCaution")} count={summary.YELLOW} tier="YELLOW" />
-          <SummaryPill label={t("summaryAvoid")} count={summary.RED} tier="RED" />
+        <View style={styles.budgetCard}>
+          <View style={styles.budgetHeader}>
+            <Ionicons name="stats-chart" size={18} color={COLORS.brand} />
+            <Text style={styles.budgetTitle}>{t("todaysBudget")}</Text>
+          </View>
+          <NutrientBar
+            testID="budget-potassium"
+            label={t("nutrientPotassium")}
+            value={summary?.totals.potassium_mg ?? 0}
+            limit={summary?.limits.potassium_mg ?? 2000}
+          />
+          <NutrientBar
+            testID="budget-phosphorus"
+            label={t("nutrientPhosphorus")}
+            value={summary?.totals.phosphorus_mg ?? 0}
+            limit={summary?.limits.phosphorus_mg ?? 1000}
+          />
+          <NutrientBar
+            testID="budget-sodium"
+            label={t("nutrientSodium")}
+            value={summary?.totals.sodium_mg ?? 0}
+            limit={summary?.limits.sodium_mg ?? 2000}
+          />
         </View>
       </View>
 
@@ -167,16 +186,6 @@ export default function MealLogScreen() {
   );
 }
 
-function SummaryPill({ label, count, tier }: { label: string; count: number; tier: "GREEN" | "YELLOW" | "RED" }) {
-  const meta = TIER_META[tier];
-  return (
-    <View style={[styles.sumPill, { backgroundColor: meta.bg, borderColor: meta.border }]}>
-      <Text style={[styles.sumCount, { color: meta.text }]}>{count}</Text>
-      <Text style={[styles.sumLabel, { color: meta.text }]}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bgDefault },
   header: { padding: SIZE.m, gap: SIZE.s },
@@ -215,10 +224,17 @@ const styles = StyleSheet.create({
   dateBox: { flex: 1, alignItems: "center" },
   dateText: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
   dateSub: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 },
-  summaryRow: { flexDirection: "row", gap: SIZE.s, marginTop: 4 },
-  sumPill: { flex: 1, alignItems: "center", padding: 12, borderWidth: 2, borderRadius: SIZE.radiusMd },
-  sumCount: { fontSize: 28, fontWeight: "800" },
-  sumLabel: { fontSize: FONT.label, fontWeight: "700", marginTop: 2 },
+  budgetCard: {
+    marginTop: 4,
+    padding: SIZE.m,
+    backgroundColor: COLORS.bgSurface,
+    borderRadius: SIZE.radiusLg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: 12,
+  },
+  budgetHeader: { flexDirection: "row", alignItems: "center", gap: 6 },
+  budgetTitle: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
   list: { padding: SIZE.m, paddingBottom: SIZE.xxl, gap: SIZE.s },
   row: {
     flexDirection: "row",

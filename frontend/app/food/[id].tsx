@@ -16,6 +16,15 @@ function today(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+function NutriCell({ label, value, testID }: { label: string; value: string; testID?: string }) {
+  return (
+    <View testID={testID} style={styles.nutriCell}>
+      <Text style={styles.nutriLabel}>{label}</Text>
+      <Text style={styles.nutriValue}>{value}</Text>
+    </View>
+  );
+}
+
 export default function FoodDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useLang();
@@ -139,6 +148,27 @@ export default function FoodDetailScreen() {
           <Text testID="detail-tip" style={styles.sectionBody}>{detail.food.actionable_clinical_tip}</Text>
         </View>
 
+        <View testID="nutrient-table" style={styles.section}>
+          <View style={styles.sectionHead}>
+            <Ionicons name="analytics-outline" size={20} color={COLORS.brand} />
+            <Text style={styles.sectionTitle}>{t("perPortion")} ({Math.round(detail.food.portion_g)}g)</Text>
+          </View>
+          <View style={styles.nutriRow}>
+            <NutriCell label={t("nutrientPotassium")} value={`${Math.round(detail.food.potassium_mg)} mg`} testID="nutri-potassium" />
+            <NutriCell label={t("nutrientPhosphorus")} value={`${Math.round(detail.food.phosphorus_mg)} mg`} testID="nutri-phosphorus" />
+          </View>
+          <View style={styles.nutriRow}>
+            <NutriCell label={t("nutrientSodium")} value={`${Math.round(detail.food.sodium_mg)} mg`} testID="nutri-sodium" />
+            <NutriCell label={t("nutrientProtein")} value={`${detail.food.protein_g.toFixed(1)} g`} testID="nutri-protein" />
+          </View>
+          {detail.food.fluid_ml > 0 ? (
+            <View style={styles.nutriRow}>
+              <NutriCell label={t("nutrientFluid")} value={`${Math.round(detail.food.fluid_ml)} ml`} testID="nutri-fluid" />
+              <View style={{ flex: 1 }} />
+            </View>
+          ) : null}
+        </View>
+
         {detail.swap ? (
           <SmartSwapCard
             swap={detail.swap}
@@ -206,6 +236,16 @@ const styles = StyleSheet.create({
   sectionHead: { flexDirection: "row", alignItems: "center", gap: 8 },
   sectionTitle: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
   sectionBody: { fontSize: FONT.bodyL, color: COLORS.textPrimary, lineHeight: 26 },
+  nutriRow: { flexDirection: "row", gap: SIZE.s, marginTop: 4 },
+  nutriCell: {
+    flex: 1,
+    padding: 12,
+    backgroundColor: COLORS.bgAlt,
+    borderRadius: SIZE.radiusMd,
+    gap: 2,
+  },
+  nutriLabel: { fontSize: FONT.label, color: COLORS.textSecondary, fontWeight: "600" },
+  nutriValue: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
   addBtn: {
     marginTop: SIZE.s,
     flexDirection: "row",
