@@ -503,12 +503,15 @@ async def set_stage(body: StageUpdate, current_user=Depends(get_current_user)):
 @api.patch("/auth/profile", response_model=UserOut)
 async def update_profile(body: ProfileUpdate, current_user=Depends(get_current_user)):
     update: dict = {}
-    if body.diabetic is not None:
+    set_fields = body.model_fields_set
+    if "diabetic" in set_fields and body.diabetic is not None:
         update["diabetic"] = bool(body.diabetic)
-    if body.doctor_limits is not None:
-        # Normalize: if the caller sent an entirely empty payload, clear the limits.
-        dl = body.doctor_limits.model_dump(exclude_none=True)
-        update["doctor_limits"] = dl if dl else None
+    if "doctor_limits" in set_fields:
+        if body.doctor_limits is None:
+            update["doctor_limits"] = None  # explicit null clears
+        else:
+            dl = body.doctor_limits.model_dump(exclude_none=True)
+            update["doctor_limits"] = dl if dl else None
     if update:
         await db.users.update_one({"id": current_user["id"]}, {"$set": update})
         current_user.update(update)

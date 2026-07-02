@@ -91,7 +91,12 @@ export default function FoodDetailScreen() {
 
   const displayTier: SafetyTier = (detail.food.personal_tier as SafetyTier | undefined) || detail.food.safety_tier;
   const meta = TIER_META[displayTier];
-  const wasTightened = detail.food.personal_tier && detail.food.personal_tier !== detail.food.safety_tier;
+  const isPersonalized = detail.food.personal_tier && detail.food.personal_tier !== detail.food.safety_tier;
+  const personalizedLabel = detail.food.personal_tier === "GREEN" && detail.food.safety_tier === "YELLOW"
+    ? "Softened for your stage"
+    : detail.food.personal_tier === "RED" && detail.food.safety_tier === "YELLOW"
+      ? "Tightened for your stage"
+      : "Personalized for your stage";
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
@@ -114,11 +119,11 @@ export default function FoodDetailScreen() {
           <SafetyBadge tier={displayTier} labelOverride={lang === "hi" ? meta.labelHi : meta.label} />
           <Text testID="detail-name" style={styles.name}>{detail.food.name}</Text>
           <Text style={styles.hindi}>{detail.food.hindi_name}</Text>
-          {wasTightened ? (
+          {isPersonalized ? (
             <View style={styles.personalizedNote}>
               <Ionicons name="pulse" size={14} color={meta.text} />
               <Text style={[styles.personalizedText, { color: meta.text }]}>
-                Personalized for dialysis stage
+                {personalizedLabel}
               </Text>
             </View>
           ) : null}

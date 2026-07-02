@@ -143,9 +143,9 @@ class TestMealLogSummary:
         assert d["total_meals"] == 0
         assert d["totals"]["potassium_mg"] == 0
         assert d["limits"] == {
-            "potassium_mg": 2000,
-            "phosphorus_mg": 1000,
-            "sodium_mg": 2000,
+            "potassium_mg": 2400,
+            "phosphorus_mg": 1200,
+            "sodium_mg": 2300,
         }
 
     def test_summary_totals_after_logging(self, session):
@@ -174,9 +174,10 @@ class TestMealLogSummary:
         assert abs(d["totals"]["potassium_mg"] - 891) <= 1, d["totals"]
         assert abs(d["totals"]["phosphorus_mg"] - 210) <= 1, d["totals"]
         assert abs(d["totals"]["sodium_mg"] - 463) <= 1, d["totals"]
-        assert d["limits"]["potassium_mg"] == 2000
-        assert d["limits"]["phosphorus_mg"] == 1000
-        assert d["limits"]["sodium_mg"] == 2000
+        # Fresh user has stage=unknown → looser stage defaults
+        assert d["limits"]["potassium_mg"] == 2400
+        assert d["limits"]["phosphorus_mg"] == 1200
+        assert d["limits"]["sodium_mg"] == 2300
 
 
 # ==================== 4. Weekly report avg_daily + limits ====================
@@ -190,9 +191,9 @@ class TestWeeklyAvgDaily:
         assert "limits" in d
         assert d["avg_daily"]["potassium_mg"] == 0
         assert d["limits"] == {
-            "potassium_mg": 2000,
-            "phosphorus_mg": 1000,
-            "sodium_mg": 2000,
+            "potassium_mg": 2400,
+            "phosphorus_mg": 1200,
+            "sodium_mg": 2300,
         }
 
     def test_weekly_avg_daily_math(self, session):

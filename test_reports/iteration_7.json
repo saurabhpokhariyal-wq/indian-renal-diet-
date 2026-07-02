@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 7 spot-check of the two iteration-6 nits, per main-agent request (no full regression rerun). Backend: 6/6 new pytest in /app/backend/tests/test_iter7_fixes.py all PASS — (1) PATCH /auth/profile with {doctor_limits:{potassium_mg:1800}} persists partial limits and /me reflects it; (2) PATCH with {doctor_limits:null} explicitly clears (previously a no-op — now fixed via body.model_fields_set logic on server.py L506-514); (3) after clear, /meal-logs/summary reverts to stage-defaults 2400/1200/2300 for unknown-stage user; (4) empty-object {doctor_limits:{}} still clears (backward-compatible); (5) empty payload {} is a true no-op (both doctor_limits and diabetic preserved); (6) {diabetic:false} alone does NOT touch doctor_limits (regression guard for model_fields_set). Also re-ran /app/backend/tests/test_nutrient_budget.py — 15/15 PASS (the 3 previously-stale assertions now match the new 2400/1200/2300 unknown/pre_dialysis defaults). Frontend: registered a fresh TEST_ pre_dialysis user via API, seeded token into localStorage under keys 'renal.jwt' and '@renal.jwt' (AsyncStorage web fallback), navigated to /food/food-toor-dal — hero chip now reads 'Softened for your stage' (NOT the old 'Personalized for dialysis stage'), personalized-note KDOQI card still renders below. Switched user stage to dialysis via API and opened /food/food-atta-roti (YELLOW/PHOSPHORUS → RED tightened) — chip reads 'Tightened for your stage'. Neither old string 'Personalized for dialysis stage' nor the generic 'Personalized for your stage' appeared. Settings clear-limits: with {doctor_limits:{potassium_mg:1800}} set, settings-clear-limits was visible and settings-limits-default was hidden; after clicking clear, settings-clear-limits disappeared and settings-limits-default 'Using stage defaults' pill re-appeared, and /api/auth/me returned doctor_limits=null (server confirmed the null-payload clear worked). No red-screen, no console errors. No iteration-6 tests were re-run per main-agent instruction.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter7_fixes.py",
+    "/app/test_reports/pytest/pytest_iter7_fixes.xml",
+    "/app/test_reports/pytest/pytest_nutrient_budget.xml",
+    "/app/test_reports/iteration_7.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py L503-518 update_profile now uses body.model_fields_set to distinguish absent vs explicit-null vs explicit-empty — clean, idiomatic Pydantic-v2 fix. Semantics: {doctor_limits:null} clears; {doctor_limits:{}} clears; {doctor_limits:{k:v}} sets partial (other fields become None); payload without 'doctor_limits' key is no-op. Verified all 4 permutations pass.",
+    "frontend/app/food/[id].tsx L94-99 dynamic label: correctly branches on personal_tier == 'GREEN' && safety_tier == 'YELLOW' → 'Softened', personal_tier == 'RED' && safety_tier == 'YELLOW' → 'Tightened', else 'Personalized for your stage'. The isPersonalized guard (L94) ensures the chip only renders when personal_tier differs from safety_tier, so the fallback 'Personalized for your stage' is effectively unreachable given current backend logic (personal_tier only ever differs on YELLOW→GREEN or YELLOW→RED) — harmless dead branch, safe future-proofing.",
+    "frontend/app/(app)/settings.tsx clearLimits calls updateProfile({doctor_limits: null}) which now correctly hits the backend clear path.",
+    "test_nutrient_budget.py assertions updated to 2400/1200/2300 for unknown-stage users — matches DEFAULT_LIMITS_BY_STAGE['unknown'] in server.py."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter7_fixes.py (new — 6 pytest tests for doctor_limits semantics)",
+    "/app/test_reports/pytest/pytest_iter7_fixes.xml (new JUnit)",
+    "/app/test_reports/pytest/pytest_nutrient_budget.xml (refreshed)",
+    "/app/test_reports/iteration_7.json (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (6/6 new iter7 spot-check tests + 15/15 nutrient_budget tests)",
+    "frontend": "100% (Softened/Tightened labels verified on /food/food-toor-dal and /food/food-atta-roti; settings-clear-limits toggle + /me confirmation verified)"
+  },
+  "seed_data_creation": "Two fresh TEST_<uuid>@renal.app users registered for iter7 flows. Frontend user was set to pre_dialysis then switched to dialysis then had doctor_limits set-then-cleared during the Settings check.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) AsyncStorage on Expo web stores auth token under key 'renal.jwt' (also '@renal.jwt' as a safety) — set both when seeding auth via API+localStorage. TOKEN_KEY constant is in /app/frontend/src/lib/auth-context.tsx L19. 2) When testing PATCH /auth/profile behavior, remember: absent key = no-op, explicit null = clear, empty object = clear, partial object = replace whole doctor_limits with those fields (others become null). 3) The personalized chip appears on the food hero card (inside heroCard View, above riskChip), NOT inside the personalized-note testid card. 4) Both iter6 issues from prior report are resolved and re-verified in this iteration.",
+  "rca_of_issue": "N/A — both fixes work as specified. Prior iter-6 gaps (a) 'Personalized for dialysis stage' hardcoded copy and (b) {doctor_limits:null} being a no-op are both now closed."
+}
