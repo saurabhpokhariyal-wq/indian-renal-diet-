@@ -1,0 +1,176 @@
+{
+  "theme": "Light",
+  "archetype": "Organic & Earthy",
+  "typography": {
+    "font_families": {
+      "primary": "Outfit, system-ui, sans-serif",
+      "devanagari": "Mukta, Noto Sans Devanagari, sans-serif"
+    },
+    "scale": {
+      "h1": "32px",
+      "h2": "28px",
+      "h3": "24px",
+      "body_large": "20px",
+      "body": "18px",
+      "label": "16px"
+    },
+    "weights": {
+      "regular": "400",
+      "semibold": "600",
+      "bold": "700"
+    }
+  },
+  "colors": {
+    "background": {
+      "default": "#FAFAF9",
+      "surface": "#FFFFFF",
+      "surface_alt": "#F5F5F4"
+    },
+    "text": {
+      "primary": "#1C1917",
+      "secondary": "#44403C",
+      "inverse": "#FFFFFF"
+    },
+    "brand": {
+      "primary": "#2F5233",
+      "primary_hover": "#1E3B22"
+    },
+    "safety": {
+      "green_safe": {
+        "text": "#064E3B",
+        "bg": "#D1FAE5",
+        "border": "#34D399",
+        "icon": "check-circle",
+        "shape": "circle"
+      },
+      "yellow_caution": {
+        "text": "#78350F",
+        "bg": "#FEF3C7",
+        "border": "#FBBF24",
+        "icon": "alert-triangle",
+        "shape": "triangle"
+      },
+      "red_danger": {
+        "text": "#7F1D1D",
+        "bg": "#FEE2E2",
+        "border": "#F87171",
+        "icon": "alert-octagon",
+        "shape": "octagon"
+      }
+    }
+  },
+  "spacing": {
+    "base": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px",
+    "xxl": "48px",
+    "touch_target_min": "44px",
+    "touch_target_primary": "56px"
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "height": "56px",
+        "border_radius": "28px",
+        "text_size": "20px",
+        "font_weight": "bold",
+        "bg": "#2F5233",
+        "text_color": "#FFFFFF"
+      }
+    },
+    "safety_card": {
+      "layout": "Row based. Left: Large food thumbnail (80x80px, rounded-lg). Right: English Name (20px bold), Hindi Name (18px regular, text-secondary). Top-Right/Floating: Safety Badge.",
+      "badge": "Displays Icon + Text (e.g. 'Safe'). Uses respective safety color background and dark text for 7:1 contrast.",
+      "clinical_tip": "Text block below the name, 16px text-secondary.",
+      "portion_limit": "Highlighted in bold text, inline or separate row.",
+      "styles": {
+        "border_width": "2px",
+        "border_radius": "16px",
+        "padding": "16px",
+        "shadow": "0px 4px 12px rgba(0,0,0,0.05)"
+      }
+    },
+    "smart_swap_card": {
+      "layout": "Nested directly under a RED food card. Visually connected but distinct.",
+      "header": "Contains 'Recommended Safe Swap' with a celebratory leaf icon.",
+      "content": "Displays GREEN food suggestion, Hindi name, and 'Why this is better' clinical explanation.",
+      "styles": {
+        "bg": "#F0FDF4",
+        "border": "2px dashed #22C55E",
+        "border_radius": "12px",
+        "padding": "20px",
+        "margin_top": "8px"
+      }
+    },
+    "search_bar": {
+      "height": "56px",
+      "border_radius": "28px",
+      "font_size": "18px",
+      "bg": "#F5F5F4",
+      "border": "1px solid #D6D3D1",
+      "icon": "search",
+      "padding_horizontal": "24px"
+    },
+    "ask_ai_button": {
+      "type": "Floating Action Button (FAB) or prominent bottom bar button.",
+      "bg": "#0284C7",
+      "text_color": "#FFFFFF",
+      "icon": "sparkles",
+      "size": "64px"
+    }
+  },
+  "screens": {
+    "login_register": {
+      "layout": "Large input fields (56px height), bold labels (18px), high contrast. 'Login' and 'Register' toggles.",
+      "background_image": "Use onboarding_hero image with heavy white/gradient overlay for readability."
+    },
+    "home_dashboard": {
+      "top": "Prominent Search Bar + Greeting",
+      "middle": "Quick categories or 'Recent Searches'",
+      "bottom_right": "Ask AI Floating Button"
+    },
+    "search_results": {
+      "layout": "Vertical list of Safety Cards. High spacing (gap-16px) between items. Clear GREEN/YELLOW/RED visual rhythm."
+    },
+    "food_detail": {
+      "layout": "Large hero image. Title section with Hindi + English. Safety badge large at top. Portion limit highlighted. Clinical tip section. If RED, Smart Swap Card prominently displayed at the bottom."
+    },
+    "meal_log": {
+      "layout": "Date selector. List of logged foods. Cumulative daily safety summary (e.g., '2 Safe, 1 Caution')."
+    },
+    "ai_chat": {
+      "layout": "Large text bubbles (18px). Voice input button (64px). Clean background."
+    },
+    "settings": {
+      "layout": "Large toggle for English/Hindi. High contrast text. Profile details."
+    }
+  },
+  "accessibility": {
+    "contrast": "Text must maintain at least 7:1 ratio against background. Safety badges use dark text on light backgrounds.",
+    "touch_targets": "Minimum 56px for primary CTAs, 44px for secondary.",
+    "color_coding": "Color is never the sole indicator. Badges must use distinct icons (Circle/Triangle/Octagon) and explicit text labels.",
+    "testing": "All interactive and key informational elements MUST include data-testid attribute.",
+    "language": "Hindi Devanagari script must be well-supported and render beautifully alongside English."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1767114915936-745dd372f1d8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHwxfHxwYWxhayUyMHBhbmVlciUyMGluZGlhbiUyMGZvb2R8ZW58MHx8fHwxNzgzMDA1NTk2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Palak Paneer Meal",
+        "category": "food_sample_green"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1670058124043-4f55e08d0f8f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHwyfHxmcmVzaCUyMHZlZ2V0YWJsZXMlMjBpbmRpYW4lMjBjdWlzaW5lfGVufDB8fHx8MTc4MzAwNTU5Nnww&ixlib=rb-4.1.0&q=85",
+        "description": "Table full of food",
+        "category": "food_sample_red"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1595837268690-c433b3ee403f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwyfHxlbGRlcmx5JTIwaW5kaWFuJTIwcGF0aWVudCUyMGhlYWx0aHxlbnwwfHx8fDE3ODMwMDU1OTZ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Elderly patient",
+        "category": "onboarding_hero"
+      }
+    ]
+  },
+  "instructions_to_main_agent": "Ensure the app uses React Native elements optimized for touch (min 56px CTAs). Implement clear visual contrast (7:1 for text). Use vector icons for the shapes in safety badges. Use StyleSheet or NativeWind to map the provided colors and spacing. Ensure all buttons, inputs, and pressables have data-testid."
+}
