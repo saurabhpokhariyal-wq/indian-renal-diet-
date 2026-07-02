@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { SmartSwapCard } from "@/src/components/SmartSwapCard";
-import { api, type FoodDetail } from "@/src/lib/api";
+import { api, type FoodDetail, type SafetyTier } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
@@ -23,6 +23,7 @@ export default function FoodDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [favBusy, setFavBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -53,6 +54,17 @@ export default function FoodDetailScreen() {
     }
   };
 
+  const onToggleFav = async () => {
+    if (!detail || favBusy) return;
+    setFavBusy(true);
+    try {
+      const res = await api.toggleFavorite(detail.food.id);
+      setDetail((prev) => (prev ? { ...prev, food: { ...prev.food, is_favorite: res.is_favorite } } : prev));
+    } finally {
+      setFavBusy(false);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -68,7 +80,9 @@ export default function FoodDetailScreen() {
     );
   }
 
-  const meta = TIER_META[detail.food.safety_tier];
+  const displayTier: SafetyTier = (detail.food.personal_tier as SafetyTier | undefined) || detail.food.safety_tier;
+  const meta = TIER_META[displayTier];
+  const wasTightened = detail.food.personal_tier && detail.food.personal_tier !== detail.food.safety_tier;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
@@ -77,16 +91,31 @@ export default function FoodDetailScreen() {
           <Ionicons name="chevron-back" size={26} color={COLORS.textPrimary} />
           <Text style={styles.backText}>{t("back")}</Text>
         </TouchableOpacity>
+        <TouchableOpacity testID="detail-favorite" onPress={onToggleFav} disabled={favBusy} style={styles.favBtn}>
+          <Ionicons
+            name={detail.food.is_favorite ? "star" : "star-outline"}
+            size={26}
+            color={detail.food.is_favorite ? COLORS.yellowStrong : COLORS.textSecondary}
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={[styles.heroCard, { borderColor: meta.border, backgroundColor: meta.bg }]}>
-          <SafetyBadge tier={detail.food.safety_tier} labelOverride={lang === "hi" ? meta.labelHi : meta.label} />
+          <SafetyBadge tier={displayTier} labelOverride={lang === "hi" ? meta.labelHi : meta.label} />
           <Text testID="detail-name" style={styles.name}>{detail.food.name}</Text>
           <Text style={styles.hindi}>{detail.food.hindi_name}</Text>
+          {wasTightened ? (
+            <View style={styles.personalizedNote}>
+              <Ionicons name="pulse" size={14} color={meta.text} />
+              <Text style={[styles.personalizedText, { color: meta.text }]}>
+                Personalized for dialysis stage
+              </Text>
+            </View>
+          ) : null}
           {detail.food.primary_risk_factor !== "NONE" ? (
             <View style={styles.riskChip}>
-              <Ionicons name="pulse" size={14} color={meta.text} />
+              <Ionicons name="alert" size={14} color={meta.text} />
               <Text style={[styles.riskText, { color: meta.text }]}>
                 {t("riskFactor")}: {detail.food.primary_risk_factor}
               </Text>
@@ -135,15 +164,27 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bgDefault },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   emptyText: { fontSize: FONT.bodyL, color: COLORS.textSecondary },
-  topBar: { padding: SIZE.m, paddingBottom: 0 },
-  backBtn: { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", paddingVertical: 6 },
+  topBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: SIZE.m, paddingBottom: 0 },
+  backBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingVertical: 6 },
   backText: { fontSize: FONT.bodyL, fontWeight: "600", color: COLORS.textPrimary },
+  favBtn: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   container: { padding: SIZE.m, gap: SIZE.m, paddingBottom: SIZE.xxl },
   heroCard: { borderWidth: 2, borderRadius: SIZE.radiusLg, padding: SIZE.l, gap: SIZE.s },
   name: { fontSize: FONT.h1, fontWeight: "800", color: COLORS.textPrimary },
   hindi: { fontSize: FONT.h3, color: COLORS.textSecondary, fontWeight: "500" },
-  riskChip: {
+  personalizedNote: {
     marginTop: SIZE.s,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.65)",
+  },
+  personalizedText: { fontSize: FONT.label, fontWeight: "700" },
+  riskChip: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,

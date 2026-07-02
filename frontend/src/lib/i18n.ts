@@ -60,6 +60,55 @@ export const translations = {
     en: "This app provides general dietary guidance for CKD/dialysis patients. Always consult your nephrologist for personal targets.",
     hi: "यह ऐप CKD/डायलिसिस रोगियों के लिए सामान्य आहार मार्गदर्शन देता है। व्यक्तिगत लक्ष्य के लिए हमेशा अपने नेफ्रोलॉजिस्ट से सलाह लें।",
   },
+
+  // Onboarding
+  onboardingWelcome: { en: "Welcome!", hi: "स्वागत है!" },
+  onboardingIntro: {
+    en: "Tell us your stage so we can personalize food safety guidance for you.",
+    hi: "अपनी अवस्था बताएँ ताकि हम आपके लिए भोजन सुरक्षा मार्गदर्शन को व्यक्तिगत बना सकें।",
+  },
+  stagePreDialysis: { en: "Pre-dialysis CKD", hi: "प्री-डायलिसिस CKD" },
+  stagePreDialysisDesc: {
+    en: "You have chronic kidney disease but are not yet on dialysis.",
+    hi: "आपको दीर्घकालिक किडनी रोग है पर अभी डायलिसिस पर नहीं हैं।",
+  },
+  stageDialysis: { en: "On Dialysis", hi: "डायलिसिस पर" },
+  stageDialysisDesc: {
+    en: "You are on hemodialysis or peritoneal dialysis. We'll tighten Yellow foods to Red.",
+    hi: "आप हीमोडायलिसिस या पेरिटोनियल डायलिसिस पर हैं। हम पीले खाद्य को लाल कर देंगे।",
+  },
+  stageContinue: { en: "Continue", hi: "जारी रखें" },
+  stageSkip: { en: "Skip for now", hi: "अभी छोड़ें" },
+
+  // Favorites
+  favoritesTitle: { en: "My Favorites", hi: "पसंदीदा" },
+  favoritesEmpty: { en: "No favorites yet. Tap the ★ on any food to save it here.", hi: "अभी कोई पसंदीदा नहीं। किसी भोजन पर ★ दबाकर सहेजें।" },
+  favorite: { en: "Favorite", hi: "पसंदीदा" },
+  unfavorite: { en: "Unfavorite", hi: "पसंदीदा हटाएँ" },
+  quickLog: { en: "Log", hi: "लॉग" },
+
+  // Weekly report
+  weeklyReport: { en: "Weekly Report", hi: "साप्ताहिक रिपोर्ट" },
+  reportForNephro: { en: "For your nephrologist", hi: "अपने नेफ्रोलॉजिस्ट के लिए" },
+  share: { en: "Share PDF", hi: "PDF साझा करें" },
+  weekOf: { en: "Week of", hi: "सप्ताह" },
+  totalMeals: { en: "Total meals", hi: "कुल भोजन" },
+  topSafe: { en: "Top safe foods", hi: "शीर्ष सुरक्षित भोजन" },
+  topAvoid: { en: "Foods to reduce", hi: "कम करने योग्य भोजन" },
+  reportEmpty: { en: "Log some meals this week to generate a report.", hi: "रिपोर्ट के लिए इस सप्ताह कुछ भोजन दर्ज करें।" },
+
+  // Scan
+  scanTitle: { en: "Scan a food", hi: "भोजन स्कैन करें" },
+  scanIntro: { en: "Take a photo of any dish. AI will identify it and check kidney safety.", hi: "किसी भी व्यंजन की तस्वीर लें। AI इसे पहचानेगा और किडनी सुरक्षा जाँचेगा।" },
+  scanTakePhoto: { en: "Take Photo", hi: "तस्वीर लें" },
+  scanRetake: { en: "Retake", hi: "फिर से लें" },
+  scanAnalyze: { en: "Analyze", hi: "विश्लेषण" },
+  scanAnalyzing: { en: "Analyzing dish...", hi: "व्यंजन का विश्लेषण..." },
+  scanPermissionTitle: { en: "Camera permission needed", hi: "कैमरा अनुमति आवश्यक" },
+  scanPermissionBody: { en: "We need camera access to identify foods with AI.", hi: "AI से भोजन पहचानने के लिए कैमरा अनुमति आवश्यक है।" },
+  grantPermission: { en: "Grant Permission", hi: "अनुमति दें" },
+  openSettings: { en: "Open Settings", hi: "सेटिंग्स खोलें" },
+  seeMore: { en: "See full details", hi: "पूरी जानकारी देखें" },
 } as const;
 
 export type TKey = keyof typeof translations;

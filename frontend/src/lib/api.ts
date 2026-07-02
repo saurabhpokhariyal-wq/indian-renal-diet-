@@ -44,6 +44,7 @@ async function request<T>(
 
 // ---------------- Types ----------------
 export type SafetyTier = "GREEN" | "YELLOW" | "RED";
+export type Stage = "pre_dialysis" | "dialysis" | "unknown";
 
 export interface FoodOut {
   id: string;
@@ -54,6 +55,8 @@ export interface FoodOut {
   primary_risk_factor: string;
   portion_limit_text: string;
   actionable_clinical_tip: string;
+  personal_tier?: SafetyTier | null;
+  is_favorite?: boolean;
 }
 
 export interface SwapOut {
@@ -73,6 +76,7 @@ export interface UserOut {
   id: string;
   email: string;
   full_name: string;
+  stage: Stage;
 }
 
 export interface AuthResponse {
@@ -90,6 +94,36 @@ export interface MealLogOut {
   created_at: string;
 }
 
+export interface WeeklyReportDay {
+  date: string;
+  green: number;
+  yellow: number;
+  red: number;
+}
+
+export interface WeeklyReport {
+  start_date: string;
+  end_date: string;
+  total_meals: number;
+  green: number;
+  yellow: number;
+  red: number;
+  days: WeeklyReportDay[];
+  top_safe_foods: string[];
+  top_avoid_foods: string[];
+}
+
+export interface FoodScan {
+  food_name: string;
+  hindi_name: string | null;
+  safety_tier: SafetyTier;
+  primary_risk_factor: string;
+  portion_limit_text: string;
+  clinical_tip: string;
+  matched_food_id: string | null;
+  raw: string | null;
+}
+
 // ---------------- API ----------------
 export const api = {
   register: (email: string, password: string, full_name?: string) =>
@@ -103,15 +137,21 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
   me: () => request<UserOut>("/auth/me", {}, true),
+  setStage: (stage: Stage) =>
+    request<UserOut>("/auth/stage", { method: "POST", body: JSON.stringify({ stage }) }, true),
 
-  listFoods: (q?: string, tier?: string) => {
+  listFoods: (q?: string, tier?: string, favoritesOnly = false) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (tier) params.set("tier", tier);
+    if (favoritesOnly) params.set("favorites_only", "true");
     const suffix = params.toString() ? `?${params.toString()}` : "";
-    return request<FoodOut[]>(`/foods${suffix}`);
+    return request<FoodOut[]>(`/foods${suffix}`, {}, true);
   },
-  getFood: (id: string) => request<FoodDetail>(`/foods/${id}`),
+  getFood: (id: string) => request<FoodDetail>(`/foods/${id}`, {}, true),
+
+  toggleFavorite: (foodId: string) =>
+    request<{ food_id: string; is_favorite: boolean }>(`/favorites/${foodId}`, { method: "POST" }, true),
 
   listMealLogs: (date: string) =>
     request<MealLogOut[]>(`/meal-logs?date=${encodeURIComponent(date)}`, {}, true),
@@ -123,6 +163,14 @@ export const api = {
     ),
   deleteMealLog: (id: string) =>
     request<{ success: boolean }>(`/meal-logs/${id}`, { method: "DELETE" }, true),
+
+  weeklyReport: (endDate?: string) => {
+    const s = endDate ? `?end_date=${endDate}` : "";
+    return request<WeeklyReport>(`/reports/weekly${s}`, {}, true);
+  },
+
+  scanFood: (image_base64: string) =>
+    request<FoodScan>("/scan/food", { method: "POST", body: JSON.stringify({ image_base64 }) }, true),
 
   askAi: (question: string) =>
     request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question }) }, true),

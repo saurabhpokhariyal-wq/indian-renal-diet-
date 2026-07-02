@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { api, setToken, type UserOut } from "@/src/lib/api";
+import { api, setToken, type Stage, type UserOut } from "@/src/lib/api";
 import { storage } from "@/src/utils/storage";
 
 interface AuthCtx {
@@ -9,6 +9,8 @@ interface AuthCtx {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName?: string) => Promise<void>;
   signOut: () => Promise<void>;
+  setStage: (stage: Stage) => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -53,7 +55,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  const value = useMemo(() => ({ user, loading, signIn, signUp, signOut }), [user, loading, signIn, signUp, signOut]);
+  const setStage = useCallback(async (stage: Stage) => {
+    const updated = await api.setStage(stage);
+    setUser(updated);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    try {
+      const u = await api.me();
+      setUser(u);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({ user, loading, signIn, signUp, signOut, setStage, refresh }),
+    [user, loading, signIn, signUp, signOut, setStage, refresh],
+  );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

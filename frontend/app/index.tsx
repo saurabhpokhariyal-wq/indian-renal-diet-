@@ -13,8 +13,9 @@ export default function Index() {
       </View>
     );
   }
-  if (user) return <Redirect href="/(app)" />;
-  return <Redirect href="/(auth)/login" />;
+  if (!user) return <Redirect href="/(auth)/login" />;
+  if (user.stage === "unknown") return <Redirect href="/onboarding" />;
+  return <Redirect href="/(app)" />;
 }
 
 const styles = StyleSheet.create({

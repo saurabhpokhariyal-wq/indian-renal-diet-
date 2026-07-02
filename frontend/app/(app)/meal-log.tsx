@@ -55,8 +55,16 @@ export default function MealLogScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t("mealLog")}</Text>
-        <Text style={styles.date}>{new Date().toDateString()}</Text>
+        <View style={styles.headerRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>{t("mealLog")}</Text>
+            <Text style={styles.date}>{new Date().toDateString()}</Text>
+          </View>
+          <TouchableOpacity testID="open-report" onPress={() => router.push("/report")} style={styles.reportBtn}>
+            <Ionicons name="document-text" size={18} color={COLORS.brand} />
+            <Text style={styles.reportBtnText}>{t("weeklyReport")}</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.summaryRow}>
           <SummaryPill label={t("summarySafe")} count={summary.GREEN} tier="GREEN" />
@@ -118,6 +126,19 @@ function SummaryPill({ label, count, tier }: { label: string; count: number; tie
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bgDefault },
   header: { padding: SIZE.m, gap: 6 },
+  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  reportBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.brandLight,
+    borderWidth: 1,
+    borderColor: COLORS.brand,
+  },
+  reportBtnText: { color: COLORS.brand, fontWeight: "700", fontSize: FONT.label },
   title: { fontSize: FONT.h1, fontWeight: "800", color: COLORS.textPrimary },
   date: { fontSize: FONT.body, color: COLORS.textSecondary, marginBottom: SIZE.s },
   summaryRow: { flexDirection: "row", gap: SIZE.s },

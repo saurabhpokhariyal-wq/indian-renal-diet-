@@ -1,0 +1,45 @@
+{
+  "summary": "All 4 NEW features (weekly PDF report, favorites, onboarding stage quiz, camera food scan) tested end-to-end. Backend: 23/23 pytest tests pass covering /auth/stage, personal_tier upgrade with auto-generated fallback swap, favorites toggle + favorites_only listing, /reports/weekly (empty + populated + dialysis-promotion), and /scan/food (auth, empty/invalid base64 400s, real Indian food JPEG returning valid Claude Sonnet 4.5 vision JSON). Frontend UI: onboarding renders with correct testIDs (stage-pre-dialysis, stage-dialysis, onboarding-continue, onboarding-skip); Continue navigates to tabs; detail-favorite star toggles; My Favorites horizontal row (fav-item-*/fav-log-*) appears on Search after favoriting and fav-log actually POSTs to /api/meal-logs (verified via request interceptor); Meals tab shows open-report which opens /report showing weekly stats + share-report-button when total_meals>0; Scan tab shows grant-camera on web preview as expected. ONE BUG: after successful register (and login) the app calls router.replace('/(app)') directly, BYPASSING the stage-based redirect in app/index.tsx, so a stage='unknown' user does NOT land on /onboarding automatically — they go straight to tabs. All other flows work.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "app/(auth)/register.tsx line 33 AND app/(auth)/login.tsx line 28",
+        "issue": "After successful auth, code does router.replace('/(app)') which bypasses the stage-based redirect in app/index.tsx. New users with stage='unknown' should land on /onboarding but land on tabs directly. Fix: change router.replace('/(app)') to router.replace('/') in both files so the Index component decides where to send them (unknown -> /onboarding, else -> /(app)).",
+        "testID": "register-submit-button, login-submit-button",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "shadow* style props", "issue": "Repeated console warning: '\"shadow*\" style props are deprecated. Use \"boxShadow\".' Same warning already reported in iteration_1 (non-blocking)."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_new_features.py",
+    "/app/test_reports/pytest/pytest_new_features.xml"
+  ],
+  "action_items": [
+    "HIGH: Fix onboarding bypass — change `router.replace('/(app)')` to `router.replace('/')` in /app/frontend/app/(auth)/register.tsx (line 33) AND /app/frontend/app/(auth)/login.tsx (line 28). This lets app/index.tsx route stage='unknown' users to /onboarding as designed.",
+    "(Optional, non-blocking) Migrate remaining `shadow*` StyleSheet props to `boxShadow` in the theme/components — same warning noted in iteration_1."
+  ],
+  "critical_code_review_comments": [
+    "server.py new endpoints are clean: /auth/stage uses Depends(get_current_user), Pydantic Literal ensures 422 on invalid stage; /favorites/{food_id} is atomic toggle with unique compound index (user_id, food_id); /reports/weekly correctly applies personal_tier_for on each log so dialysis users see YELLOW-phosphorus foods counted as RED in the report and top_avoid_foods; /scan/food validates base64 (rejects too-small payloads <200 bytes), strips data-url prefix, uses Claude Sonnet 4.5 via LlmChat + ImageContent, best-effort match to seeded food by regex. All good.",
+    "personal_tier_for() and enrich_food() correctly propagate personal_tier and is_favorite into every FoodOut (list, detail, meal-log embed).",
+    "Auto-swap fallback in get_food() only triggers when base tier != RED but personal_tier == RED — clean logic.",
+    "Frontend onboarding.tsx UI is correct, all testIDs present, but the redirect flow is broken because auth screens skip Index — see HIGH action item."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_new_features.py (new — 23 test cases)"
+  ],
+  "success_rate": {"backend": "100% (23/23 new-feature tests)", "frontend": "91% (10/11 flows OK; onboarding-redirect-after-register broken)"},
+  "seed_data_creation": "Created several TEST_<uuid>@renal.app users via /api/auth/register during pytest (used to isolate stage/favorites/weekly-report state). Also registered test-onb-<timestamp>@renal.app during Playwright run. No cleanup — throw-away users; do not affect demo user.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend fully green (23/23 new + 21/21 iteration_1 legacy). Real Indian-food JPEG used for /scan/food is at /tmp/food.jpg (146KB, Unsplash). To retest after fixing the onboarding bypass, just register a fresh user and confirm the browser URL becomes /onboarding (currently it stays on / and index.tsx isn't remounted because register uses router.replace('/(app)') directly). The onboarding screen itself works when reached — verified via direct navigation to /onboarding.",
+  "rca_of_issue": "Onboarding bypass RCA: app/index.tsx (route '/') correctly checks user.stage === 'unknown' and returns <Redirect href='/onboarding' />. However both (auth)/register.tsx (line 33) and (auth)/login.tsx (line 28) do `router.replace('/(app)')` immediately after a successful API call. This skips the Index gate entirely — Expo Router directly mounts (app)/_layout without re-evaluating '/'. Fresh users (stage='unknown') therefore never see /onboarding. Fix is one-line in each file: replace `router.replace('/(app)')` with `router.replace('/')`. This routes through Index which now dispatches by stage. Reproduced 2x with fresh timestamped emails; both went straight to tabs. Verified onboarding UI itself works by direct navigation."
+}

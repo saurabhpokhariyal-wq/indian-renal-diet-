@@ -14,9 +14,9 @@ export default function AppTabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: COLORS.brand,
         tabBarInactiveTintColor: COLORS.textSecondary,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
         tabBarStyle: {
-          height: 60 + insets.bottom,
+          height: 62 + insets.bottom,
           paddingBottom: insets.bottom + 6,
           paddingTop: 6,
           backgroundColor: COLORS.bgSurface,
@@ -30,6 +30,13 @@ export default function AppTabsLayout() {
         options={{
           title: t("tabSearch"),
           tabBarIcon: ({ color, size }) => <Ionicons name="search" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="scan"
+        options={{
+          title: "Scan",
+          tabBarIcon: ({ color, size }) => <Ionicons name="camera" color={color} size={size} />,
         }}
       />
       <Tabs.Screen

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import { SafetyCard } from "@/src/components/SafetyCard";
 import { api, type FoodOut } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
-import { COLORS, FONT, SIZE } from "@/src/theme";
+import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 const QUICK_CHIPS: { label: string; query: string }[] = [
   { label: "Palak Paneer", query: "palak" },
@@ -24,6 +24,7 @@ export default function SearchScreen() {
   const { t } = useLang();
   const [query, setQuery] = useState("");
   const [foods, setFoods] = useState<FoodOut[]>([]);
+  const [favorites, setFavorites] = useState<FoodOut[]>([]);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async (q: string) => {
@@ -38,14 +39,38 @@ export default function SearchScreen() {
     }
   }, []);
 
+  const loadFavorites = useCallback(async () => {
+    try {
+      const list = await api.listFoods(undefined, undefined, true);
+      setFavorites(list);
+    } catch {
+      setFavorites([]);
+    }
+  }, []);
+
   useEffect(() => {
     void load("");
   }, [load]);
+
+  useFocusEffect(useCallback(() => {
+    void loadFavorites();
+  }, [loadFavorites]));
 
   useEffect(() => {
     const handle = setTimeout(() => void load(query), 250);
     return () => clearTimeout(handle);
   }, [query, load]);
+
+  const quickLog = async (food: FoodOut) => {
+    try {
+      const today = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const date = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+      await api.addMealLog(food.id, date);
+    } catch {
+      // ignore
+    }
+  };
 
   const header = useMemo(
     () => (
@@ -106,9 +131,46 @@ export default function SearchScreen() {
             </View>
           ))}
         </View>
+
+        {favorites.length > 0 && !query ? (
+          <View style={styles.favBlock}>
+            <View style={styles.favHeader}>
+              <Ionicons name="star" size={18} color={COLORS.yellowStrong} />
+              <Text style={styles.favTitle}>{t("favoritesTitle")}</Text>
+            </View>
+            <FlatList
+              data={favorites}
+              horizontal
+              keyExtractor={(f) => f.id}
+              contentContainerStyle={{ gap: SIZE.s }}
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => {
+                const dt = (item.personal_tier || item.safety_tier) as keyof typeof TIER_META;
+                const meta = TIER_META[dt];
+                return (
+                  <View testID={`fav-item-${item.id}`} style={[styles.favCard, { borderColor: meta.border }]}>
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => router.push(`/food/${item.id}`)}>
+                      <View style={[styles.favDot, { backgroundColor: meta.strong }]} />
+                      <Text style={styles.favName} numberOfLines={1}>{item.name}</Text>
+                      <Text style={styles.favHindi} numberOfLines={1}>{item.hindi_name}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      testID={`fav-log-${item.id}`}
+                      style={styles.favLogBtn}
+                      onPress={() => quickLog(item)}
+                    >
+                      <Ionicons name="add" size={16} color={COLORS.textInverse} />
+                      <Text style={styles.favLogText}>{t("quickLog")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              }}
+            />
+          </View>
+        ) : null}
       </View>
     ),
-    [user, t, query],
+    [user, t, query, favorites],
   );
 
   return (
@@ -171,4 +233,29 @@ const styles = StyleSheet.create({
   legendText: { fontSize: FONT.label, color: COLORS.textSecondary, fontWeight: "600" },
   emptyBox: { alignItems: "center", padding: SIZE.xl, gap: SIZE.s },
   emptyText: { fontSize: FONT.body, color: COLORS.textSecondary, textAlign: "center" },
+  favBlock: { gap: 10, marginTop: 4 },
+  favHeader: { flexDirection: "row", alignItems: "center", gap: 6 },
+  favTitle: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
+  favCard: {
+    width: 170,
+    padding: 12,
+    backgroundColor: COLORS.bgSurface,
+    borderWidth: 2,
+    borderRadius: SIZE.radiusMd,
+    gap: 6,
+  },
+  favDot: { width: 10, height: 10, borderRadius: 5, marginBottom: 6 },
+  favName: { fontSize: FONT.body, fontWeight: "700", color: COLORS.textPrimary },
+  favHindi: { fontSize: FONT.label, color: COLORS.textSecondary },
+  favLogBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    marginTop: 6,
+    paddingVertical: 6,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.brand,
+  },
+  favLogText: { color: COLORS.textInverse, fontSize: FONT.label, fontWeight: "700" },
 });
