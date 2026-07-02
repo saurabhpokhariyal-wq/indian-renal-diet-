@@ -52,6 +52,10 @@ export default function AskAiScreen() {
   // Persist messages whenever they change (after initial restore)
   useEffect(() => {
     if (!user || !restored) return;
+    if (messages.length === 0) {
+      void storage.removeItem(chatKey(user.id));
+      return;
+    }
     const trimmed = messages.slice(-MAX_STORED);
     void storage.setItem(chatKey(user.id), JSON.stringify(trimmed));
   }, [messages, user, restored]);

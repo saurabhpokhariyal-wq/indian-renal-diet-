@@ -50,3 +50,13 @@ See `/app/memory/test_credentials.md`.
     handled on register, slowapi rate limits (auth 5/min IP, ai 10/min user,
     scan 5/min user), lifespan context manager, batched `$in` food lookups,
     single favorites-set fetch per request.
+- Iteration 4 (frontend robustness & consent): 7/7 features verified ✅
+  - First-run medical disclaimer with per-user persistence
+    (`renal.disclaimer.<userId>`) + settings re-read entry.
+  - Search & Meal Log: distinct error state + Retry button.
+  - Search tier filter chips (GREEN/YELLOW/RED, multi-select, toggleable).
+  - Ask AI messages persisted per user (`renal.chat.<userId>`) with clear button.
+  - `LogBox.ignoreAllLogs` removed; own shadow-style warning fixed via
+    `Platform.select`. Only the upstream `pointerEvents` warning from
+    react-navigation/react-native-web remains (not user code).
+  - Meal Log previous/next-day arrows with `next-day` disabled on today.
