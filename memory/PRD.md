@@ -60,3 +60,18 @@ See `/app/memory/test_credentials.md`.
     `Platform.select`. Only the upstream `pointerEvents` warning from
     react-navigation/react-native-web remains (not user code).
   - Meal Log previous/next-day arrows with `next-day` disabled on today.
+- Iteration 5 (nutrient data & daily budget tracker): 15/15 backend + 7/7 frontend ✅
+  - All 35 foods now carry IFCT-2017 sourced `portion_g / potassium_mg /
+    phosphorus_mg / sodium_mg / protein_g / fluid_ml`.
+  - Content fixes: Orange tip factual (moderately high, not dangerous);
+    Idli tip attributes sodium to added salt / sambar (not fermentation);
+    smart-swap `clinical_benefit_explanation` strings COMPUTED from actual
+    IFCT deltas at seed time — no more hard-coded percentages.
+  - New endpoint `GET /api/meal-logs/summary?date=` returns `totals + limits`
+    (defaults K 2000mg, P 1000mg, Na 2000mg).
+  - Weekly report includes `avg_daily` + `limits`; PDF export includes
+    "Average daily nutrients" table.
+  - Meal Log screen replaces tier-count pills with 3 `NutrientBar` progress
+    bars (green→yellow→red at 60%/90% thresholds). Tier badges remain on items.
+  - Food detail shows a per-portion nutrient table (fluid cell hidden for
+    solids). Weekly report screen adds an avg-nutrient card.
