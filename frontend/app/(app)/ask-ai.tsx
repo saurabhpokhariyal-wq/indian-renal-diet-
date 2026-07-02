@@ -10,13 +10,12 @@ import { useLang } from "@/src/lib/language-context";
 import { chatKey } from "@/src/lib/storage-keys";
 import { storage } from "@/src/utils/storage";
 import { COLORS, FONT, SIZE } from "@/src/theme";
-
 interface Msg { id: string; role: "user" | "ai"; text: string }
 
 const MAX_STORED = 100;
 
 export default function AskAiScreen() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuth();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -68,7 +67,7 @@ export default function AskAiScreen() {
     setInput("");
     setLoading(true);
     try {
-      const { answer } = await api.askAi(question);
+      const { answer } = await api.askAi(question, lang);
       const aiMsg: Msg = { id: `a-${Date.now()}`, role: "ai", text: answer };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (e) {
@@ -78,7 +77,7 @@ export default function AskAiScreen() {
       setLoading(false);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
     }
-  }, [input, loading]);
+  }, [input, loading, lang]);
 
   const clearChat = useCallback(async () => {
     if (!user) return;

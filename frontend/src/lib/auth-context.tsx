@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { api, setToken, type Stage, type UserOut } from "@/src/lib/api";
+import { api, setToken, type DoctorLimits, type Stage, type UserOut } from "@/src/lib/api";
 import { storage } from "@/src/utils/storage";
 
 interface AuthCtx {
@@ -10,6 +10,7 @@ interface AuthCtx {
   signUp: (email: string, password: string, fullName?: string) => Promise<void>;
   signOut: () => Promise<void>;
   setStage: (stage: Stage) => Promise<void>;
+  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -60,6 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated);
   }, []);
 
+  const updateProfile = useCallback(async (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) => {
+    const updated = await api.updateProfile(patch);
+    setUser(updated);
+  }, []);
+
   const refresh = useCallback(async () => {
     try {
       const u = await api.me();
@@ -70,8 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, signIn, signUp, signOut, setStage, refresh }),
-    [user, loading, signIn, signUp, signOut, setStage, refresh],
+    () => ({ user, loading, signIn, signUp, signOut, setStage, updateProfile, refresh }),
+    [user, loading, signIn, signUp, signOut, setStage, updateProfile, refresh],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

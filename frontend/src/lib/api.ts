@@ -62,6 +62,7 @@ export interface FoodOut {
   protein_g: number;
   fluid_ml: number;
   personal_tier?: SafetyTier | null;
+  personalized_note?: string | null;
   is_favorite?: boolean;
 }
 
@@ -78,11 +79,20 @@ export interface FoodDetail {
   swap: SwapOut | null;
 }
 
+export interface DoctorLimits {
+  potassium_mg?: number | null;
+  phosphorus_mg?: number | null;
+  sodium_mg?: number | null;
+  fluid_ml?: number | null;
+}
+
 export interface UserOut {
   id: string;
   email: string;
   full_name: string;
   stage: Stage;
+  diabetic: boolean;
+  doctor_limits: DoctorLimits | null;
 }
 
 export interface AuthResponse {
@@ -168,6 +178,8 @@ export const api = {
   me: () => request<UserOut>("/auth/me", {}, true),
   setStage: (stage: Stage) =>
     request<UserOut>("/auth/stage", { method: "POST", body: JSON.stringify({ stage }) }, true),
+  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) =>
+    request<UserOut>("/auth/profile", { method: "PATCH", body: JSON.stringify(patch) }, true),
 
   listFoods: (q?: string, tier?: string, favoritesOnly = false) => {
     const params = new URLSearchParams();
@@ -203,6 +215,6 @@ export const api = {
   scanFood: (image_base64: string) =>
     request<FoodScan>("/scan/food", { method: "POST", body: JSON.stringify({ image_base64 }) }, true),
 
-  askAi: (question: string) =>
-    request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question }) }, true),
+  askAi: (question: string, lang: "en" | "hi" = "en") =>
+    request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question, lang }) }, true),
 };

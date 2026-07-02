@@ -144,10 +144,27 @@ class UserOut(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
     stage: Stage = "unknown"
+    diabetic: bool = False
+    doctor_limits: Optional["DoctorLimits"] = None
+
+
+class DoctorLimits(BaseModel):
+    potassium_mg: Optional[float] = Field(default=None, ge=0)
+    phosphorus_mg: Optional[float] = Field(default=None, ge=0)
+    sodium_mg: Optional[float] = Field(default=None, ge=0)
+    fluid_ml: Optional[float] = Field(default=None, ge=0)
+
+
+UserOut.model_rebuild()
 
 
 class StageUpdate(BaseModel):
     stage: Stage
+
+
+class ProfileUpdate(BaseModel):
+    diabetic: Optional[bool] = None
+    doctor_limits: Optional[DoctorLimits] = None
 
 
 class AuthResponse(BaseModel):
@@ -172,6 +189,7 @@ class FoodOut(BaseModel):
     protein_g: float = 0
     fluid_ml: float = 0
     personal_tier: Optional[str] = None
+    personalized_note: Optional[str] = None
     is_favorite: bool = False
 
 
@@ -214,6 +232,7 @@ class MealLogOut(BaseModel):
 
 class AiAskRequest(BaseModel):
     question: str
+    lang: Optional[Literal["en", "hi"]] = "en"
 
 
 class AiAskResponse(BaseModel):
@@ -283,12 +302,58 @@ class WeeklyReportResponse(BaseModel):
 
 
 # -------- Personalization --------
+PRE_DIALYSIS_K_NOTE = (
+    "Often fine before dialysis — confirm your serum potassium with your doctor. "
+    "Portion sizes and lab values matter more than a blanket 'yellow' at this stage (KDOQI 2020)."
+)
+
+
 def personal_tier_for(food: dict, stage: Stage) -> str:
-    """For dialysis patients tighten YELLOW → RED when risk is potassium/phosphorus/fluid."""
+    """Compute the tier shown to the user based on their CKD stage.
+
+    - dialysis + YELLOW + (K / P / Fluid) → tightened to RED
+    - pre_dialysis + YELLOW + POTASSIUM → softened to GREEN
+      (KDOQI 2020 recommends individualized K targets before dialysis;
+       we never soften sodium or phosphorus items).
+    - unknown stage never changes the tier.
+    """
     base = food["safety_tier"]
-    if stage == "dialysis" and base == "YELLOW" and food.get("primary_risk_factor") in {"POTASSIUM", "PHOSPHORUS", "FLUID"}:
+    risk = food.get("primary_risk_factor")
+    if stage == "dialysis" and base == "YELLOW" and risk in {"POTASSIUM", "PHOSPHORUS", "FLUID"}:
         return "RED"
+    if stage == "pre_dialysis" and base == "YELLOW" and risk == "POTASSIUM":
+        return "GREEN"
     return base
+
+
+def personalized_note_for(food: dict, stage: Stage) -> Optional[str]:
+    if (
+        stage == "pre_dialysis"
+        and food["safety_tier"] == "YELLOW"
+        and food.get("primary_risk_factor") == "POTASSIUM"
+    ):
+        return PRE_DIALYSIS_K_NOTE
+    return None
+
+
+# Default daily limits by stage — used when the doctor hasn't set custom targets.
+DEFAULT_LIMITS_BY_STAGE: dict = {
+    "dialysis": {"potassium_mg": 2000, "phosphorus_mg": 1000, "sodium_mg": 2000, "fluid_ml": 1000},
+    "pre_dialysis": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000},
+    "unknown": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000},
+}
+
+
+def limits_for_user(user: dict) -> NutrientLimits:
+    """Doctor-set limits win; otherwise stage-based defaults."""
+    stage: Stage = user.get("stage", "unknown") or "unknown"  # type: ignore
+    defaults = DEFAULT_LIMITS_BY_STAGE.get(stage, DEFAULT_LIMITS_BY_STAGE["unknown"])
+    doc = user.get("doctor_limits") or {}
+    return NutrientLimits(
+        potassium_mg=float(doc.get("potassium_mg") or defaults["potassium_mg"]),
+        phosphorus_mg=float(doc.get("phosphorus_mg") or defaults["phosphorus_mg"]),
+        sodium_mg=float(doc.get("sodium_mg") or defaults["sodium_mg"]),
+    )
 
 
 async def get_user_favorite_ids(user: Optional[dict]) -> Set[str]:
@@ -316,6 +381,7 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         protein_g=food.get("protein_g", 0),
         fluid_ml=food.get("fluid_ml", 0),
         personal_tier=personal_tier_for(food, stage),
+        personalized_note=personalized_note_for(food, stage),
         is_favorite=food["id"] in fav_ids,
     )
 
@@ -376,6 +442,8 @@ async def register(request: Request, body: UserRegister):
         "email": email,
         "full_name": body.full_name or "",
         "stage": "unknown",
+        "diabetic": False,
+        "doctor_limits": None,
         "hashed_password": hash_pw(body.password),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -385,7 +453,26 @@ async def register(request: Request, body: UserRegister):
         raise HTTPException(status_code=400, detail="Email already registered")
     return AuthResponse(
         access_token=create_token(user_id),
-        user=UserOut(id=user_id, email=email, full_name=body.full_name or "", stage="unknown"),
+        user=UserOut(
+            id=user_id,
+            email=email,
+            full_name=body.full_name or "",
+            stage="unknown",
+            diabetic=False,
+            doctor_limits=None,
+        ),
+    )
+
+
+def _user_to_out(user: dict) -> UserOut:
+    dl = user.get("doctor_limits")
+    return UserOut(
+        id=user["id"],
+        email=user["email"],
+        full_name=user.get("full_name", ""),
+        stage=user.get("stage", "unknown"),
+        diabetic=bool(user.get("diabetic", False)),
+        doctor_limits=DoctorLimits(**dl) if dl else None,
     )
 
 
@@ -398,36 +485,34 @@ async def login(request: Request, body: UserLogin):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     if not verify_pw(body.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    return AuthResponse(
-        access_token=create_token(user["id"]),
-        user=UserOut(
-            id=user["id"],
-            email=user["email"],
-            full_name=user.get("full_name", ""),
-            stage=user.get("stage", "unknown"),
-        ),
-    )
+    return AuthResponse(access_token=create_token(user["id"]), user=_user_to_out(user))
 
 
 @api.get("/auth/me", response_model=UserOut)
 async def me(current_user=Depends(get_current_user)):
-    return UserOut(
-        id=current_user["id"],
-        email=current_user["email"],
-        full_name=current_user.get("full_name", ""),
-        stage=current_user.get("stage", "unknown"),
-    )
+    return _user_to_out(current_user)
 
 
 @api.post("/auth/stage", response_model=UserOut)
 async def set_stage(body: StageUpdate, current_user=Depends(get_current_user)):
     await db.users.update_one({"id": current_user["id"]}, {"$set": {"stage": body.stage}})
-    return UserOut(
-        id=current_user["id"],
-        email=current_user["email"],
-        full_name=current_user.get("full_name", ""),
-        stage=body.stage,
-    )
+    current_user["stage"] = body.stage
+    return _user_to_out(current_user)
+
+
+@api.patch("/auth/profile", response_model=UserOut)
+async def update_profile(body: ProfileUpdate, current_user=Depends(get_current_user)):
+    update: dict = {}
+    if body.diabetic is not None:
+        update["diabetic"] = bool(body.diabetic)
+    if body.doctor_limits is not None:
+        # Normalize: if the caller sent an entirely empty payload, clear the limits.
+        dl = body.doctor_limits.model_dump(exclude_none=True)
+        update["doctor_limits"] = dl if dl else None
+    if update:
+        await db.users.update_one({"id": current_user["id"]}, {"$set": update})
+        current_user.update(update)
+    return _user_to_out(current_user)
 
 
 # ==================== FOODS ====================
@@ -593,7 +678,7 @@ async def weekly_report(
         top_safe_foods=top(name_by_tier["GREEN"]),
         top_avoid_foods=top(name_by_tier["RED"]),
         avg_daily=avg_daily,
-        limits=NutrientLimits(),
+        limits=limits_for_user(current_user),
     )
 
 
@@ -636,7 +721,7 @@ async def meal_log_summary(
             protein_g=round(totals["protein_g"], 1),
             fluid_ml=round(totals["fluid_ml"], 1),
         ),
-        limits=NutrientLimits(),
+        limits=limits_for_user(current_user),
     )
 
 
@@ -812,15 +897,69 @@ async def delete_meal_log(log_id: str, current_user=Depends(get_current_user)):
 
 
 # ==================== AI ASK ====================
-AI_SYSTEM_PROMPT = (
+AI_SYSTEM_PROMPT_BASE = (
     "You are a friendly Indian Renal Diet coach for CKD/dialysis patients. "
     "You answer in short, plain language (max 6 sentences). "
     "Always classify Indian foods as SAFE (green), CAUTION (yellow) or AVOID (red) "
     "based on potassium, phosphorus, sodium and fluid load. "
     "When something is unsafe, ALWAYS suggest a kidney-friendly Indian swap. "
     "Do NOT give medical dosages. Always add a one-line reminder to check with the patient's nephrologist "
-    "for personal targets. Use warm, encouraging tone. When helpful, add the Hindi name in brackets."
+    "for personal targets. Use warm, encouraging tone."
 )
+
+
+async def _build_ai_context(user: dict, lang: str) -> str:
+    """Compose the patient-context block appended to the AI system prompt."""
+    stage = user.get("stage", "unknown") or "unknown"
+    diabetic = "yes" if user.get("diabetic") else "no"
+    limits = limits_for_user(user)
+
+    today = date_cls.today().isoformat()
+    logs = [
+        log
+        async for log in db.meal_logs.find(
+            {"user_id": user["id"], "date": today}, {"_id": 0}
+        )
+    ]
+    totals = {"potassium_mg": 0.0, "phosphorus_mg": 0.0, "sodium_mg": 0.0, "protein_g": 0.0, "fluid_ml": 0.0}
+    if logs:
+        food_ids = list({log["food_id"] for log in logs})
+        foods_by_id: dict = {
+            f["id"]: f async for f in db.foods.find({"id": {"$in": food_ids}}, {"_id": 0})
+        }
+        for log in logs:
+            food = foods_by_id.get(log["food_id"])
+            if not food:
+                continue
+            for k in totals:
+                totals[k] += float(food.get(k, 0) or 0)
+
+    stage_label = {
+        "dialysis": "on dialysis (hemodialysis or peritoneal)",
+        "pre_dialysis": "pre-dialysis CKD (not yet on dialysis)",
+        "unknown": "CKD stage not specified",
+    }[stage]
+
+    ctx = (
+        "\n\n---\nPATIENT CONTEXT (use this to personalize your advice):\n"
+        f"- CKD stage: {stage_label}\n"
+        f"- Diabetic: {diabetic}\n"
+        f"- Daily limits: potassium {int(limits.potassium_mg)}mg, "
+        f"phosphorus {int(limits.phosphorus_mg)}mg, sodium {int(limits.sodium_mg)}mg\n"
+        f"- Today's intake so far: potassium {int(totals['potassium_mg'])}mg, "
+        f"phosphorus {int(totals['phosphorus_mg'])}mg, sodium {int(totals['sodium_mg'])}mg, "
+        f"protein {totals['protein_g']:.1f}g, fluid {int(totals['fluid_ml'])}ml"
+    )
+    if user.get("diabetic"):
+        ctx += "\n- Because the patient is diabetic, also flag foods with high glycemic load."
+
+    if lang == "hi":
+        ctx += (
+            "\n\nIMPORTANT: The user's app language is Hindi. "
+            "Answer entirely in conversational Hindi (Devanagari script). "
+            "Keep English food names in brackets where helpful, e.g. 'लौकी (Lauki)'."
+        )
+    return ctx
 
 
 @api.post("/ai/ask", response_model=AiAskResponse)
@@ -831,12 +970,14 @@ async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_
     question = (body.question or "").strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
+    lang = body.lang or "en"
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-        session_id = f"user-{current_user['id']}"
+        system_prompt = AI_SYSTEM_PROMPT_BASE + await _build_ai_context(current_user, lang)
+        session_id = f"user-{current_user['id']}-{lang}"
         chat = (
-            LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=AI_SYSTEM_PROMPT)
+            LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=system_prompt)
             .with_model("anthropic", "claude-sonnet-4-5-20250929")
         )
         reply = await chat.send_message(UserMessage(text=question))

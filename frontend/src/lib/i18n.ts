@@ -129,6 +129,34 @@ export const translations = {
   },
   stageContinue: { en: "Continue", hi: "जारी रखें" },
   stageSkip: { en: "Skip for now", hi: "अभी छोड़ें" },
+  stageBack: { en: "Back", hi: "पीछे" },
+  stageStep: { en: "Step", hi: "चरण" },
+
+  // Diabetic step
+  diabeticQuestion: { en: "Are you diabetic?", hi: "क्या आपको मधुमेह है?" },
+  diabeticSub: {
+    en: "We'll flag high-sugar foods and adjust AI advice accordingly.",
+    hi: "हम अधिक शक्कर वाले भोजन को चिन्हित करेंगे और AI सलाह उसी के अनुसार देंगे।",
+  },
+  yes: { en: "Yes", hi: "हाँ" },
+  no: { en: "No", hi: "नहीं" },
+  diabetic: { en: "Diabetic", hi: "मधुमेह" },
+
+  // Doctor limits
+  doctorLimitsTitle: { en: "Your doctor's targets", hi: "आपके डॉक्टर के लक्ष्य" },
+  doctorLimitsSub: {
+    en: "Enter any daily limits your nephrologist set for you. Leave blank to use stage-based defaults.",
+    hi: "यदि आपके नेफ्रोलॉजिस्ट ने कोई दैनिक सीमा तय की है तो दर्ज करें। स्टेज-आधारित डिफ़ॉल्ट के लिए खाली छोड़ें।",
+  },
+  doctorLimitsSave: { en: "Save targets", hi: "लक्ष्य सहेजें" },
+  personalisedForYou: { en: "Personalized for you", hi: "आपके लिए वैयक्तिकृत" },
+
+  // Health profile section on settings
+  healthProfile: { en: "Health profile", hi: "स्वास्थ्य प्रोफ़ाइल" },
+  stage: { en: "CKD stage", hi: "CKD स्तर" },
+  editStage: { en: "Change stage", hi: "स्तर बदलें" },
+  editLimits: { en: "Doctor targets", hi: "डॉक्टर के लक्ष्य" },
+  usingDefaults: { en: "Using stage defaults", hi: "स्टेज-आधारित डिफ़ॉल्ट" },
 
   // Favorites
   favoritesTitle: { en: "My Favorites", hi: "पसंदीदा" },

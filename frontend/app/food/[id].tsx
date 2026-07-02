@@ -148,6 +148,16 @@ export default function FoodDetailScreen() {
           <Text testID="detail-tip" style={styles.sectionBody}>{detail.food.actionable_clinical_tip}</Text>
         </View>
 
+        {detail.food.personalized_note ? (
+          <View testID="personalized-note" style={styles.personalCard}>
+            <Ionicons name="person" size={20} color={COLORS.aiBlue} />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={styles.personalTitle}>{t("personalisedForYou")}</Text>
+              <Text style={styles.personalBody}>{detail.food.personalized_note}</Text>
+            </View>
+          </View>
+        ) : null}
+
         <View testID="nutrient-table" style={styles.section}>
           <View style={styles.sectionHead}>
             <Ionicons name="analytics-outline" size={20} color={COLORS.brand} />
@@ -246,6 +256,18 @@ const styles = StyleSheet.create({
   },
   nutriLabel: { fontSize: FONT.label, color: COLORS.textSecondary, fontWeight: "600" },
   nutriValue: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
+  personalCard: {
+    flexDirection: "row",
+    gap: 12,
+    padding: SIZE.m,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: COLORS.aiBlue,
+    borderRadius: SIZE.radiusLg,
+    alignItems: "flex-start",
+  },
+  personalTitle: { fontSize: FONT.body, fontWeight: "800", color: COLORS.aiBlueDark },
+  personalBody: { fontSize: FONT.body, color: COLORS.textPrimary, lineHeight: 22 },
   addBtn: {
     marginTop: SIZE.s,
     flexDirection: "row",
