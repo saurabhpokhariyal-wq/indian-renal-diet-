@@ -43,4 +43,10 @@ See `/app/memory/test_credentials.md`.
 
 ## Testing Status
 - Iteration 1: 21/21 backend pytest ✅ · full Playwright E2E ✅
-- Iteration 2 (4 new features): 23/23 backend pytest ✅ · Playwright E2E ✅ (onboarding redirect bug fixed and verified — new users now land on `/onboarding` after register/login)
+- Iteration 2 (4 new features): 23/23 backend pytest ✅ · Playwright E2E ✅
+- Iteration 3 (security & correctness hardening): 27/27 backend pytest ✅
+  - CORS origins from env, regex.escape on `q`, generic 502 errors on AI/scan,
+    Pydantic Literal `meal_type` + calendar-date validator, DuplicateKeyError
+    handled on register, slowapi rate limits (auth 5/min IP, ai 10/min user,
+    scan 5/min user), lifespan context manager, batched `$in` food lookups,
+    single favorites-set fetch per request.
