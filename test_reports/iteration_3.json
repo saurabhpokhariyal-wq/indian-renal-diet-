@@ -1,0 +1,54 @@
+{
+  "summary": "All 8 backend security & correctness fixes verified. 27/27 new security-fix tests pass (test_security_fixes.py). CORS: allowed origin echoed, disallowed origin returns 400 and no ACAO — verified against http://localhost:8001 because the Cloudflare/K8s ingress rewrites ACAO to '*' at the edge (infra-level, not app-level). Regex-injection: /api/foods?q=a(b and ?q=[*( return 200 [] instead of 500; Palak still matches. 502 error messages are generic ('AI/Vision service temporarily unavailable') and no `{e}` interpolation remains in raise HTTPException(502...). Meal-log validation: 2026-13-45→422, not-a-date→422, meal_type='dessert'→422, valid 2026-02-15+lunch→200 with full MealLogOut shape (id, food_id, date, meal_type, food:FoodOut, created_at); GET /api/meal-logs?date=bad→400. Register race: duplicate email returns 400 'Email already registered' via DuplicateKeyError handler (never 500). Rate limits (slowapi in-memory, per-IP for register/login, per-user for ai_ask/scan_food): register 6th→429, login 6th→429, ai_ask 11th→429, scan_food 6th→429. Lifespan: no @app.on_event in source; 35 foods seeded on startup; startup logs 'Seeded 35 foods, 10 swaps' cleanly. N+1 fix: /api/meal-logs?date=<today> returns correct shape after logging 3 foods; /api/foods returns exactly one is_favorite=true; personal_tier RED for dialysis vs YELLOW for unknown on food-atta-roti. Regression: /auth/register, /auth/login, /foods/{id}, /reports/weekly, /favorites/{id} response shapes all match spec. Legacy suite (test_new_features.py + test_renal_api.py): 41/44 pass — the 3 failures are the OLD tests hitting the NEW register-rate-limit (they do many rapid registers). Not an app bug; expected behavior of fix #6.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "ingress/CORS",
+        "issue": "The Cloudflare/K8s ingress in front of the app rewrites Access-Control-Allow-Origin to `*` regardless of the FastAPI CORS middleware. App-level CORS is correctly configured with allow_origins=CORS_ORIGINS (verified via localhost:8001) — but browsers hitting the public preview URL will still see `*`. This is infrastructure, not code. If real production must enforce origin allowlist end-to-end, the ingress needs configuration too."
+      },
+      {
+        "endpoint": "/api/auth/register + /api/auth/login rate limit",
+        "issue": "Because the K8s ingress load-balances upstream connections across pod IPs (and sometimes reuses the same pod for streaks of requests), rate-limit behaviour via the public URL is inconsistent — sometimes the 6th request lands on a different upstream IP and is NOT blocked. App-level (localhost) rate limiting works exactly as spec'd. If per-IP limiting must hold across the ingress, slowapi should be configured with get_remote_address that respects X-Forwarded-For (currently uses request.client.host)."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_security_fixes.py",
+    "/app/test_reports/pytest/pytest_security_fixes.xml"
+  ],
+  "action_items": [
+    "(Optional) To enforce per-IP rate limits end-to-end (not just at localhost), swap slowapi's key_func for register/login to derive the true client IP from X-Forwarded-For / X-Real-IP headers (e.g. `request.headers.get('x-forwarded-for','').split(',')[0].strip() or get_remote_address(request)`). Current app-level enforcement is correct; only end-to-end propagation through the ingress is imperfect.",
+    "(Optional) If production requires strict CORS enforcement even at the ingress edge, update the Kubernetes ingress / Cloudflare rules to stop rewriting Access-Control-Allow-Origin to `*`. The FastAPI middleware itself is now correct.",
+    "(Optional) The legacy pytest suites in test_new_features.py and test_renal_api.py do many rapid /auth/register calls and now trip the new 5/min limit (3 failures). Consider adding a `pytest --forked` or per-test backend restart, OR reworking those tests to reuse users. Not a bug in the server — expected side-effect of the correct rate-limit fix."
+  ],
+  "critical_code_review_comments": [
+    "server.py CORS block correctly reads CORS_ORIGINS from env and drops the wildcard; the leftover 'allow_origins=[\"*\"]' string appears only inside the explanatory comment on line 766 (harmless).",
+    "Regex-injection fix uses re.escape(q) on all three $regex clauses (name, hindi_name, category) — clean.",
+    "Both /ai/ask and /scan/food catch broad Exception and re-raise generic 502 with logger.exception(...) — no info leak, still debuggable via server logs.",
+    "MealLogCreate uses @field_validator('date') with date.fromisoformat — nice tight Pydantic v2 pattern; get_meal_logs replicates the same check for the query param.",
+    "Register race is now closed with a try/except DuplicateKeyError around the insert AND a pre-check — belt-and-braces, both funnel to 400.",
+    "slowapi Limiter is created with a fallback key_func=get_remote_address; per-endpoint decorators override for the two authenticated endpoints via _rate_key_user (per-user, falls back to per-IP if unauthenticated). Clean.",
+    "Lifespan uses async context manager (contextlib.asynccontextmanager) — no on_event deprecation warning.",
+    "N+1 fix: list_meal_logs, weekly_report and list_foods now do a single {'id': {'$in': [...]}} query for foods, and a single query for favorites. Verified: 3-food meal-logs GET returns correctly shaped payload; is_favorite is set exactly on the favorited food; personal_tier still varies by user.stage."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_security_fixes.py (new — 27 test cases across 9 classes)",
+    "/app/test_reports/pytest/pytest_security_fixes.xml (regenerated)"
+  ],
+  "success_rate": {
+    "backend": "100% (27/27 security-fix tests); 93% (41/44 total including legacy — 3 legacy failures are collateral of correct new rate-limit)",
+    "frontend": "not tested (frontend was not requested this iteration)"
+  },
+  "seed_data_creation": "Multiple TEST_<uuid>@renal.app users created during rate-limit and CRUD tests. All throw-away — do not affect the demo@renal.app user. Meal-logs created against fresh users only.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Two things to know: (1) The Cloudflare/K8s ingress in front of https://kidney-safe-swap.preview.emergentagent.com REWRITES CORS Access-Control-Allow-Origin to `*` and may also stripe X-Forwarded-For inconsistently — so any CORS / rate-limit test MUST hit http://localhost:8001 directly to observe true app behaviour. (2) The legacy test suites (test_new_features.py, test_renal_api.py) now trip the new 5/min register rate-limit if run back-to-back; use `sudo supervisorctl restart backend && sleep 2` between runs to reset in-memory slowapi counters, or run each file in isolation.",
+  "rca_of_issue": "N/A — no defect. All 8 fixes work as specified. Two infrastructure-level observations noted under backend_issues.minor (both are ingress-level, not code)."
+}

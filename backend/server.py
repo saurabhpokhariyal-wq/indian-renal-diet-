@@ -4,12 +4,16 @@ Endpoints (all prefixed /api):
 - POST   /api/auth/register
 - POST   /api/auth/login
 - GET    /api/auth/me
+- POST   /api/auth/stage
 - GET    /api/foods                (?q=search&tier=RED,YELLOW,GREEN)
-- GET    /api/foods/{id}           (returns food + swap if RED)
+- GET    /api/foods/{id}
+- POST   /api/favorites/{food_id}
 - GET    /api/meal-logs?date=YYYY-MM-DD
 - POST   /api/meal-logs
 - DELETE /api/meal-logs/{id}
-- POST   /api/ai/ask               (Claude Sonnet 4.5 via Emergent LLM key)
+- GET    /api/reports/weekly
+- POST   /api/ai/ask
+- POST   /api/scan/food
 """
 
 import base64
@@ -17,22 +21,29 @@ import logging
 import os
 import re
 import uuid
+from contextlib import asynccontextmanager
 from datetime import date as date_cls, datetime, timedelta, timezone
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Set
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from pymongo.errors import DuplicateKeyError
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 from seed_data import SEED_FOODS, SEED_SWAPS
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
+MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -44,6 +55,9 @@ JWT_SECRET = os.environ["JWT_SECRET"]
 JWT_ALG = "HS256"
 JWT_EXPIRE_HOURS = 24 * 30  # 30 days
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+CORS_ORIGINS = [
+    o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()
+]
 
 # -------- Mongo --------
 client = AsyncIOMotorClient(MONGO_URL)
@@ -53,6 +67,9 @@ db = client[DB_NAME]
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 _dummy_hash = pwd_context.hash("dummy-password-for-timing")
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logger = logging.getLogger("renal-diet")
 
 
 def hash_pw(p: str) -> str:
@@ -68,16 +85,21 @@ def create_token(user_id: str) -> str:
     return jwt.encode({"sub": user_id, "exp": exp}, JWT_SECRET, algorithm=JWT_ALG)
 
 
-async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
+def _decode_user_id(token: Optional[str]) -> Optional[str]:
     if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        return None
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
-        user_id = payload.get("sub")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        uid = payload.get("sub")
+        return uid if isinstance(uid, str) else None
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        return None
+
+
+async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
+    user_id = _decode_user_id(token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     user = await db.users.find_one({"id": user_id}, {"_id": 0, "hashed_password": 0})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
@@ -85,16 +107,24 @@ async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
 
 
 async def get_optional_user(token: Optional[str] = Depends(oauth2_scheme)):
-    if not token:
-        return None
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
-        user_id = payload.get("sub")
-        if not user_id:
-            return None
-    except JWTError:
+    user_id = _decode_user_id(token)
+    if not user_id:
         return None
     return await db.users.find_one({"id": user_id}, {"_id": 0, "hashed_password": 0})
+
+
+# -------- Rate limiter --------
+def _rate_key_user(request: Request) -> str:
+    """Rate-limit key per user id when available, otherwise per IP."""
+    auth = request.headers.get("Authorization", "")
+    token = auth.split(" ", 1)[1] if auth.lower().startswith("bearer ") else None
+    uid = _decode_user_id(token)
+    if uid:
+        return f"user:{uid}"
+    return f"ip:{get_remote_address(request)}"
+
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 # -------- Models --------
@@ -135,7 +165,7 @@ class FoodOut(BaseModel):
     primary_risk_factor: str
     portion_limit_text: str
     actionable_clinical_tip: str
-    personal_tier: Optional[str] = None  # tier tightened for the current user stage
+    personal_tier: Optional[str] = None
     is_favorite: bool = False
 
 
@@ -154,8 +184,17 @@ class FoodDetailOut(BaseModel):
 
 class MealLogCreate(BaseModel):
     food_id: str
-    date: str  # YYYY-MM-DD
-    meal_type: str = "meal"  # breakfast/lunch/dinner/snack/meal
+    date: str
+    meal_type: MealType = "meal"
+
+    @field_validator("date")
+    @classmethod
+    def _validate_date(cls, v: str) -> str:
+        try:
+            date_cls.fromisoformat(v)
+        except (ValueError, TypeError) as e:
+            raise ValueError("date must be a valid YYYY-MM-DD calendar date") from e
+        return v
 
 
 class MealLogOut(BaseModel):
@@ -176,13 +215,13 @@ class AiAskResponse(BaseModel):
 
 
 class FoodScanRequest(BaseModel):
-    image_base64: str  # data-url or raw base64 (JPEG/PNG/WEBP)
+    image_base64: str
 
 
 class FoodScanResponse(BaseModel):
     food_name: str
     hindi_name: Optional[str] = None
-    safety_tier: str  # GREEN/YELLOW/RED
+    safety_tier: str
     primary_risk_factor: str
     portion_limit_text: str
     clinical_tip: str
@@ -223,11 +262,15 @@ def personal_tier_for(food: dict, stage: Stage) -> str:
     return base
 
 
-async def enrich_food(food: dict, user: Optional[dict]) -> FoodOut:
+async def get_user_favorite_ids(user: Optional[dict]) -> Set[str]:
+    if not user:
+        return set()
+    ids = [f["food_id"] async for f in db.favorites.find({"user_id": user["id"]}, {"_id": 0, "food_id": 1})]
+    return set(ids)
+
+
+def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> FoodOut:
     stage: Stage = (user or {}).get("stage", "unknown")  # type: ignore
-    is_fav = False
-    if user:
-        is_fav = bool(await db.favorites.find_one({"user_id": user["id"], "food_id": food["id"]}))
     return FoodOut(
         id=food["id"],
         name=food["name"],
@@ -238,21 +281,20 @@ async def enrich_food(food: dict, user: Optional[dict]) -> FoodOut:
         portion_limit_text=food["portion_limit_text"],
         actionable_clinical_tip=food["actionable_clinical_tip"],
         personal_tier=personal_tier_for(food, stage),
-        is_favorite=is_fav,
+        is_favorite=food["id"] in fav_ids,
     )
 
 
-# -------- App --------
-app = FastAPI(title="Indian Renal Diet API")
-api = APIRouter(prefix="/api")
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
-logger = logging.getLogger("renal-diet")
+async def enrich_food(food: dict, user: Optional[dict]) -> FoodOut:
+    """Single-food enrichment (fetches favorites for user if any)."""
+    fav_ids = await get_user_favorite_ids(user) if user else set()
+    return enrich_food_sync(food, user, fav_ids)
 
 
-@app.on_event("startup")
-async def startup() -> None:
-    # Indexes
+# -------- Lifespan --------
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Startup
     await db.users.create_index("email", unique=True)
     await db.users.create_index("id", unique=True)
     await db.foods.create_index("id", unique=True)
@@ -261,43 +303,60 @@ async def startup() -> None:
     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
-    # Seed foods (idempotent upsert)
     for food in SEED_FOODS:
         await db.foods.update_one({"id": food["id"]}, {"$set": food}, upsert=True)
     for swap in SEED_SWAPS:
         await db.swaps.update_one({"id": swap["id"]}, {"$set": swap}, upsert=True)
     logger.info("Seeded %d foods, %d swaps", len(SEED_FOODS), len(SEED_SWAPS))
-
-
-@app.on_event("shutdown")
-async def shutdown() -> None:
+    yield
+    # Shutdown
     client.close()
+
+
+# -------- App --------
+app = FastAPI(title="Indian Renal Diet API", lifespan=lifespan)
+app.state.limiter = limiter
+
+
+async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    return JSONResponse(status_code=429, content={"detail": "Too many requests. Please slow down."})
+
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+
+api = APIRouter(prefix="/api")
 
 
 # ==================== AUTH ====================
 @api.post("/auth/register", response_model=AuthResponse)
-async def register(body: UserRegister):
-    existing = await db.users.find_one({"email": body.email.lower()})
+@limiter.limit("5/minute", key_func=get_remote_address)
+async def register(request: Request, body: UserRegister):
+    email = body.email.lower()
+    existing = await db.users.find_one({"email": email})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     user_id = str(uuid.uuid4())
     doc = {
         "id": user_id,
-        "email": body.email.lower(),
+        "email": email,
         "full_name": body.full_name or "",
         "stage": "unknown",
         "hashed_password": hash_pw(body.password),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.users.insert_one(doc)
+    try:
+        await db.users.insert_one(doc)
+    except DuplicateKeyError:
+        raise HTTPException(status_code=400, detail="Email already registered")
     return AuthResponse(
         access_token=create_token(user_id),
-        user=UserOut(id=user_id, email=body.email.lower(), full_name=body.full_name or "", stage="unknown"),
+        user=UserOut(id=user_id, email=email, full_name=body.full_name or "", stage="unknown"),
     )
 
 
 @api.post("/auth/login", response_model=AuthResponse)
-async def login(body: UserLogin):
+@limiter.limit("5/minute", key_func=get_remote_address)
+async def login(request: Request, body: UserLogin):
     user = await db.users.find_one({"email": body.email.lower()})
     if not user:
         verify_pw(body.password, _dummy_hash)  # timing-safe
@@ -347,26 +406,27 @@ async def list_foods(
 ):
     query: dict = {}
     if q:
+        safe_q = re.escape(q)
         query["$or"] = [
-            {"name": {"$regex": q, "$options": "i"}},
-            {"hindi_name": {"$regex": q, "$options": "i"}},
-            {"category": {"$regex": q, "$options": "i"}},
+            {"name": {"$regex": safe_q, "$options": "i"}},
+            {"hindi_name": {"$regex": safe_q, "$options": "i"}},
+            {"category": {"$regex": safe_q, "$options": "i"}},
         ]
     if tier:
         tiers = [t.strip().upper() for t in tier.split(",") if t.strip()]
         query["safety_tier"] = {"$in": tiers}
+
+    fav_ids = await get_user_favorite_ids(current_user) if current_user else set()
+
     if favorites_only:
         if not current_user:
             raise HTTPException(status_code=401, detail="Login required for favorites")
-        fav_ids = [f["food_id"] async for f in db.favorites.find({"user_id": current_user["id"]}, {"_id": 0})]
         if not fav_ids:
             return []
-        query["id"] = {"$in": fav_ids}
+        query["id"] = {"$in": list(fav_ids)}
+
     cursor = db.foods.find(query, {"_id": 0}).limit(limit)
-    out: List[FoodOut] = []
-    async for doc in cursor:
-        out.append(await enrich_food(doc, current_user))
-    return out
+    return [enrich_food_sync(doc, current_user, fav_ids) async for doc in cursor]
 
 
 @api.get("/foods/{food_id}", response_model=FoodDetailOut)
@@ -374,14 +434,12 @@ async def get_food(food_id: str, current_user=Depends(get_optional_user)):
     food = await db.foods.find_one({"id": food_id}, {"_id": 0})
     if not food:
         raise HTTPException(status_code=404, detail="Food not found")
-    food_out = await enrich_food(food, current_user)
+    fav_ids = await get_user_favorite_ids(current_user) if current_user else set()
+    food_out = enrich_food_sync(food, current_user, fav_ids)
     swap_out: Optional[SwapOut] = None
-    # Show swap for RED (personal_tier or base tier)
     tier = food_out.personal_tier or food_out.safety_tier
     if tier == "RED":
         swap = await db.swaps.find_one({"trigger_food_id": food_id}, {"_id": 0})
-        # Fallback: for foods that don't have a direct swap but became RED via personalization,
-        # try to find any GREEN alternative in same category.
         if not swap and food["safety_tier"] != "RED":
             green_alt = await db.foods.find_one(
                 {"category": food["category"], "safety_tier": "GREEN"}, {"_id": 0}
@@ -398,7 +456,7 @@ async def get_food(food_id: str, current_user=Depends(get_optional_user)):
         if swap:
             rec = await db.foods.find_one({"id": swap["recommended_swap_food_id"]}, {"_id": 0})
             if rec:
-                rec_out = await enrich_food(rec, current_user)
+                rec_out = enrich_food_sync(rec, current_user, fav_ids)
                 swap_out = SwapOut(
                     id=swap["id"],
                     trigger_food_id=swap["trigger_food_id"],
@@ -419,12 +477,15 @@ async def toggle_favorite(food_id: str, current_user=Depends(get_current_user)):
     if existing:
         await db.favorites.delete_one({"user_id": current_user["id"], "food_id": food_id})
         return FavoriteToggleResponse(food_id=food_id, is_favorite=False)
-    await db.favorites.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": current_user["id"],
-        "food_id": food_id,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    })
+    try:
+        await db.favorites.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "food_id": food_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except DuplicateKeyError:
+        pass
     return FavoriteToggleResponse(food_id=food_id, is_favorite=True)
 
 
@@ -441,15 +502,26 @@ async def weekly_report(
     start = end - timedelta(days=6)
     start_s, end_s = start.isoformat(), end.isoformat()
 
-    logs_cursor = db.meal_logs.find(
-        {"user_id": current_user["id"], "date": {"$gte": start_s, "$lte": end_s}}, {"_id": 0}
-    )
+    logs = [
+        log
+        async for log in db.meal_logs.find(
+            {"user_id": current_user["id"], "date": {"$gte": start_s, "$lte": end_s}}, {"_id": 0}
+        )
+    ]
+
+    # Batch fetch foods with $in
+    food_ids = list({log["food_id"] for log in logs})
+    foods_by_id: dict = {}
+    if food_ids:
+        async for f in db.foods.find({"id": {"$in": food_ids}}, {"_id": 0}):
+            foods_by_id[f["id"]] = f
+
     day_map: dict = {(start + timedelta(days=i)).isoformat(): {"green": 0, "yellow": 0, "red": 0} for i in range(7)}
     name_by_tier: dict = {"GREEN": {}, "YELLOW": {}, "RED": {}}
     totals = {"GREEN": 0, "YELLOW": 0, "RED": 0}
 
-    async for log in logs_cursor:
-        food = await db.foods.find_one({"id": log["food_id"]}, {"_id": 0})
+    for log in logs:
+        food = foods_by_id.get(log["food_id"])
         if not food:
             continue
         tier = personal_tier_for(food, current_user.get("stage", "unknown"))
@@ -509,20 +581,21 @@ def _extract_json(text: str) -> Optional[dict]:
 
 
 @api.post("/scan/food", response_model=FoodScanResponse)
-async def scan_food(body: FoodScanRequest, current_user=Depends(get_current_user)):
+@limiter.limit("5/minute", key_func=_rate_key_user)
+async def scan_food(request: Request, body: FoodScanRequest, current_user=Depends(get_current_user)):
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=503, detail="Vision service not configured")
     raw = (body.image_base64 or "").strip()
     if not raw:
         raise HTTPException(status_code=400, detail="image_base64 is required")
-    # Strip data-url prefix if present
     if raw.startswith("data:"):
         raw = raw.split(",", 1)[-1]
-    # basic sanity: valid base64 & non-empty
     try:
         decoded = base64.b64decode(raw, validate=True)
         if len(decoded) < 200:
             raise HTTPException(status_code=400, detail="Image is empty or too small")
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid base64 image data")
 
@@ -542,9 +615,9 @@ async def scan_food(body: FoodScanRequest, current_user=Depends(get_current_user
             UserMessage(text="Identify this Indian dish and classify its CKD safety.", file_contents=[image_content])
         )
         text = str(reply).strip()
-    except Exception as e:  # noqa: BLE001
+    except Exception:
         logger.exception("Vision scan failed")
-        raise HTTPException(status_code=502, detail=f"Vision service error: {e}")
+        raise HTTPException(status_code=502, detail="Vision service temporarily unavailable")
 
     data = _extract_json(text) or {}
     food_name = str(data.get("food_name") or "Unknown Dish").strip()
@@ -552,7 +625,6 @@ async def scan_food(body: FoodScanRequest, current_user=Depends(get_current_user
     if tier not in {"GREEN", "YELLOW", "RED"}:
         tier = "YELLOW"
 
-    # Try match to a seeded food (best-effort)
     matched_id: Optional[str] = None
     if food_name and food_name.lower() != "unknown":
         match = await db.foods.find_one(
@@ -579,10 +651,30 @@ async def list_meal_logs(
     date: str = Query(..., description="YYYY-MM-DD"),
     current_user=Depends(get_current_user),
 ):
-    cursor = db.meal_logs.find({"user_id": current_user["id"], "date": date}, {"_id": 0}).sort("created_at", 1)
+    try:
+        date_cls.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="date must be a valid YYYY-MM-DD calendar date")
+
+    logs = [
+        log
+        async for log in db.meal_logs.find(
+            {"user_id": current_user["id"], "date": date}, {"_id": 0}
+        ).sort("created_at", 1)
+    ]
+    if not logs:
+        return []
+
+    food_ids = list({log["food_id"] for log in logs})
+    foods_by_id: dict = {}
+    async for f in db.foods.find({"id": {"$in": food_ids}}, {"_id": 0}):
+        foods_by_id[f["id"]] = f
+
+    fav_ids = await get_user_favorite_ids(current_user)
+
     out: List[MealLogOut] = []
-    async for log in cursor:
-        food = await db.foods.find_one({"id": log["food_id"]}, {"_id": 0})
+    for log in logs:
+        food = foods_by_id.get(log["food_id"])
         if not food:
             continue
         out.append(MealLogOut(
@@ -590,7 +682,7 @@ async def list_meal_logs(
             food_id=log["food_id"],
             date=log["date"],
             meal_type=log.get("meal_type", "meal"),
-            food=await enrich_food(food, current_user),
+            food=enrich_food_sync(food, current_user, fav_ids),
             created_at=log["created_at"],
         ))
     return out
@@ -610,12 +702,13 @@ async def create_meal_log(body: MealLogCreate, current_user=Depends(get_current_
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.meal_logs.insert_one(log)
+    fav_ids = await get_user_favorite_ids(current_user)
     return MealLogOut(
         id=log["id"],
         food_id=log["food_id"],
         date=log["date"],
         meal_type=log["meal_type"],
-        food=await enrich_food(food, current_user),
+        food=enrich_food_sync(food, current_user, fav_ids),
         created_at=log["created_at"],
     )
 
@@ -641,7 +734,8 @@ AI_SYSTEM_PROMPT = (
 
 
 @api.post("/ai/ask", response_model=AiAskResponse)
-async def ai_ask(body: AiAskRequest, current_user=Depends(get_current_user)):
+@limiter.limit("10/minute", key_func=_rate_key_user)
+async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_current_user)):
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=503, detail="AI service is not configured")
     question = (body.question or "").strip()
@@ -657,9 +751,9 @@ async def ai_ask(body: AiAskRequest, current_user=Depends(get_current_user)):
         )
         reply = await chat.send_message(UserMessage(text=question))
         return AiAskResponse(answer=str(reply).strip())
-    except Exception as e:  # noqa: BLE001
+    except Exception:
         logger.exception("AI ask failed")
-        raise HTTPException(status_code=502, detail=f"AI service error: {e}")
+        raise HTTPException(status_code=502, detail="AI service temporarily unavailable")
 
 
 @api.get("/")
@@ -669,10 +763,12 @@ async def root():
 
 app.include_router(api)
 
+# CORS — allow_origins=["*"] with allow_credentials=True is invalid and insecure.
+# Origins come from CORS_ORIGINS env var (comma-separated).
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
