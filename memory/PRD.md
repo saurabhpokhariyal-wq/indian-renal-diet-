@@ -100,3 +100,14 @@ See `/app/memory/test_credentials.md`.
   - Food detail chip is stage-neutral and dynamic.
   - Stale limit assertions in `test_nutrient_budget.py` updated to new
     2400/1200/2300 defaults for unknown-stage users.
+- Iteration 8 (AI grounding + scan authoritative override + README): 8/8 backend ✅
+  - `/api/ai/ask` now tokenizes the question, matches foods by name /
+    hindi_name / category, and injects a GROUNDED FOOD DATA block (top 6
+    matches with authoritative tier / personal_tier / nutrients / swap)
+    into the system prompt so the model never contradicts the food cards.
+  - `/api/scan/food` overrides the vision model's `safety_tier /
+    primary_risk_factor / portion_limit_text / clinical_tip / food_name /
+    hindi_name` with the DB values (and personal_tier for the user's stage)
+    whenever the identified name matches a seeded food.
+  - Placeholder `/app/README.md` replaced with a real README covering the
+    app, stack, layout, setup steps, env vars, and medical disclaimer.
