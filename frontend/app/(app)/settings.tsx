@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { SUPPORTED_LANGS, langLabel, type Lang } from "@/src/lib/i18n";
 import type { Stage } from "@/src/lib/api";
 import { COLORS, FONT, SIZE } from "@/src/theme";
 
@@ -206,8 +207,15 @@ export default function SettingsScreen() {
           <View style={styles.card}>
             <Text style={styles.section}>{t("language")}</Text>
             <View style={styles.langRow}>
-              <LangButton testID="lang-en" label={t("english")} active={lang === "en"} onPress={() => setLang("en")} />
-              <LangButton testID="lang-hi" label={t("hindi")} active={lang === "hi"} onPress={() => setLang("hi")} />
+              {SUPPORTED_LANGS.map((code: Lang) => (
+                <LangButton
+                  key={code}
+                  testID={`lang-${code}`}
+                  label={langLabel(code)}
+                  active={lang === code}
+                  onPress={() => setLang(code)}
+                />
+              ))}
             </View>
           </View>
 
@@ -292,9 +300,10 @@ const styles = StyleSheet.create({
   primaryText: { color: COLORS.textInverse, fontSize: FONT.bodyL, fontWeight: "700" },
   linkBtn: { height: SIZE.touchPrimary, paddingHorizontal: SIZE.m, alignItems: "center", justifyContent: "center" },
   linkText: { color: COLORS.textSecondary, fontWeight: "700", fontSize: FONT.body },
-  langRow: { flexDirection: "row", gap: SIZE.s },
+  langRow: { flexDirection: "row", flexWrap: "wrap", gap: SIZE.s },
   langBtn: {
-    flex: 1, height: SIZE.touchPrimary, borderRadius: SIZE.radiusMd, borderWidth: 2,
+    minWidth: "30%", flexGrow: 1, height: SIZE.touchPrimary, paddingHorizontal: SIZE.s,
+    borderRadius: SIZE.radiusMd, borderWidth: 2,
     borderColor: COLORS.border, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.bgDefault,
   },
   langBtnActive: { borderColor: COLORS.brand, backgroundColor: COLORS.brandLight },

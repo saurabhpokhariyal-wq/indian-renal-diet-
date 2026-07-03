@@ -160,8 +160,17 @@ export interface FoodScan {
   portion_limit_text: string;
   clinical_tip: string;
   matched_food_id: string | null;
+  barcode?: string | null;
+  brand?: string | null;
+  portion_g?: number | null;
+  potassium_mg?: number | null;
+  phosphorus_mg?: number | null;
+  sodium_mg?: number | null;
+  protein_g?: number | null;
   raw: string | null;
 }
+
+export type Lang = "en" | "hi" | "ta" | "bn" | "mr";
 
 // ---------------- API ----------------
 export const api = {
@@ -215,6 +224,9 @@ export const api = {
   scanFood: (image_base64: string) =>
     request<FoodScan>("/scan/food", { method: "POST", body: JSON.stringify({ image_base64 }) }, true),
 
-  askAi: (question: string, lang: "en" | "hi" = "en") =>
+  scanBarcode: (barcode: string) =>
+    request<FoodScan>("/scan/barcode", { method: "POST", body: JSON.stringify({ barcode }) }, true),
+
+  askAi: (question: string, lang: Lang = "en") =>
     request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question, lang }) }, true),
 };

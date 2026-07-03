@@ -1,28 +1,63 @@
-export type Lang = "en" | "hi";
+export type Lang = "en" | "hi" | "ta" | "bn" | "mr";
 
-export const translations = {
-  appName: { en: "Indian Renal Diet", hi: "इंडियन रीनल डाइट" },
-  tagline: { en: "Smart food swaps for kidney health", hi: "किडनी के लिए स्मार्ट फूड स्वैप" },
+// Each entry must have `en`. Other languages are optional and fall back to
+// English via t() — this lets us ship the plumbing for new languages and add
+// polished translations incrementally without breaking the type check.
+type Entry = { en: string; hi?: string; ta?: string; bn?: string; mr?: string };
 
-  tabSearch: { en: "Search", hi: "खोज" },
-  tabMeals: { en: "Meals", hi: "भोजन" },
-  tabAI: { en: "Ask AI", hi: "AI से पूछें" },
-  tabSettings: { en: "Settings", hi: "सेटिंग्स" },
+export const translations: Record<string, Entry> = {
+  appName: {
+    en: "Indian Renal Diet",
+    hi: "इंडियन रीनल डाइट",
+    ta: "இந்திய சிறுநீரக உணவு",
+    bn: "ইন্ডিয়ান রেনাল ডায়েট",
+    mr: "इंडियन रेनल डाएट",
+  },
+  tagline: {
+    en: "Smart food swaps for kidney health",
+    hi: "किडनी के लिए स्मार्ट फूड स्वैप",
+    ta: "சிறுநீரக ஆரோக்கியத்துக்கான ஸ்மார்ட் உணவு மாற்றங்கள்",
+    bn: "কিডনি স্বাস্থ্যের জন্য স্মার্ট খাবার বদল",
+    mr: "किडनीच्या आरोग्यासाठी स्मार्ट फूड स्वॅप",
+  },
 
-  loginTitle: { en: "Welcome back", hi: "फिर से स्वागत है" },
-  loginSubtitle: { en: "Sign in to your kidney-safe diet coach", hi: "अपने किडनी-सुरक्षित डाइट कोच में साइन इन करें" },
+  tabSearch: { en: "Search", hi: "खोज", ta: "தேடல்", bn: "খুঁজুন", mr: "शोधा" },
+  tabMeals: { en: "Meals", hi: "भोजन", ta: "உணவுகள்", bn: "খাবার", mr: "जेवण" },
+  tabAI: { en: "Ask AI", hi: "AI से पूछें", ta: "AI-ஐக் கேளுங்கள்", bn: "AI-কে জিজ্ঞাসা", mr: "AI ला विचारा" },
+  tabSettings: { en: "Settings", hi: "सेटिंग्स", ta: "அமைப்புகள்", bn: "সেটিংস", mr: "सेटिंग्ज" },
+
+  loginTitle: {
+    en: "Welcome back",
+    hi: "फिर से स्वागत है",
+    ta: "மீண்டும் வரவேற்கிறோம்",
+    bn: "আবার স্বাগতম",
+    mr: "पुन्हा स्वागत आहे",
+  },
+  loginSubtitle: {
+    en: "Sign in to your kidney-safe diet coach",
+    hi: "अपने किडनी-सुरक्षित डाइट कोच में साइन इन करें",
+    ta: "உங்கள் சிறுநீரக பாதுகாப்பான உணவு பயிற்சியாளரில் உள்நுழையவும்",
+    bn: "আপনার কিডনি-সুরক্ষিত ডায়েট কোচে সাইন ইন করুন",
+    mr: "तुमच्या किडनी-सुरक्षित डाएट कोचमध्ये साइन इन करा",
+  },
   registerTitle: { en: "Create account", hi: "खाता बनाएँ" },
   registerSubtitle: { en: "Start your kidney-safe eating journey", hi: "किडनी-सुरक्षित खान-पान की शुरुआत करें" },
   email: { en: "Email", hi: "ईमेल" },
   password: { en: "Password", hi: "पासवर्ड" },
   fullName: { en: "Full name (optional)", hi: "पूरा नाम (वैकल्पिक)" },
-  signIn: { en: "Sign In", hi: "साइन इन" },
-  signUp: { en: "Sign Up", hi: "साइन अप" },
+  signIn: { en: "Sign In", hi: "साइन इन", ta: "உள்நுழை", bn: "সাইন ইন", mr: "साइन इन" },
+  signUp: { en: "Sign Up", hi: "साइन अप", ta: "பதிவு", bn: "সাইন আপ", mr: "साइन अप" },
   noAccount: { en: "New here? Create an account", hi: "नए हैं? खाता बनाएँ" },
   hasAccount: { en: "Already have an account? Sign in", hi: "पहले से खाता है? साइन इन करें" },
 
   searchPlaceholder: { en: "Search for a food, e.g. Palak Paneer", hi: "भोजन खोजें, जैसे पालक पनीर" },
-  greeting: { en: "Namaste", hi: "नमस्ते" },
+  greeting: {
+    en: "Namaste",
+    hi: "नमस्ते",
+    ta: "வணக்கம்",
+    bn: "নমস্কার",
+    mr: "नमस्ते",
+  },
   quickTips: { en: "Popular searches", hi: "लोकप्रिय खोजें" },
   noResults: { en: "No foods matched your search", hi: "कोई भोजन नहीं मिला" },
 
@@ -37,9 +72,9 @@ export const translations = {
 
   mealLog: { en: "Today's Meals", hi: "आज का भोजन" },
   emptyMeals: { en: "No meals logged yet. Search a food and add it here.", hi: "अभी तक कोई भोजन दर्ज नहीं। कोई भोजन खोजकर यहाँ जोड़ें।" },
-  summarySafe: { en: "Safe", hi: "सुरक्षित" },
-  summaryCaution: { en: "Caution", hi: "सावधानी" },
-  summaryAvoid: { en: "Avoid", hi: "टालें" },
+  summarySafe: { en: "Safe", hi: "सुरक्षित", ta: "பாதுகாப்பான", bn: "নিরাপদ", mr: "सुरक्षित" },
+  summaryCaution: { en: "Caution", hi: "सावधानी", ta: "எச்சரிக்கை", bn: "সতর্কতা", mr: "सावधान" },
+  summaryAvoid: { en: "Avoid", hi: "टालें", ta: "தவிர்க்கவும்", bn: "এড়িয়ে চলুন", mr: "टाळा" },
   remove: { en: "Remove", hi: "हटाएँ" },
 
   askAiTitle: { en: "Ask your Renal Diet AI", hi: "अपने रीनल डाइट AI से पूछें" },
@@ -187,10 +222,83 @@ export const translations = {
   grantPermission: { en: "Grant Permission", hi: "अनुमति दें" },
   openSettings: { en: "Open Settings", hi: "सेटिंग्स खोलें" },
   seeMore: { en: "See full details", hi: "पूरी जानकारी देखें" },
+
+  // Scan modes / Barcode
+  scanModeVision: {
+    en: "Food photo",
+    hi: "भोजन फ़ोटो",
+    ta: "உணவு புகைப்படம்",
+    bn: "খাবারের ছবি",
+    mr: "जेवणाचा फोटो",
+  },
+  scanModeBarcode: {
+    en: "Barcode",
+    hi: "बारकोड",
+    ta: "பார்கோடு",
+    bn: "বারকোড",
+    mr: "बारकोड",
+  },
+  barcodeIntro: {
+    en: "Point the camera at a packaged food's barcode. We'll check kidney safety from Open Food Facts.",
+    hi: "पैकेज्ड फूड के बारकोड पर कैमरा रखें। हम Open Food Facts से किडनी सुरक्षा जाँचेंगे।",
+    ta: "பொதி செய்யப்பட்ட உணவின் பார்கோடில் கேமராவை நோக்கவும். சிறுநீரக பாதுகாப்பை Open Food Facts வழியாக சரிபார்ப்போம்.",
+    bn: "প্যাকেটজাত খাবারের বারকোডে ক্যামেরা তাক করুন। আমরা Open Food Facts থেকে কিডনি নিরাপত্তা যাচাই করব।",
+    mr: "पॅकेज्ड फूडच्या बारकोडवर कॅमेरा ठेवा. Open Food Facts वरून किडनी सुरक्षा तपासू.",
+  },
+  barcodeAlignHint: {
+    en: "Align the barcode inside the frame",
+    hi: "बारकोड को फ्रेम में रखें",
+    ta: "பார்கோடை சட்டத்திற்குள் வையுங்கள்",
+    bn: "বারকোডটি ফ্রেমের ভেতরে রাখুন",
+    mr: "बारकोड चौकटीत ठेवा",
+  },
+  barcodeLookingUp: {
+    en: "Looking up barcode…",
+    hi: "बारकोड खोज रहे हैं…",
+    ta: "பார்கோடு தேடப்படுகிறது…",
+    bn: "বারকোড খোঁজা হচ্ছে…",
+    mr: "बारकोड शोधत आहोत…",
+  },
+  barcodeNotFound: {
+    en: "Product not found. Try scanning again or use the photo mode.",
+    hi: "उत्पाद नहीं मिला। दुबारा स्कैन करें या फ़ोटो मोड का उपयोग करें।",
+    ta: "தயாரிப்பு கிடைக்கவில்லை. மீண்டும் ஸ்கேன் செய்யவும் அல்லது புகைப்பட முறையைப் பயன்படுத்தவும்.",
+    bn: "পণ্য পাওয়া যায়নি। আবার স্ক্যান করুন বা ফটো মোড ব্যবহার করুন।",
+    mr: "उत्पाद सापडले नाही. पुन्हा स्कॅन करा किंवा फोटो मोड वापरा.",
+  },
+  barcodeRescan: {
+    en: "Scan another",
+    hi: "फिर से स्कैन",
+    ta: "மீண்டும் ஸ்கேன்",
+    bn: "আবার স্ক্যান",
+    mr: "पुन्हा स्कॅन",
+  },
+  brand: {
+    en: "Brand",
+    hi: "ब्रांड",
+    ta: "பிராண்ட்",
+    bn: "ব্র্যান্ড",
+    mr: "ब्रँड",
+  },
 } as const;
 
 export type TKey = keyof typeof translations;
 
+const LANG_LABELS: Record<Lang, string> = {
+  en: "English",
+  hi: "हिन्दी",
+  ta: "தமிழ்",
+  bn: "বাংলা",
+  mr: "मराठी",
+};
+
+export const SUPPORTED_LANGS: Lang[] = ["en", "hi", "ta", "bn", "mr"];
+
+export function langLabel(l: Lang): string {
+  return LANG_LABELS[l];
+}
+
 export function t(lang: Lang, key: TKey): string {
-  return translations[key][lang];
+  const entry = translations[key];
+  return (entry[lang] as string | undefined) ?? entry.en;
 }

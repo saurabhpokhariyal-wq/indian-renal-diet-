@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { t as translate, type Lang, type TKey } from "@/src/lib/i18n";
+import { SUPPORTED_LANGS, t as translate, type Lang, type TKey } from "@/src/lib/i18n";
 import { storage } from "@/src/utils/storage";
 
 interface LangCtx {
@@ -18,7 +18,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       const saved = await storage.getItem<string>(LANG_KEY, "");
-      if (saved === "hi" || saved === "en") setLangState(saved);
+      if (saved && (SUPPORTED_LANGS as string[]).includes(saved)) {
+        setLangState(saved as Lang);
+      }
     })();
   }, []);
 

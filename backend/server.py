@@ -232,7 +232,7 @@ class MealLogOut(BaseModel):
 
 class AiAskRequest(BaseModel):
     question: str
-    lang: Optional[Literal["en", "hi"]] = "en"
+    lang: Optional[Literal["en", "hi", "ta", "bn", "mr"]] = "en"
 
 
 class AiAskResponse(BaseModel):
@@ -243,6 +243,10 @@ class FoodScanRequest(BaseModel):
     image_base64: str
 
 
+class BarcodeScanRequest(BaseModel):
+    barcode: str = Field(min_length=6, max_length=32)
+
+
 class FoodScanResponse(BaseModel):
     food_name: str
     hindi_name: Optional[str] = None
@@ -251,6 +255,13 @@ class FoodScanResponse(BaseModel):
     portion_limit_text: str
     clinical_tip: str
     matched_food_id: Optional[str] = None
+    barcode: Optional[str] = None
+    brand: Optional[str] = None
+    portion_g: Optional[float] = None
+    potassium_mg: Optional[float] = None
+    phosphorus_mg: Optional[float] = None
+    sodium_mg: Optional[float] = None
+    protein_g: Optional[float] = None
     raw: Optional[str] = None
 
 
@@ -836,6 +847,131 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
     )
 
 
+# ==================== BARCODE SCAN (Open Food Facts) ====================
+def _classify_from_nutrients(k_mg: float, p_mg: float, na_mg: float) -> tuple[str, str]:
+    """Return (safety_tier, primary_risk_factor) from per-portion nutrients."""
+    reasons: List[tuple[str, str, int]] = []  # (risk, tier, severity)
+    if k_mg >= 300:
+        reasons.append(("POTASSIUM", "RED", 3))
+    elif k_mg >= 150:
+        reasons.append(("POTASSIUM", "YELLOW", 2))
+    if na_mg >= 400:
+        reasons.append(("SODIUM", "RED", 3))
+    elif na_mg >= 200:
+        reasons.append(("SODIUM", "YELLOW", 2))
+    if p_mg >= 150:
+        reasons.append(("PHOSPHORUS", "RED", 3))
+    elif p_mg >= 100:
+        reasons.append(("PHOSPHORUS", "YELLOW", 2))
+    if not reasons:
+        return "GREEN", "NONE"
+    reasons.sort(key=lambda r: r[2], reverse=True)
+    return reasons[0][1], reasons[0][0]
+
+
+@api.post("/scan/barcode", response_model=FoodScanResponse)
+@limiter.limit("15/minute", key_func=_rate_key_user)
+async def scan_barcode(request: Request, body: BarcodeScanRequest, current_user=Depends(get_current_user)):
+    import httpx
+
+    barcode = re.sub(r"\D", "", body.barcode)
+    if len(barcode) < 6:
+        raise HTTPException(status_code=400, detail="Invalid barcode")
+
+    url = f"https://world.openfoodfacts.org/api/v2/product/{barcode}.json"
+    try:
+        async with httpx.AsyncClient(timeout=10.0, headers={"User-Agent": "IndianRenalDiet/1.0"}) as hc:
+            r = await hc.get(url)
+    except Exception:
+        logger.exception("Open Food Facts request failed")
+        raise HTTPException(status_code=502, detail="Barcode lookup temporarily unavailable")
+    if r.status_code != 200:
+        raise HTTPException(status_code=502, detail="Barcode lookup temporarily unavailable")
+    doc = r.json() or {}
+    if int(doc.get("status", 0)) != 1 or not doc.get("product"):
+        raise HTTPException(status_code=404, detail="Product not found for this barcode")
+
+    product = doc["product"]
+    product_name = (product.get("product_name") or product.get("product_name_en") or "").strip() or "Unknown packaged food"
+    brand = (product.get("brands") or "").split(",")[0].strip() or None
+    nutriments = product.get("nutriments") or {}
+
+    def _val(key: str) -> float:
+        v = nutriments.get(key)
+        try:
+            return float(v) if v is not None else 0.0
+        except (TypeError, ValueError):
+            return 0.0
+
+    # Prefer per-serving values when available, else per-100g.
+    portion_g = 0.0
+    try:
+        portion_g = float(product.get("serving_quantity") or 0)
+    except (TypeError, ValueError):
+        portion_g = 0.0
+
+    if portion_g and _val("potassium_serving"):
+        k_mg = _val("potassium_serving") * 1000  # OFF stores in grams
+        p_mg = _val("phosphorus_serving") * 1000
+        na_mg = _val("sodium_serving") * 1000 if _val("sodium_serving") else _val("salt_serving") * 400  # salt→Na
+        protein_g = _val("proteins_serving")
+    else:
+        # per-100g, scale to serving if we know it, else use 100g as reference portion
+        ref = portion_g if portion_g else 100.0
+        k_mg = _val("potassium_100g") * 1000 * ref / 100
+        p_mg = _val("phosphorus_100g") * 1000 * ref / 100
+        na_mg = (_val("sodium_100g") * 1000 * ref / 100) if _val("sodium_100g") else (_val("salt_100g") * 400 * ref / 100)
+        protein_g = _val("proteins_100g") * ref / 100
+        if not portion_g:
+            portion_g = 100.0
+
+    tier, primary_risk = _classify_from_nutrients(k_mg, p_mg, na_mg)
+    portion_limit_text = f"Serving size: {int(portion_g)}g"
+    clinical_tip = (
+        f"Per serving: potassium {int(k_mg)}mg, phosphorus {int(p_mg)}mg, sodium {int(na_mg)}mg. "
+        "Always cross-check with the pack label; some manufacturers under-report additives."
+    )
+    hindi_name: Optional[str] = None
+
+    # Authoritative DB override: if the product name matches a seeded food.
+    matched_id: Optional[str] = None
+    if product_name and product_name.lower() != "unknown packaged food":
+        match = await db.foods.find_one(
+            {"name": {"$regex": re.escape(product_name), "$options": "i"}}, {"_id": 0}
+        )
+        if match:
+            matched_id = match["id"]
+            stage: Stage = current_user.get("stage", "unknown") or "unknown"  # type: ignore
+            tier = personal_tier_for(match, stage)
+            primary_risk = match.get("primary_risk_factor", primary_risk)
+            portion_limit_text = match.get("portion_limit_text", portion_limit_text)
+            clinical_tip = match.get("actionable_clinical_tip", clinical_tip)
+            hindi_name = match.get("hindi_name")
+            portion_g = float(match.get("portion_g") or portion_g)
+            k_mg = float(match.get("potassium_mg") or k_mg)
+            p_mg = float(match.get("phosphorus_mg") or p_mg)
+            na_mg = float(match.get("sodium_mg") or na_mg)
+            protein_g = float(match.get("protein_g") or protein_g)
+            product_name = match["name"]
+
+    return FoodScanResponse(
+        food_name=product_name,
+        hindi_name=hindi_name,
+        safety_tier=tier,
+        primary_risk_factor=primary_risk,
+        portion_limit_text=portion_limit_text,
+        clinical_tip=clinical_tip,
+        matched_food_id=matched_id,
+        barcode=barcode,
+        brand=brand,
+        portion_g=round(portion_g, 1),
+        potassium_mg=round(k_mg, 1),
+        phosphorus_mg=round(p_mg, 1),
+        sodium_mg=round(na_mg, 1),
+        protein_g=round(protein_g, 1),
+    )
+
+
 # ==================== MEAL LOG ====================
 @api.get("/meal-logs", response_model=List[MealLogOut])
 async def list_meal_logs(
@@ -970,12 +1106,22 @@ async def _build_ai_context(user: dict, lang: str) -> str:
         ctx += "\n- Because the patient is diabetic, also flag foods with high glycemic load."
 
     if lang == "hi":
-        ctx += (
-            "\n\nIMPORTANT: The user's app language is Hindi. "
-            "Answer entirely in conversational Hindi (Devanagari script). "
-            "Keep English food names in brackets where helpful, e.g. 'लौकी (Lauki)'."
-        )
+        ctx += _lang_instruction("Hindi", "Devanagari", "लौकी (Lauki)")
+    elif lang == "ta":
+        ctx += _lang_instruction("Tamil", "Tamil script", "லௌகி (Lauki)")
+    elif lang == "bn":
+        ctx += _lang_instruction("Bengali", "Bengali script", "লাউ (Lauki)")
+    elif lang == "mr":
+        ctx += _lang_instruction("Marathi", "Devanagari", "दुधी (Lauki)")
     return ctx
+
+
+def _lang_instruction(name: str, script: str, sample: str) -> str:
+    return (
+        f"\n\nIMPORTANT: The user's app language is {name}. "
+        f"Answer entirely in conversational {name} ({script}). "
+        f"Keep English food names in brackets where helpful, e.g. '{sample}'."
+    )
 
 
 # Common English + Hindi filler words to strip when picking search tokens from

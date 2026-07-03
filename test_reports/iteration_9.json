@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 9 verification of (1) new barcode scan feature and (2) 3 new languages (ta/bn/mr). Backend: 10/10 pytest tests PASS in /app/backend/tests/test_iter9_barcode_and_lang.py — Nutella barcode 3017620422003 returns 200 with all required fields (food_name, safety_tier, primary_risk_factor, portion_limit_text, clinical_tip, brand, potassium_mg, phosphorus_mg, sodium_mg, protein_g, portion_g); 000000000000 → 404 'Product not found for this barcode'; barcode length=5 → 422 (Pydantic Field min_length=6); no auth → 401/403; regression on /api/foods?q=palak, /api/foods/{id}, /api/meal-logs POST + /api/meal-logs/summary, /api/scan/food auth check, and /api/ai/ask lang='ta' all pass. Frontend (Playwright mobile viewport 390x844 on demo user): scan-mode-vision and scan-mode-barcode chips render with correct testIDs; tapping barcode chip highlights it and swaps the header subtitle to the barcode intro ('Point the camera at a packaged food's barcode. We'll check kidney safety from Open Food Facts.') and shows the expected 'Barcode scanning is available on the mobile device. Open this app on your phone via Expo Go.' placeholder + 'Align the barcode inside the frame' overlay hint; toggling back to Food photo restores the camera-placeholder shutter UI (verified by 3 screenshots at /tmp/7-9). Settings language picker renders all 5 buttons (lang-en, lang-hi, lang-ta, lang-bn, lang-mr); tapping each visibly changes the bottom tab label (Search → खोज → தேடல் → খুঁজুন → शोधा — all confirmed via document.body.innerText check); Tamil selection persists across a full page reload (AsyncStorage / storage.setItem working). Regression: login → disclaimer → home renders (Namaste, Demo User; My Favorites; food list; safety cards); search 'palak' → tap → detail page for Palak Paneer opens with RED tier, potassium 650mg, portion, clinical tip, recommended safe swap. No red screens, no unhandled promise rejections, no critical console errors. One minor React Native warning: 'props.pointerEvents is deprecated. Use style.pointerEvents' — coming from scan.tsx L251 (barcodeOverlay). Zero blockers; no bugs.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "scan.tsx barcodeOverlay View", "issue": "Uses deprecated `pointerEvents` prop instead of `style={{pointerEvents:'none'}}`. Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents'. Reference: /app/frontend/app/(app)/scan.tsx:251"}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter9_barcode_and_lang.py",
+    "/app/test_reports/pytest/pytest_iter9.xml",
+    "/app/test_reports/iteration_9.json"
+  ],
+  "action_items": [
+    "Optional (not blocking): move `pointerEvents=\"none\"` to `style={{ pointerEvents: 'none' }}` on the barcodeOverlay View in scan.tsx L251 to silence the deprecation warning."
+  ],
+  "critical_code_review_comments": [
+    "scan.tsx L109-126 onBarcode: correctly de-dupes via lastScannedRef, gates concurrent lookups via barcodeLookup, resets the ref after 1.5s on error so a repeated scan works; friendly not-found message via t('barcodeNotFound') which correctly reads translations['barcodeNotFound'] fallback chain.",
+    "scan.tsx L67-74 switchMode: clears photo/result/error/lastScannedRef when toggling — good, avoids stale state carrying from vision to barcode.",
+    "server.py L872-972 /api/scan/barcode: rate-limited 15/min per user; strips non-digits via re.sub; length<6 → 400 pre-Pydantic (dead path — Pydantic Field(min_length=6) rejects before this runs with 422); OFF timeout=10s; DB override matches on regex-escaped product_name — safe. Sodium fallback from salt uses factor 400 (1g salt ≈ 400mg Na) — correct.",
+    "i18n.ts: SUPPORTED_LANGS=['en','hi','ta','bn','mr']; language-context correctly gates persistence via SUPPORTED_LANGS whitelist so a corrupt AsyncStorage value can't set an invalid lang. Fall-through to English for missing keys is implemented in t() — safe."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter9_barcode_and_lang.py (new — 10 pytest tests)",
+    "/app/test_reports/pytest/pytest_iter9.xml (new JUnit)",
+    "/app/test_reports/iteration_9.json (new)"
+  ],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% for verified flows (scan mode toggle, 5-language switch, persistence, login → home → detail)"},
+  "seed_data_creation": "Reused demo@renal.app; TestRegression created a meal-log entry for the demo user (today) and deleted it in teardown so no residual state.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) Frontend env var is EXPO_PUBLIC_BACKEND_URL (Expo public convention). 2) Web preview blocks the real camera → useCameraPermissions returns granted=false initially; you MUST call `await page.context.grant_permissions(['camera'], origin=<preview_url>)` BEFORE navigating, otherwise the Scan screen shows the permission-request UI and scan-mode-* chips never render. 3) React Native Web keeps other tab screens mounted in the DOM — `document.body.innerText` on /scan will include Home content too. Verify visible mode by screenshot or by checking chip `aria-pressed` / active-style, not by absence of text. 4) `add-to-log-button` testID exists on food detail page but is below the fold — scroll before clicking. 5) Rate-limit: /scan/barcode is 15/min per user, /ai/ask is 10/min. 6) The 6-digit length check in server.py L878-879 (raise 400) is dead code because Pydantic Field(min_length=6) rejects first with 422 — safe but redundant. 7) Nutella barcode 3017620422003 is reliably in Open Food Facts and matched to the seed 'food-palak-paneer'-style — check test asserts food_name is non-empty rather than a specific value, since OFF may translate product names."
+}

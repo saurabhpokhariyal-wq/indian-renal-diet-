@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions, type BarcodeScanningResult, type BarcodeType } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
@@ -11,14 +11,31 @@ import { api, type FoodScan, type SafetyTier } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
+type Mode = "vision" | "barcode";
+
+const BARCODE_TYPES: BarcodeType[] = [
+  "ean13",
+  "ean8",
+  "upc_a",
+  "upc_e",
+  "code128",
+  "code39",
+  "code93",
+  "codabar",
+  "itf14",
+];
+
 export default function ScanScreen() {
   const { t } = useLang();
   const [permission, requestPermission] = useCameraPermissions();
   const camRef = useRef<CameraView>(null);
+  const [mode, setMode] = useState<Mode>("vision");
   const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null);
   const [result, setResult] = useState<FoodScan | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [barcodeLookup, setBarcodeLookup] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastScannedRef = useRef<string | null>(null);
 
   if (!permission) {
     return (
@@ -47,13 +64,21 @@ export default function ScanScreen() {
     );
   }
 
+  const switchMode = (m: Mode) => {
+    if (m === mode) return;
+    setMode(m);
+    setPhoto(null);
+    setResult(null);
+    setError(null);
+    lastScannedRef.current = null;
+  };
+
   const takePhoto = async () => {
     if (!camRef.current) return;
     setError(null);
     try {
       const shot = await camRef.current.takePictureAsync({ quality: 0.6, base64: false, skipProcessing: true });
       if (!shot?.uri) return;
-      // Resize + re-encode as JPEG for a small, valid payload
       const manipulated = await ImageManipulator.manipulateAsync(
         shot.uri,
         [{ resize: { width: 900 } }],
@@ -81,76 +106,179 @@ export default function ScanScreen() {
     }
   };
 
+  const onBarcode = async (r: BarcodeScanningResult) => {
+    const data = (r?.data || "").trim();
+    if (!data || barcodeLookup) return;
+    if (lastScannedRef.current === data) return;
+    lastScannedRef.current = data;
+    setBarcodeLookup(true);
+    setError(null);
+    try {
+      const scan = await api.scanBarcode(data);
+      setResult(scan);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Barcode lookup failed";
+      setError(msg.toLowerCase().includes("not found") ? t("barcodeNotFound") : msg);
+      setTimeout(() => { lastScannedRef.current = null; }, 1500);
+    } finally {
+      setBarcodeLookup(false);
+    }
+  };
+
   const reset = () => {
     setPhoto(null);
     setResult(null);
     setError(null);
+    lastScannedRef.current = null;
   };
+
+  const showingResult = !!result;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.header}>
-        <View style={styles.headerIcon}><Ionicons name="camera" size={22} color={COLORS.textInverse} /></View>
+        <View style={styles.headerIcon}>
+          <Ionicons name={mode === "vision" ? "camera" : "barcode"} size={22} color={COLORS.textInverse} />
+        </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{t("scanTitle")}</Text>
-          <Text style={styles.subtitle}>{t("scanIntro")}</Text>
+          <Text style={styles.subtitle}>{mode === "vision" ? t("scanIntro") : t("barcodeIntro")}</Text>
         </View>
       </View>
 
-      <View style={styles.body}>
-        {!photo ? (
-          <View style={styles.camWrap}>
-            {Platform.OS === "web" ? (
-              <View style={styles.webPlaceholder}>
-                <Ionicons name="phone-portrait" size={48} color={COLORS.textSecondary} />
-                <Text style={styles.webPlaceholderText}>
-                  Camera preview is best on the mobile device. Open this app on your phone via Expo Go to scan foods.
-                </Text>
-              </View>
-            ) : (
-              <CameraView ref={camRef} style={StyleSheet.absoluteFill} facing="back" />
-            )}
-            <View style={styles.shutterRow}>
-              <TouchableOpacity testID="scan-take-photo" style={styles.shutter} onPress={takePhoto}>
-                <Ionicons name="camera" size={28} color={COLORS.textInverse} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <View style={{ flex: 1, gap: SIZE.m }}>
-            <View style={styles.preview}>
-              <Image source={{ uri: photo.uri }} style={styles.previewImg} />
-            </View>
+      {/* Mode toggle */}
+      <View style={styles.modeRow}>
+        <ModeChip
+          testID="scan-mode-vision"
+          label={t("scanModeVision")}
+          icon="camera"
+          active={mode === "vision"}
+          onPress={() => switchMode("vision")}
+        />
+        <ModeChip
+          testID="scan-mode-barcode"
+          label={t("scanModeBarcode")}
+          icon="barcode"
+          active={mode === "barcode"}
+          onPress={() => switchMode("barcode")}
+        />
+      </View>
 
-            {result ? (
-              <ScanResultCard result={result} onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)} tSeeMore={t("seeMore")} />
+      <View style={styles.body}>
+        {mode === "vision" ? (
+          !photo ? (
+            <View style={styles.camWrap}>
+              {Platform.OS === "web" ? (
+                <View style={styles.webPlaceholder}>
+                  <Ionicons name="phone-portrait" size={48} color={COLORS.textSecondary} />
+                  <Text style={styles.webPlaceholderText}>
+                    Camera preview is best on the mobile device. Open this app on your phone via Expo Go to scan foods.
+                  </Text>
+                </View>
+              ) : (
+                <CameraView ref={camRef} style={StyleSheet.absoluteFill} facing="back" />
+              )}
+              <View style={styles.shutterRow}>
+                <TouchableOpacity testID="scan-take-photo" style={styles.shutter} onPress={takePhoto}>
+                  <Ionicons name="camera" size={28} color={COLORS.textInverse} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View style={{ flex: 1, gap: SIZE.m }}>
+              <View style={styles.preview}>
+                <Image source={{ uri: photo.uri }} style={styles.previewImg} />
+              </View>
+
+              {result ? (
+                <ScanResultCard
+                  result={result}
+                  onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
+                  tSeeMore={t("seeMore")}
+                  tBrand={t("brand")}
+                />
+              ) : null}
+
+              {error ? <Text testID="scan-error" style={styles.error}>{error}</Text> : null}
+
+              <View style={styles.actionRow}>
+                <TouchableOpacity testID="scan-retake" style={styles.secondaryBtn} onPress={reset}>
+                  <Ionicons name="refresh" size={20} color={COLORS.brand} />
+                  <Text style={styles.secondaryText}>{t("scanRetake")}</Text>
+                </TouchableOpacity>
+                {!result ? (
+                  <TouchableOpacity
+                    testID="scan-analyze"
+                    style={[styles.primaryBtn, { flex: 1 }, analyzing && { opacity: 0.5 }]}
+                    onPress={analyze}
+                    disabled={analyzing}
+                  >
+                    {analyzing ? (
+                      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                        <ActivityIndicator size="small" color={COLORS.textInverse} />
+                        <Text style={styles.primaryText}>{t("scanAnalyzing")}</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.primaryText}>{t("scanAnalyze")}</Text>
+                    )}
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+          )
+        ) : (
+          // Barcode mode
+          <View style={{ flex: 1, gap: SIZE.m }}>
+            {!showingResult ? (
+              <View style={styles.camWrap}>
+                {Platform.OS === "web" ? (
+                  <View style={styles.webPlaceholder}>
+                    <Ionicons name="barcode" size={48} color={COLORS.textSecondary} />
+                    <Text style={styles.webPlaceholderText}>
+                      Barcode scanning is available on the mobile device. Open this app on your phone via Expo Go.
+                    </Text>
+                  </View>
+                ) : (
+                  <CameraView
+                    ref={camRef}
+                    style={StyleSheet.absoluteFill}
+                    facing="back"
+                    barcodeScannerSettings={{ barcodeTypes: BARCODE_TYPES }}
+                    onBarcodeScanned={onBarcode}
+                  />
+                )}
+                {/* Overlay frame */}
+                <View pointerEvents="none" style={styles.barcodeOverlay}>
+                  <View style={styles.barcodeFrame} />
+                  <Text style={styles.barcodeHint}>
+                    {barcodeLookup ? t("barcodeLookingUp") : t("barcodeAlignHint")}
+                  </Text>
+                  {barcodeLookup ? (
+                    <ActivityIndicator size="small" color={COLORS.textInverse} style={{ marginTop: 8 }} />
+                  ) : null}
+                </View>
+              </View>
             ) : null}
 
-            {error ? <Text testID="scan-error" style={styles.error}>{error}</Text> : null}
+            {result ? (
+              <ScanResultCard
+                result={result}
+                onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
+                tSeeMore={t("seeMore")}
+                tBrand={t("brand")}
+              />
+            ) : null}
 
-            <View style={styles.actionRow}>
-              <TouchableOpacity testID="scan-retake" style={styles.secondaryBtn} onPress={reset}>
-                <Ionicons name="refresh" size={20} color={COLORS.brand} />
-                <Text style={styles.secondaryText}>{t("scanRetake")}</Text>
-              </TouchableOpacity>
-              {!result ? (
-                <TouchableOpacity
-                  testID="scan-analyze"
-                  style={[styles.primaryBtn, { flex: 1 }, analyzing && { opacity: 0.5 }]}
-                  onPress={analyze}
-                  disabled={analyzing}
-                >
-                  {analyzing ? (
-                    <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                      <ActivityIndicator size="small" color={COLORS.textInverse} />
-                      <Text style={styles.primaryText}>{t("scanAnalyzing")}</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.primaryText}>{t("scanAnalyze")}</Text>
-                  )}
+            {error && !showingResult ? <Text testID="scan-error" style={styles.error}>{error}</Text> : null}
+
+            {showingResult ? (
+              <View style={styles.actionRow}>
+                <TouchableOpacity testID="barcode-rescan" style={[styles.primaryBtn, { flex: 1 }]} onPress={reset}>
+                  <Ionicons name="scan" size={20} color={COLORS.textInverse} />
+                  <Text style={[styles.primaryText, { marginLeft: 6 }]}>{t("barcodeRescan")}</Text>
                 </TouchableOpacity>
-              ) : null}
-            </View>
+              </View>
+            ) : null}
           </View>
         )}
       </View>
@@ -158,7 +286,31 @@ export default function ScanScreen() {
   );
 }
 
-function ScanResultCard({ result, onSeeMore, tSeeMore }: { result: FoodScan; onSeeMore: () => void; tSeeMore: string }) {
+function ModeChip({
+  label, icon, active, onPress, testID,
+}: {
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  active: boolean;
+  onPress: () => void;
+  testID: string;
+}) {
+  return (
+    <TouchableOpacity testID={testID} style={[styles.modeChip, active && styles.modeChipActive]} onPress={onPress}>
+      <Ionicons name={icon} size={18} color={active ? COLORS.textInverse : COLORS.brand} />
+      <Text style={[styles.modeChipText, active && styles.modeChipTextActive]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function ScanResultCard({
+  result, onSeeMore, tSeeMore, tBrand,
+}: {
+  result: FoodScan;
+  onSeeMore: () => void;
+  tSeeMore: string;
+  tBrand: string;
+}) {
   const tier = (result.safety_tier || "YELLOW") as SafetyTier;
   const meta = TIER_META[tier];
   return (
@@ -166,6 +318,7 @@ function ScanResultCard({ result, onSeeMore, tSeeMore }: { result: FoodScan; onS
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <View style={{ flex: 1, marginRight: 10 }}>
           <Text style={styles.resultName}>{result.food_name}</Text>
+          {result.brand ? <Text style={styles.resultHindi}>{tBrand}: {result.brand}</Text> : null}
           {result.hindi_name ? <Text style={styles.resultHindi}>{result.hindi_name}</Text> : null}
         </View>
         <SafetyBadge tier={tier} compact />
@@ -185,11 +338,24 @@ function ScanResultCard({ result, onSeeMore, tSeeMore }: { result: FoodScan; onS
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bgDefault },
-  header: { flexDirection: "row", alignItems: "center", gap: 12, padding: SIZE.m },
+  header: { flexDirection: "row", alignItems: "center", gap: 12, padding: SIZE.m, paddingBottom: 4 },
   headerIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.brand, alignItems: "center", justifyContent: "center" },
   title: { fontSize: FONT.h2, fontWeight: "800", color: COLORS.textPrimary },
   subtitle: { fontSize: FONT.label, color: COLORS.textSecondary },
-  body: { flex: 1, padding: SIZE.m },
+
+  modeRow: {
+    flexDirection: "row", gap: SIZE.s, paddingHorizontal: SIZE.m, paddingVertical: SIZE.s,
+  },
+  modeChip: {
+    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6,
+    height: 40, borderRadius: SIZE.radiusPill, borderWidth: 2, borderColor: COLORS.brand,
+    backgroundColor: COLORS.brandLight,
+  },
+  modeChipActive: { backgroundColor: COLORS.brand },
+  modeChipText: { color: COLORS.brand, fontWeight: "700", fontSize: FONT.body },
+  modeChipTextActive: { color: COLORS.textInverse },
+
+  body: { flex: 1, padding: SIZE.m, paddingTop: SIZE.s },
   camWrap: { flex: 1, borderRadius: SIZE.radiusLg, overflow: "hidden", backgroundColor: "#000", position: "relative" },
   webPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center", padding: SIZE.l, gap: SIZE.m, backgroundColor: COLORS.bgAlt },
   webPlaceholderText: { fontSize: FONT.body, color: COLORS.textSecondary, textAlign: "center", lineHeight: 22 },
@@ -198,12 +364,28 @@ const styles = StyleSheet.create({
     width: 74, height: 74, borderRadius: 37, backgroundColor: COLORS.brand,
     alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "#fff",
   },
+
+  barcodeOverlay: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    alignItems: "center", justifyContent: "center",
+  },
+  barcodeFrame: {
+    width: "78%", height: 160, borderRadius: 18, borderWidth: 3,
+    borderColor: "rgba(255,255,255,0.9)", backgroundColor: "rgba(0,0,0,0.05)",
+  },
+  barcodeHint: {
+    marginTop: 14, color: "#fff", fontWeight: "700", fontSize: FONT.body,
+    backgroundColor: "rgba(0,0,0,0.55)", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12,
+    overflow: "hidden", textAlign: "center",
+  },
+
   preview: { height: 240, borderRadius: SIZE.radiusLg, overflow: "hidden", backgroundColor: COLORS.bgAlt },
   previewImg: { width: "100%", height: "100%" },
   actionRow: { flexDirection: "row", gap: SIZE.s, marginTop: "auto" },
   primaryBtn: {
     height: SIZE.touchPrimary, borderRadius: SIZE.radiusPill,
     backgroundColor: COLORS.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: SIZE.l,
+    flexDirection: "row",
   },
   primaryText: { color: COLORS.textInverse, fontSize: FONT.bodyL, fontWeight: "700" },
   secondaryBtn: {
