@@ -246,3 +246,83 @@ agent_communication:
         - Login as demo@renal.app / demo123, go to Scan tab, toggle Barcode mode.
         - Web still shows the placeholder (expected). Skip actual scan in Playwright but
           please make sure the mode-toggle chips still work and no runtime error occurs.
+
+# ----------- Iteration 11: Home dashboard replaces Search as post-login landing -----------
+frontend:
+  - task: "Home dashboard as post-login landing with 6 large menu cards"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Renamed original /(app)/index.tsx -> /(app)/search.tsx (no logic change, just filename).
+          New /(app)/index.tsx implements a Home dashboard with 6 cards routing to search, scan,
+          meal-log, /report, ask-ai, settings. TestIDs: home-menu-{search,scan,meals,report,ai,settings}.
+          Greeting is "user-greeting". Cards use the elderly-friendly large touch target style
+          (min-height 150, 47% flex-basis grid).
+
+  - task: "Tab layout: 5 tabs (Home/Search/Scan/Meals/Ask AI), Settings hidden but routable"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/_layout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Rewrote _layout.tsx to declare index (Home), search, scan, meal-log, ask-ai as tabs.
+          Settings is still a registered Tabs.Screen with href: null so navigating to
+          /(app)/settings from the Home menu still works.
+
+  - task: "i18n keys for Home dashboard"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/lib/i18n.ts"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Added: tabHome, menuTitle, menuScan, menuReport, menuSearchSub, menuScanSub,
+          menuMealsSub, menuReportSub, menuAISub, menuSettingsSub — placed right after tabSettings.
+          Tamil/Bengali/Marathi intentionally use English fallbacks for the new subtitle strings.
+
+test_plan:
+  current_focus:
+    - "Home dashboard as post-login landing with 6 large menu cards"
+    - "Tab layout: 5 tabs (Home/Search/Scan/Meals/Ask AI), Settings hidden but routable"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Iteration 11 changes the post-login landing from Search to a Home dashboard. Please verify
+      per the acceptance checklist. NOTE: existing frontend E2E flows that previously landed on
+      the Search screen after login must now first tap `home-menu-search` (or the "Search" tab)
+      before interacting with `search-input`. No backend changes in this iteration.
+
+      Checklist to run:
+        1. Login → lands on Home; testID `user-greeting` visible; six testIDs
+           home-menu-{search,scan,meals,report,ai,settings} render.
+        2. Tap each of the six cards and confirm correct navigation (search screen shows the
+           existing search-input, scan shows scan-mode-vision, meals shows meal-log-list,
+           report shows the weekly report header, ask-ai shows the AI chat, settings shows
+           testID settings-user-name).
+        3. From /report tap Back and confirm we're on Home again (not gone off the stack).
+        4. Bottom tab bar shows exactly five tabs: Home, Search, Scan, Meals, Ask AI.
+        5. Language change from Settings still works — switching to Hindi should translate
+           the greeting header, menu title and card titles/subtitles that have hi variants.
+           Switching to Tamil should show English fallbacks for the sub-strings without crash.
+        6. Regression: existing search-input, favorites-row, tier-chips, meal-log, report,
+           barcode scan pack-log flows still function.

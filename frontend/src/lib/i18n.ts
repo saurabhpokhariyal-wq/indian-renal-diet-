@@ -26,6 +26,18 @@ export const translations: Record<string, Entry> = {
   tabAI: { en: "Ask AI", hi: "AI से पूछें", ta: "AI-ஐக் கேளுங்கள்", bn: "AI-কে জিজ্ঞাসা", mr: "AI ला विचारा" },
   tabSettings: { en: "Settings", hi: "सेटिंग्स", ta: "அமைப்புகள்", bn: "সেটিংস", mr: "सेटिंग्ज" },
 
+  tabHome: { en: "Home", hi: "होम", ta: "முகப்பு", bn: "হোম", mr: "होम" },
+
+  menuTitle: { en: "What would you like to do?", hi: "आप क्या करना चाहेंगे?" },
+  menuScan: { en: "Scan", hi: "स्कैन", ta: "ஸ்கேன்", bn: "স্ক্যান", mr: "स्कॅन" },
+  menuReport: { en: "Weekly Report", hi: "साप्ताहिक रिपोर्ट" },
+  menuSearchSub: { en: "Check if a food is kidney-safe", hi: "जाँचें कि भोजन किडनी के लिए सुरक्षित है या नहीं" },
+  menuScanSub: { en: "Scan a dish or barcode with your camera", hi: "कैमरे से डिश या बारकोड स्कैन करें" },
+  menuMealsSub: { en: "Log today's meals and track nutrients", hi: "आज का भोजन दर्ज करें और पोषण देखें" },
+  menuReportSub: { en: "7-day summary to share with your doctor", hi: "डॉक्टर से साझा करने के लिए 7-दिन का सारांश" },
+  menuAISub: { en: "Ask diet questions in simple language", hi: "सरल भाषा में डाइट से जुड़े सवाल पूछें" },
+  menuSettingsSub: { en: "Language, health profile and limits", hi: "भाषा, हेल्थ प्रोफ़ाइल और सीमाएँ" },
+
   loginTitle: {
     en: "Welcome back",
     hi: "फिर से स्वागत है",

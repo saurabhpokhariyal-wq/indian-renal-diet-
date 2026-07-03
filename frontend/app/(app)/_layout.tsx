@@ -28,6 +28,13 @@ export default function AppTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: t("tabHome"),
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
           title: t("tabSearch"),
           tabBarIcon: ({ color, size }) => <Ionicons name="search" color={color} size={size} />,
         }}
@@ -35,7 +42,7 @@ export default function AppTabsLayout() {
       <Tabs.Screen
         name="scan"
         options={{
-          title: "Scan",
+          title: t("menuScan"),
           tabBarIcon: ({ color, size }) => <Ionicons name="camera" color={color} size={size} />,
         }}
       />
@@ -56,8 +63,9 @@ export default function AppTabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: t("tabSettings"),
-          tabBarIcon: ({ color, size }) => <Ionicons name="settings" color={color} size={size} />,
+          // Reachable from the Home menu card; hidden from the tab bar to
+          // keep five large, elderly-friendly touch targets.
+          href: null,
         }}
       />
     </Tabs>

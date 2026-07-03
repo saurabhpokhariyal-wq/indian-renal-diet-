@@ -1,0 +1,37 @@
+{
+  "summary": "Iteration 11 verification of the new Home Menu Dashboard (frontend-only). ALL cases A/B/C/D pass 100%. Backend not exercised (per instructions — iter 9 & 10 backend still green, no regressions triggered). Test executed via Playwright at 390x844 with camera pre-granted, demo@renal.app / demo123 login and 'I understand' disclaimer accepted. Case A — Home landing: home-menu-search visible <15s; all 7 required testIDs present (user-greeting, home-menu-search, home-menu-scan, home-menu-meals, home-menu-report, home-menu-ai, home-menu-settings); bottom tab bar shows EXACTLY the 5 expected labels 'Home', 'Search', 'Scan', 'Meals', 'Ask AI' — 'Settings' is NOT present as a tab (confirmed by scraping all role='tab'/'button' texts). Case B — Card navigation: b1 search→search-input visible; b2 Home→scan→scan-mode-vision chip visible; b3 Home→meals→meal-log-list visible; b4 Home→report→'Weekly Report' text visible AND report-back testID returns to Home showing home-menu-search; b5 Home→ai→BOTH ai-send-button testID and 'Ask your Renal Diet AI' title visible; b6 Home→settings→settings-user-name visible even though Settings tab is hidden from the tab bar (href: null works correctly). Case C — Localization: c1 lang-hi → menu title reads 'आप क्या करना चाहेंगे?' and Search card reads 'खोज'; c2 lang-ta → menu title falls back to English 'What would you like to do?' (as intended per PRD), NO crash, home cards still render, and the Home tab label reads 'முகப்பு' in Tamil; c3 lang-en reset succeeded. Case D — Regression: d1 search screen renders search-input + tier-filter-green + chip-palak, and searching 'palak' returns results; d2 meal-log budget-potassium bar visible; d3 scan screen — both scan-mode-vision and scan-mode-barcode chips visible and toggleable. ZERO console errors captured. No new deprecated packages introduced; no SafeAreaView issues (index.tsx uses react-native-safe-area-context correctly with edges=['top']). Note: pre-existing pointerEvents deprecation warning flagged in iter 9 & 10 on scan.tsx L309 was NOT touched in this iteration — it is not a regression from this change but remains open.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "scan.tsx barcodeOverlay View", "issue": "(Pre-existing, not from this iteration) Still uses deprecated inline `pointerEvents: 'none'` inside a style array on the barcodeOverlay wrapper. RN Web logs 'props.pointerEvents is deprecated. Use style.pointerEvents'. Reference: /app/frontend/app/(app)/scan.tsx:309"}
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_11.json"
+  ],
+  "action_items": [
+    "(Optional / pre-existing) Fix pointerEvents deprecation on scan.tsx L309 (unchanged from iter 9 & 10)."
+  ],
+  "critical_code_review_comments": [
+    "/(app)/index.tsx L98-120: MENU grid uses flexBasis:'47%' + flexGrow:1 + gap:SIZE.m — renders as clean 2-col grid on 390 viewport (verified via screenshot). Cards use minHeight:150 (>44px touch target) and clear iconBubble+title+subtitle stack. Good.",
+    "/(app)/index.tsx L102: testID template `home-menu-${item.key}` gives deterministic selectors home-menu-{search,scan,meals,report,ai,settings}. Matches PRD.",
+    "/(app)/_layout.tsx L63-70: Settings tab correctly hidden via `href: null` while still registered — router.push('/(app)/settings') from the Home card works. Confirmed at runtime (Case B6).",
+    "/(app)/_layout.tsx uses useLang() so tab titles re-render on language change — confirmed by C2 seeing 'முகப்பு' after lang-ta.",
+    "i18n.ts menuTitle/menuScan/menuReport/menuSearchSub/menuScanSub/menuMealsSub/menuReportSub/menuAISub/menuSettingsSub intentionally define only `en` and `hi` — t() falls back to `en` for ta/bn/mr as designed. No crashes observed under lang-ta.",
+    "/(app)/search.tsx is a verbatim move of the old index.tsx logic — testIDs search-input, tier-filter-*, chip-*, food-list, favorites all still work (Case D1 pass).",
+    "Home card icon Ionicons name 'sparkles' for the Ask AI menu key matches the existing tab bar icon — consistent brand.",
+    "MINOR (non-blocking): report.tsx L140 and L156 both declare testID='report-back' (duplicate testID on two TouchableOpacity in different code branches — see grep). Not caused by this iteration, but any future automated back-tap using role selectors may match either. Consider giving the empty-state back button a distinct testID such as 'report-back-empty'."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_11.json"
+  ],
+  "success_rate": {"backend": "not run (skipped per request)", "frontend": "100% (Cases A/B/C/D — 22/22 assertions pass, 0 console errors)"},
+  "seed_data_creation": "None. No writes required. Language state was reset back to English at end of run (Case C3).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) Home dashboard is at /(app)/index.tsx with 6 cards testIDed home-menu-{search,scan,meals,report,ai,settings}. 2) Bottom tab bar has 5 tabs — Settings is intentionally NOT a tab (href: null in _layout.tsx). Settings screen is only reachable via the home-menu-settings card OR direct route. 3) Tab labels are localized via useLang() → tabHome/tabSearch/menuScan/tabMeals/tabAI. 4) menuTitle & menu subtitles are EN+HI only; ta/bn/mr fall back to English — this is intentional, do not treat as a bug. 5) Ask AI screen uses testID `ai-send-button` (NOT `ask-ai-send`) — the PRD/review note mis-mentioned ask-ai-send but the actual code has ai-send-button; use either the testID or the title text 'Ask your Renal Diet AI'. 6) report.tsx has TWO TouchableOpacity elements both bearing testID='report-back' (loaded vs empty branch) — the first-matched selector click works but consider distinguishing them if needed. 7) Weekly Report empty state also shows 'Weekly Report' title, so title-text assertion is safe. 8) Camera permission MUST be granted BEFORE navigation via page.context.grant_permissions(['camera'], origin=...).",
+  "rca_of_issue": "N/A — no defects introduced by iteration 11."
+}
