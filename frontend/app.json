@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Scan Indian foods to check kidney safety"
-      }
+      },
+      "bundleIdentifier": "com.emergent.kidneysafeswap.sxoqsq"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,10 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "permissions": ["android.permission.CAMERA"]
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "package": "com.emergent.kidneysafeswap.sxoqsq"
     },
     "web": {
       "bundler": "metro",

@@ -802,6 +802,10 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
     tier = str(data.get("safety_tier") or "YELLOW").upper()
     if tier not in {"GREEN", "YELLOW", "RED"}:
         tier = "YELLOW"
+    hindi_name = data.get("hindi_name")
+    primary_risk = str(data.get("primary_risk_factor") or "NONE").upper()
+    portion_limit_text = str(data.get("portion_limit_text") or "Consult your nephrologist.")
+    clinical_tip = str(data.get("clinical_tip") or "Verify this identification with your care team.")
 
     matched_id: Optional[str] = None
     if food_name and food_name.lower() != "unknown":
@@ -810,14 +814,23 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
         )
         if match:
             matched_id = match["id"]
+            # Authoritative override: the food card is the source of truth.
+            # Use the user's effective (personalized) tier so scan and search never disagree.
+            stage: Stage = current_user.get("stage", "unknown") or "unknown"  # type: ignore
+            tier = personal_tier_for(match, stage)
+            primary_risk = match.get("primary_risk_factor", "NONE")
+            portion_limit_text = match.get("portion_limit_text", portion_limit_text)
+            clinical_tip = match.get("actionable_clinical_tip", clinical_tip)
+            hindi_name = match.get("hindi_name", hindi_name)
+            food_name = match["name"]
 
     return FoodScanResponse(
         food_name=food_name,
-        hindi_name=data.get("hindi_name"),
+        hindi_name=hindi_name,
         safety_tier=tier,
-        primary_risk_factor=str(data.get("primary_risk_factor") or "NONE").upper(),
-        portion_limit_text=str(data.get("portion_limit_text") or "Consult your nephrologist."),
-        clinical_tip=str(data.get("clinical_tip") or "Verify this identification with your care team."),
+        primary_risk_factor=primary_risk,
+        portion_limit_text=portion_limit_text,
+        clinical_tip=clinical_tip,
         matched_food_id=matched_id,
         raw=text if not data else None,
     )
@@ -965,6 +978,111 @@ async def _build_ai_context(user: dict, lang: str) -> str:
     return ctx
 
 
+# Common English + Hindi filler words to strip when picking search tokens from
+# the user's question. Everything else of length >= 3 becomes a search term.
+_AI_STOPWORDS: Set[str] = {
+    "the", "and", "for", "are", "any", "can", "you", "will", "have", "has", "had", "with",
+    "this", "that", "these", "those", "what", "which", "when", "where", "how", "why",
+    "safe", "eat", "ate", "eating", "food", "foods", "should", "shall", "would", "could",
+    "kidney", "renal", "dialysis", "ckd", "ok", "okay", "good", "bad", "high", "low",
+    "diet", "much", "many", "some", "more", "less", "than", "then", "into", "about",
+    "please", "help", "give", "tell", "know",
+    # Hindi
+    "क्या", "है", "हैं", "हो", "कर", "करना", "मुझे", "मेरे", "मेरा", "मेरी",
+    "खा", "खाना", "खाऊं", "खाऊँ", "सकते", "सकता", "सकती", "किसे", "किन",
+    "और", "या", "के", "की", "का", "को", "में", "पर", "से", "यह", "वह",
+}
+
+
+async def _find_relevant_foods(
+    question: str, user: Optional[dict], limit: int = 6
+) -> List[dict]:
+    """Find seeded foods that appear in the user's question.
+
+    Splits on whitespace + punctuation, drops stopwords, then does a
+    case-insensitive regex OR-match on food name / hindi_name / category.
+    Returns at most `limit` distinct food docs.
+    """
+    if not question:
+        return []
+    # Normalize punctuation → spaces; keep Devanagari intact.
+    cleaned = re.sub(r"[^\w\u0900-\u097F]+", " ", question, flags=re.UNICODE).strip()
+    if not cleaned:
+        return []
+    tokens: List[str] = []
+    seen: Set[str] = set()
+    for raw in cleaned.split():
+        t = raw.lower()
+        if len(t) < 3 or t in _AI_STOPWORDS or t in seen:
+            continue
+        seen.add(t)
+        tokens.append(t)
+    if not tokens:
+        return []
+
+    or_clauses: List[dict] = []
+    for tok in tokens[:12]:  # protective cap
+        safe = re.escape(tok)
+        or_clauses.append({"name": {"$regex": safe, "$options": "i"}})
+        or_clauses.append({"hindi_name": {"$regex": safe, "$options": "i"}})
+        or_clauses.append({"category": {"$regex": safe, "$options": "i"}})
+
+    found: List[dict] = []
+    ids_seen: Set[str] = set()
+    async for food in db.foods.find({"$or": or_clauses}, {"_id": 0}).limit(limit * 3):
+        if food["id"] in ids_seen:
+            continue
+        ids_seen.add(food["id"])
+        found.append(food)
+        if len(found) >= limit:
+            break
+    return found
+
+
+async def _build_grounded_food_block(question: str, user: dict) -> str:
+    """Inject authoritative food classifications matching the question."""
+    foods = await _find_relevant_foods(question, user)
+    if not foods:
+        return ""
+
+    stage: Stage = user.get("stage", "unknown") or "unknown"  # type: ignore
+    lines: List[str] = [
+        "\n\n---\nGROUNDED FOOD DATA (authoritative — the app's food cards use these exact "
+        "classifications; do NOT contradict them. If the user asks about any food below, "
+        "quote the effective tier and portion limit shown here. Use the personalized tier "
+        "when it differs from the base tier — that is the tier the patient sees):"
+    ]
+    for f in foods:
+        base_tier = f["safety_tier"]
+        p_tier = personal_tier_for(f, stage)
+        note = personalized_note_for(f, stage)
+        tier_str = base_tier if p_tier == base_tier else f"{p_tier} (personalized from base {base_tier})"
+        parts = [
+            f"- {f['name']} ({f['hindi_name']}) — tier: {tier_str}",
+            f"  portion: {f.get('portion_limit_text','')} · per portion: "
+            f"K {int(f.get('potassium_mg', 0))}mg, "
+            f"P {int(f.get('phosphorus_mg', 0))}mg, "
+            f"Na {int(f.get('sodium_mg', 0))}mg, "
+            f"protein {f.get('protein_g', 0):.1f}g",
+            f"  tip: {f.get('actionable_clinical_tip','')}",
+        ]
+        if note:
+            parts.append(f"  personalized note: {note}")
+        if p_tier == "RED":
+            swap = await db.swaps.find_one({"trigger_food_id": f["id"]}, {"_id": 0})
+            if swap:
+                rec = await db.foods.find_one(
+                    {"id": swap["recommended_swap_food_id"]}, {"_id": 0}
+                )
+                if rec:
+                    parts.append(
+                        f"  recommended swap: {rec['name']} "
+                        f"— {swap.get('clinical_benefit_explanation','')}"
+                    )
+        lines.extend(parts)
+    return "\n".join(lines)
+
+
 @api.post("/ai/ask", response_model=AiAskResponse)
 @limiter.limit("10/minute", key_func=_rate_key_user)
 async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_current_user)):
@@ -977,7 +1095,9 @@ async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-        system_prompt = AI_SYSTEM_PROMPT_BASE + await _build_ai_context(current_user, lang)
+        patient_ctx = await _build_ai_context(current_user, lang)
+        grounded = await _build_grounded_food_block(question, current_user)
+        system_prompt = AI_SYSTEM_PROMPT_BASE + patient_ctx + grounded
         session_id = f"user-{current_user['id']}-{lang}"
         chat = (
             LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=system_prompt)

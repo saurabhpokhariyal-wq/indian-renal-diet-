@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 8 — backend-only verification of the two new AI/scan grounding features. All 8 pytest tests in /app/backend/tests/test_iter8_grounding_and_scan.py PASS (100%). AI grounding: (1) palak paneer at dialysis stage classified AVOID/RED with DB potassium value 650mg + Lauki swap + '80% less' benefit quoted verbatim from the grounded block; (2) toor dal at pre_dialysis returns softened / individualized guidance (mentions safe/portion/soak, does NOT say avoid); (3) generic 'Hello, how are you?' still returns 200 with an answer even though the grounded block is empty; (4) Hindi question 'क्या मैं पालक पनीर खा सकता हूँ?' returns answer in Devanagari and still flags palak paneer as RED/avoid; (5) 11th /ai/ask request from the same user in a minute returns 429 (10/min limiter working). Scan override: (6) Samosa photo → vision returns 'Samosa' → matched_food_id=food-samosa; scan response safety_tier / portion_limit_text / clinical_tip / food_name / hindi_name ALL match the DB /api/foods/food-samosa record exactly (RED tier, not whatever the vision wrote); (7) non-food image → vision returns 'Unknown' → matched_food_id is null, tier passed through from vision unchanged. Regression: (8) full CRUD flow — register → /auth/me → foods?q=lauki → favorites toggle on/off → meal-log create/get/delete → PATCH /auth/profile with {doctor_limits:null} → /reports/weekly — all pass. No new bugs. Existing behavior from iter 1-7 preserved. Cost: ~100s runtime (LLM latency dominates).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter8_grounding_and_scan.py",
+    "/app/test_reports/pytest/pytest_iter8.xml",
+    "/app/test_reports/iteration_8.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py L997-1039 _find_relevant_foods: correctly normalizes punctuation, strips stopwords, keeps Devanagari (\\u0900-\\u097F) intact, protective cap of 12 tokens, dedupe by food id — clean.",
+    "server.py L1042-1083 _build_grounded_food_block: builds an authoritative block per food with base+personalized tier, per-portion K/P/Na/protein, portion limit, clinical tip, personalized note (when applicable), and the swap food + clinical_benefit_explanation when personal_tier=='RED'. LLM correctly quotes '80% less' and '650mg' in the answer verbatim from this block.",
+    "server.py L810-825 scan_food DB override: authoritative — replaces vision-model tier with personal_tier_for(match, stage), and overrides food_name / hindi_name / portion_limit_text / clinical_tip / primary_risk_factor with DB values. Verified end-to-end: Samosa scan on dialysis-stage user returns RED / 'Avoid' / DB clinical tip exactly.",
+    "The stopword list intentionally lets 'dal' through — a question about 'dal' will surface toor-dal, moong-dal, moong-dal-chilla, rajma (category=dal), chole (category=dal). Confirmed by testing that toor-dal softened guidance references KDOQI-style pre-dialysis nuance."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter8_grounding_and_scan.py (new — 8 pytest tests)",
+    "/app/test_reports/pytest/pytest_iter8.xml (new JUnit)",
+    "/app/test_reports/iteration_8.json (new)"
+  ],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "N/A — backend-only iteration"},
+  "seed_data_creation": "Three TEST_<uuid>@renal.app users registered (one at pre_dialysis for toor-dal softening test, one at default for rate-limit test, one for regression). demo@renal.app re-used and set to dialysis stage for palak paneer + scan tests.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) For scan tests, /tmp/scan_samosa1.jpg (Unsplash) reliably resolves to seed food-samosa; /tmp/scan_apple1.jpg resolves to food-apple; /tmp/img_480.jpg (Picsum random) is reliably 'Unknown'. 2) Scan is rate-limited 5/min per user, so add sleep(15) between consecutive scan tests. 3) AI is 10/min per user — the rate_limit test uses up an entire budget for one user, so use a fresh user for that. 4) Answers may hedge tone but always include RED/avoid/dangerous keywords — assertion uses the OR set ['avoid','red','danger','unsafe','not safe','shouldn't','harmful','risky']. 5) Hindi answers should include Devanagari plus at least one of ['टालें','न खाएं','मना','बचें','नहीं'] or an English fallback. 6) Env var name is EXPO_PUBLIC_BACKEND_URL (not EXPO_BACKEND_URL — this is the Expo public convention).",
+  "rca_of_issue": "N/A — feature verification passed."
+}
