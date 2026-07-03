@@ -248,7 +248,7 @@ export default function ScanScreen() {
                   />
                 )}
                 {/* Overlay frame */}
-                <View pointerEvents="none" style={styles.barcodeOverlay}>
+                <View style={[styles.barcodeOverlay, { pointerEvents: "none" }]}>
                   <View style={styles.barcodeFrame} />
                   <Text style={styles.barcodeHint}>
                     {barcodeLookup ? t("barcodeLookingUp") : t("barcodeAlignHint")}
