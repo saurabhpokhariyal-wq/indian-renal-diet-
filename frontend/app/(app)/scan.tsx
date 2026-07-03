@@ -2,16 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions, type BarcodeScanningResult, type BarcodeType } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { NutrientBar } from "@/src/components/NutrientBar";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
-import { api, type FoodScan, type SafetyTier } from "@/src/lib/api";
+import { api, type FoodScan, type NutrientLimits, type SafetyTier } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 type Mode = "vision" | "barcode";
+
+function isoToday(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 const BARCODE_TYPES: BarcodeType[] = [
   "ean13",
@@ -36,6 +43,24 @@ export default function ScanScreen() {
   const [barcodeLookup, setBarcodeLookup] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lastScannedRef = useRef<string | null>(null);
+  const [limits, setLimits] = useState<NutrientLimits | null>(null);
+  const [favorited, setFavorited] = useState(false);
+  const [logged, setLogged] = useState(false);
+  const [actionBusy, setActionBusy] = useState<"none" | "log" | "fav">("none");
+
+  // Lazily load today's nutrient limits once the user opens the screen
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await api.getMealSummary(isoToday());
+        if (!cancelled) setLimits(s.limits);
+      } catch {
+        /* offline / unauth — bars will simply not render */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   if (!permission) {
     return (
@@ -113,6 +138,8 @@ export default function ScanScreen() {
     lastScannedRef.current = data;
     setBarcodeLookup(true);
     setError(null);
+    setFavorited(false);
+    setLogged(false);
     try {
       const scan = await api.scanBarcode(data);
       setResult(scan);
@@ -129,7 +156,38 @@ export default function ScanScreen() {
     setPhoto(null);
     setResult(null);
     setError(null);
+    setFavorited(false);
+    setLogged(false);
+    setActionBusy("none");
     lastScannedRef.current = null;
+  };
+
+  const doLogPack = async () => {
+    if (!result?.matched_food_id || actionBusy !== "none") return;
+    setActionBusy("log");
+    try {
+      await api.addMealLog(result.matched_food_id, isoToday(), "snack");
+      setLogged(true);
+      // refresh limits/totals so the badge reflects new state on next open
+      try { const s = await api.getMealSummary(isoToday()); setLimits(s.limits); } catch { /* noop */ }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not log pack");
+    } finally {
+      setActionBusy("none");
+    }
+  };
+
+  const doToggleFavorite = async () => {
+    if (!result?.matched_food_id || actionBusy !== "none") return;
+    setActionBusy("fav");
+    try {
+      const r = await api.toggleFavorite(result.matched_food_id);
+      setFavorited(r.is_favorite);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not toggle favorite");
+    } finally {
+      setActionBusy("none");
+    }
   };
 
   const showingResult = !!result;
@@ -261,21 +319,67 @@ export default function ScanScreen() {
             ) : null}
 
             {result ? (
-              <ScanResultCard
-                result={result}
-                onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
-                tSeeMore={t("seeMore")}
-                tBrand={t("brand")}
-              />
+              <>
+                <ScanResultCard
+                  result={result}
+                  onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
+                  tSeeMore={t("seeMore")}
+                  tBrand={t("brand")}
+                />
+                <PackNutrientPanel result={result} limits={limits} title={t("perPackNutrients")} labels={{
+                  potassium: t("nutrientPotassium"),
+                  phosphorus: t("nutrientPhosphorus"),
+                  sodium: t("nutrientSodium"),
+                }} />
+                {logged ? (
+                  <View testID="pack-logged-flash" style={styles.loggedFlash}>
+                    <Ionicons name="checkmark-circle" size={18} color={COLORS.greenText} />
+                    <Text style={styles.loggedFlashText}>{t("packLogged")}</Text>
+                  </View>
+                ) : null}
+              </>
             ) : null}
 
             {error && !showingResult ? <Text testID="scan-error" style={styles.error}>{error}</Text> : null}
+            {error && showingResult ? <Text testID="scan-action-error" style={styles.error}>{error}</Text> : null}
 
             {showingResult ? (
-              <View style={styles.actionRow}>
-                <TouchableOpacity testID="barcode-rescan" style={[styles.primaryBtn, { flex: 1 }]} onPress={reset}>
-                  <Ionicons name="scan" size={20} color={COLORS.textInverse} />
-                  <Text style={[styles.primaryText, { marginLeft: 6 }]}>{t("barcodeRescan")}</Text>
+              <View style={styles.packActionsWrap}>
+                <TouchableOpacity
+                  testID="pack-favorite"
+                  style={[styles.iconAction, favorited && styles.iconActionActive]}
+                  onPress={doToggleFavorite}
+                  disabled={!result?.matched_food_id || actionBusy !== "none"}
+                  accessibilityLabel={favorited ? t("unfavorite") : t("favorite")}
+                >
+                  {actionBusy === "fav" ? (
+                    <ActivityIndicator size="small" color={favorited ? COLORS.textInverse : COLORS.brand} />
+                  ) : (
+                    <Ionicons
+                      name={favorited ? "star" : "star-outline"}
+                      size={22}
+                      color={favorited ? COLORS.textInverse : COLORS.brand}
+                    />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  testID="pack-log"
+                  style={[styles.primaryBtn, { flex: 1 }, (logged || actionBusy === "log") && { opacity: 0.85 }]}
+                  onPress={doLogPack}
+                  disabled={!result?.matched_food_id || actionBusy !== "none" || logged}
+                >
+                  {actionBusy === "log" ? (
+                    <ActivityIndicator size="small" color={COLORS.textInverse} />
+                  ) : (
+                    <Ionicons name={logged ? "checkmark" : "add-circle"} size={20} color={COLORS.textInverse} />
+                  )}
+                  <Text style={[styles.primaryText, { marginLeft: 6 }]}>
+                    {logged ? t("added") : t("logThisPack")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity testID="barcode-rescan" style={styles.secondaryBtn} onPress={reset}>
+                  <Ionicons name="scan" size={20} color={COLORS.brand} />
+                  <Text style={styles.secondaryText}>{t("barcodeRescan")}</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
@@ -332,6 +436,38 @@ function ScanResultCard({
           <Ionicons name="arrow-forward" size={16} color={COLORS.brand} />
         </TouchableOpacity>
       ) : null}
+    </View>
+  );
+}
+
+function PackNutrientPanel({
+  result, limits, title, labels,
+}: {
+  result: FoodScan;
+  limits: NutrientLimits | null;
+  title: string;
+  labels: { potassium: string; phosphorus: string; sodium: string };
+}) {
+  const k = result.potassium_mg ?? 0;
+  const p = result.phosphorus_mg ?? 0;
+  const na = result.sodium_mg ?? 0;
+  // If limits aren't loaded yet, use sensible defaults so bars still convey magnitude
+  const kLimit = limits?.potassium_mg ?? 2000;
+  const pLimit = limits?.phosphorus_mg ?? 1000;
+  const naLimit = limits?.sodium_mg ?? 2000;
+
+  // Only render if we actually have nutrient values (i.e., barcode result)
+  if (k <= 0 && p <= 0 && na <= 0) return null;
+
+  return (
+    <View testID="pack-nutrient-panel" style={styles.packPanel}>
+      <View style={styles.packPanelHeader}>
+        <Ionicons name="stats-chart" size={16} color={COLORS.brand} />
+        <Text style={styles.packPanelTitle}>{title}</Text>
+      </View>
+      <NutrientBar testID="pack-potassium" label={labels.potassium} value={k} limit={kLimit} />
+      <NutrientBar testID="pack-phosphorus" label={labels.phosphorus} value={p} limit={pLimit} />
+      <NutrientBar testID="pack-sodium" label={labels.sodium} value={na} limit={naLimit} />
     </View>
   );
 }
@@ -404,4 +540,28 @@ const styles = StyleSheet.create({
   bold: { fontWeight: "700" },
   linkBtn: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4, alignSelf: "flex-start" },
   linkText: { color: COLORS.brand, fontWeight: "700", fontSize: FONT.body },
+
+  packPanel: {
+    backgroundColor: COLORS.bgSurface, borderRadius: SIZE.radiusLg, padding: SIZE.m,
+    borderWidth: 1, borderColor: COLORS.border, gap: SIZE.s,
+  },
+  packPanelHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 },
+  packPanelTitle: { fontSize: FONT.body, fontWeight: "700", color: COLORS.textPrimary },
+
+  packActionsWrap: {
+    flexDirection: "row", gap: SIZE.s, marginTop: "auto",
+  },
+  iconAction: {
+    width: SIZE.touchPrimary, height: SIZE.touchPrimary, borderRadius: SIZE.radiusPill,
+    borderWidth: 2, borderColor: COLORS.brand, backgroundColor: COLORS.brandLight,
+    alignItems: "center", justifyContent: "center",
+  },
+  iconActionActive: { backgroundColor: COLORS.brand, borderColor: COLORS.brand },
+
+  loggedFlash: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: SIZE.radiusPill, backgroundColor: COLORS.greenBg, borderWidth: 1, borderColor: COLORS.greenBorder,
+  },
+  loggedFlashText: { color: COLORS.greenText, fontWeight: "700", fontSize: FONT.body },
 });

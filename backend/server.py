@@ -191,6 +191,8 @@ class FoodOut(BaseModel):
     personal_tier: Optional[str] = None
     personalized_note: Optional[str] = None
     is_favorite: bool = False
+    brand: Optional[str] = None
+    source: Optional[str] = None
 
 
 class SwapOut(BaseModel):
@@ -394,6 +396,8 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         personal_tier=personal_tier_for(food, stage),
         personalized_note=personalized_note_for(food, stage),
         is_favorite=food["id"] in fav_ids,
+        brand=food.get("brand"),
+        source=food.get("source"),
     )
 
 
@@ -937,7 +941,8 @@ async def scan_barcode(request: Request, body: BarcodeScanRequest, current_user=
     matched_id: Optional[str] = None
     if product_name and product_name.lower() != "unknown packaged food":
         match = await db.foods.find_one(
-            {"name": {"$regex": re.escape(product_name), "$options": "i"}}, {"_id": 0}
+            {"name": {"$regex": re.escape(product_name), "$options": "i"}, "source": {"$ne": "barcode"}},
+            {"_id": 0},
         )
         if match:
             matched_id = match["id"]
@@ -953,6 +958,34 @@ async def scan_barcode(request: Request, body: BarcodeScanRequest, current_user=
             na_mg = float(match.get("sodium_mg") or na_mg)
             protein_g = float(match.get("protein_g") or protein_g)
             product_name = match["name"]
+
+    # If no authoritative seed match, upsert the scanned pack as a barcode-sourced food
+    # so users can favorite it and log it directly via existing endpoints. Idempotent by barcode.
+    if not matched_id:
+        display_name = f"{product_name} ({brand})" if brand else product_name
+        food_id = f"bc_{barcode}"
+        food_doc = {
+            "id": food_id,
+            "name": display_name,
+            "hindi_name": hindi_name or "",
+            "category": "Packaged",
+            "safety_tier": tier,
+            "primary_risk_factor": primary_risk,
+            "portion_limit_text": portion_limit_text,
+            "actionable_clinical_tip": clinical_tip,
+            "portion_g": round(portion_g, 1),
+            "potassium_mg": round(k_mg, 1),
+            "phosphorus_mg": round(p_mg, 1),
+            "sodium_mg": round(na_mg, 1),
+            "protein_g": round(protein_g, 1),
+            "fluid_ml": 0,
+            "source": "barcode",
+            "barcode": barcode,
+            "brand": brand,
+            "swaps": [],
+        }
+        await db.foods.update_one({"id": food_id}, {"$set": food_doc}, upsert=True)
+        matched_id = food_id
 
     return FoodScanResponse(
         food_name=product_name,

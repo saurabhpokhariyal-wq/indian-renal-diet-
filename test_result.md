@@ -179,3 +179,70 @@ agent_communication:
        - Settings tab: language section shows 5 buttons (lang-en, lang-hi, lang-ta, lang-bn, lang-mr)
          each with native-script label. Tapping switches language and persists across reload.
        - No regressions: existing Search / Meals / Ask AI / Weekly report / Favorites still work.
+
+# ----------- Iteration 10: nutrient bars on barcode scans + favorite/log actions -----------
+backend:
+  - task: "Barcode scan endpoint now persists non-matched packs to db.foods for favorites/logging"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          scan_barcode() now upserts a food doc with id=bc_{barcode}, source='barcode',
+          brand and combined display name whenever no seed match is found. Idempotent by barcode.
+          Response's matched_food_id is now always set on success. FoodOut extended with
+          optional brand and source fields (nullable).
+
+frontend:
+  - task: "Barcode scan result: nutrient bars against daily budget + Log this pack + Favorite"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/scan.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Barcode result now shows:
+          - PackNutrientPanel with 3 NutrientBar (K, P, Na) rendering per-pack values vs user's
+            daily limits (fetched once via api.getMealSummary on mount).
+          - testID 'pack-log' (Log this pack) - calls api.addMealLog(matched_food_id, today, 'snack')
+          - testID 'pack-favorite' (star toggle) - calls api.toggleFavorite(matched_food_id)
+          - testID 'barcode-rescan' (secondary style)
+          - testID 'pack-logged-flash' shows a green check pill after successful log
+          Favorites tab / Meal-log list automatically pick up the barcode food via existing endpoints.
+
+test_plan:
+  current_focus:
+    - "Barcode scan endpoint now persists non-matched packs to db.foods for favorites/logging"
+    - "Barcode scan result: nutrient bars against daily budget + Log this pack + Favorite"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Iteration 10 adds (a) per-pack nutrient bars vs daily budget and (b) 'Log this pack' +
+      Favorite toggle on the barcode scan result. Please verify:
+       Backend:
+        - POST /api/scan/barcode with 3017620422003 (Nutella) -> matched_food_id must be
+          non-null and start with 'bc_' (not a seed food id).
+        - After the scan, GET /api/foods/{that_id} should succeed and return the same product
+          with source='barcode' and brand populated.
+        - POST /api/meal-logs {"food_id": "bc_3017620422003", "date":<today>, "meal_type":"snack"}
+          should succeed and appear in GET /api/meal-logs?date=<today>.
+        - POST /api/favorites/bc_3017620422003 should toggle correctly (twice = removed).
+        - GET /api/foods?favorites_only=true should list it after favoriting.
+        - Scanning the same barcode again should NOT create a duplicate food (idempotent).
+       Frontend (Playwright web):
+        - Login as demo@renal.app / demo123, go to Scan tab, toggle Barcode mode.
+        - Web still shows the placeholder (expected). Skip actual scan in Playwright but
+          please make sure the mode-toggle chips still work and no runtime error occurs.

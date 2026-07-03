@@ -64,6 +64,8 @@ export interface FoodOut {
   personal_tier?: SafetyTier | null;
   personalized_note?: string | null;
   is_favorite?: boolean;
+  brand?: string | null;
+  source?: string | null;
 }
 
 export interface SwapOut {

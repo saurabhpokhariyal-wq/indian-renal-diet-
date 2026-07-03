@@ -280,6 +280,27 @@ export const translations: Record<string, Entry> = {
     bn: "ব্র্যান্ড",
     mr: "ब्रँड",
   },
+  logThisPack: {
+    en: "Log this pack",
+    hi: "इस पैक को लॉग करें",
+    ta: "இந்தப் பொதியை பதிவு செய்யவும்",
+    bn: "এই প্যাকটি লগ করুন",
+    mr: "हे पॅक लॉग करा",
+  },
+  packLogged: {
+    en: "Added to today's log ✓",
+    hi: "आज के लॉग में जोड़ा ✓",
+    ta: "இன்றைய பதிவில் சேர்க்கப்பட்டது ✓",
+    bn: "আজকের লগে যোগ হয়েছে ✓",
+    mr: "आजच्या लॉगमध्ये जोडले ✓",
+  },
+  perPackNutrients: {
+    en: "Per pack vs your daily budget",
+    hi: "प्रति पैक बनाम आपका दैनिक बजट",
+    ta: "ஒரு பொதிக்கு உங்கள் தினசரி பட்ஜெட்டுக்கு எதிராக",
+    bn: "প্রতি প্যাক বনাম আপনার দৈনিক বাজেট",
+    mr: "प्रति पॅक विरुद्ध तुमचा दैनिक बजेट",
+  },
 } as const;
 
 export type TKey = keyof typeof translations;
