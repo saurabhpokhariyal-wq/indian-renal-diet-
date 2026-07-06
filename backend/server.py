@@ -543,7 +543,7 @@ async def list_foods(
     q: Optional[str] = Query(None, description="Search text"),
     tier: Optional[str] = Query(None, description="Comma-separated: GREEN,YELLOW,RED"),
     favorites_only: bool = Query(False),
-    limit: int = 100,
+    limit: int = Query(2000, ge=1, le=5000),
     current_user=Depends(get_optional_user),
 ):
     query: dict = {}
@@ -567,7 +567,7 @@ async def list_foods(
             return []
         query["id"] = {"$in": list(fav_ids)}
 
-    cursor = db.foods.find(query, {"_id": 0}).limit(limit)
+    cursor = db.foods.find(query, {"_id": 0}).sort("name", 1).limit(limit)
     return [enrich_food_sync(doc, current_user, fav_ids) async for doc in cursor]
 
 
