@@ -1,0 +1,53 @@
+{
+  "summary": "Iteration 12 verified — 992 INDB food expansion + new serving_disclaimer field is fully working on BOTH backend and frontend. Backend: 9/9 pytest cases pass (test_iter12_indb_expansion.py). DB now holds 1027+ foods (verified with explicit limit=2000). GET /api/foods/food-rasam-with-lemon returns serving_disclaimer 'Beverage — count as FLUID intake, not just food. Values per 150ml here; a real glass is 200–250ml. Critical for fluid-restricted / dialysis patients.' (contains both 'Beverage' AND 'FLUID'). GET /api/foods/food-lauki-sabzi returns serving_disclaimer=null AND actionable_clinical_tip still starts with 'Excellent low-potassium vegetable'. Search q=rasam returns food-rasam-with-lemon (plus food-rasam-with-tamarind, food-rasam-powder). Search q=palak still returns food-palak-paneer. Regression: meal-log POST + summary GET + DELETE all 200; POST /api/favorites/food-lauki-sabzi twice toggles is_favorite; GET /api/reports/weekly returns 200 with valid payload. Frontend (Playwright 390x844, demo@renal.app login, disclaimer-accept tapped): Case A — Rasam with lemon → safety-card tapped → serving-disclaimer testID visible, inner text contains both 'Beverage' and 'FLUID'. Case B — Lauki Sabzi → serving-disclaimer element NOT rendered (query returns None), detail-portion visible, detail-tip starts with 'Excellent low-potassium'. Case C — Zero console errors on either detail page. Screenshots captured at /tmp/case_a.png and /tmp/case_b.png confirm the yellow warning box appears between Portion Limit and Clinical Tip only for Rasam (as designed). No React Native / Expo regressions.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "GET /api/foods",
+        "issue": "Default server-side limit=100 caps the food list to 100 items even though DB now has 1027 foods. Frontend api.listFoods() never overrides limit, so users on the Search screen effectively see only the first 100 foods from Mongo's natural order. All 992 new INDB dishes are reachable ONLY via the ?q=... text-search path or explicit ?limit=... override. Recommend either (a) increase default to something like 2000 to expose the full DB, or (b) add pagination + sorting so the client can page through, or (c) at minimum have the frontend pass limit=2000 when displaying the full list. Not a functional break for the search flow the review request tests (rasam/palak/lauki are all reachable via q=) but is a discoverability regression for the food catalogue."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {
+        "component": "scan.tsx barcodeOverlay View",
+        "issue": "(Pre-existing since iter 9 — NOT introduced by iter 12) Deprecated inline pointerEvents='none' inside style array on barcodeOverlay wrapper. RN Web warns 'props.pointerEvents is deprecated. Use style.pointerEvents'. Reference: /app/frontend/app/(app)/scan.tsx:309"
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter12_indb_expansion.py",
+    "/app/test_reports/pytest/pytest_iter12.xml",
+    "/app/test_reports/iteration_12.json"
+  ],
+  "action_items": [
+    "(Optional / non-blocking) Consider raising GET /api/foods default limit above 100 OR adding pagination — otherwise 900+ of the 1027 seeded foods are only reachable via search query, not via the full-catalogue listing.",
+    "(Pre-existing) Fix pointerEvents deprecation on /app/frontend/app/(app)/scan.tsx:309 (open since iter 9, unchanged)."
+  ],
+  "critical_code_review_comments": [
+    "backend/server.py L541-571: GET /api/foods has hard-coded default limit=100 without a Query() declaration or upper bound. With DB size now 1027 this is a significant discoverability gap — see 'minor' backend issue. Also `.limit(limit)` is applied without a `.sort()` so the 100 returned are in Mongo natural insertion order (curated foods first because SEED_FOODS is upserted before SEED_FOODS_INDB in the lifespan).",
+    "backend/server.py enrich_food_sync correctly forwards food.get('serving_disclaimer') into FoodOut — verified both via Rasam-with-lemon (populated) and Lauki-Sabzi (null) responses. The Pydantic model on FoodOut treats it as optional so absent field also serializes to null — good.",
+    "frontend/app/food/[id].tsx L148-153: Uses a truthy check (`detail.food.serving_disclaimer ? ... : null`) which correctly hides the yellow box for empty strings AND null AND undefined. testID='serving-disclaimer', Ionicons name='alert-circle' — matches the review-request spec exactly. Placement is between the Portion (L140-146) and Clinical Tip (L155-161) blocks as designed.",
+    "frontend/app/food/[id].tsx L261-271: disclaimerBox uses COLORS.yellowBg / yellowBorder / yellowText tokens (theme-consistent) and 44px effective touch height. Icon uses COLORS.yellowStrong for the alert-circle — consistent with iter 11 favorite-star colour palette.",
+    "frontend/src/lib/api.ts: FoodOut.serving_disclaimer typed as `string | null | undefined` — matches the backend Pydantic Optional[str] shape."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter12_indb_expansion.py (new)",
+    "/app/test_reports/pytest/pytest_iter12.xml (new)",
+    "/app/test_reports/iteration_12.json (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (9/9 pytest cases pass)",
+    "frontend": "100% (Case A / B / C all pass, 0 console errors)"
+  },
+  "seed_data_creation": "None. Meal-log regression test created a Rasam-with-lemon log for today and deleted it in-test. Favorites toggle for food-lauki-sabzi flipped twice, ending in original state.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "1) Backend startup log confirms 'Seeded 1027 foods, 10 swaps' on every reload. 2) GET /api/foods default limit=100 — pass ?limit=2000 to get all seeded foods. 3) serving_disclaimer is now on FoodOut for every food response (both /foods list and /foods/{id}); it's None for foods without a disclaimer and a non-empty string for the ~223 INDB dishes that need one (mostly beverages/soups/khichdi). 4) UI: yellow box appears between Portion and Clinical Tip on the detail screen, testID='serving-disclaimer', Ionicons 'alert-circle'. 5) Login flow: [data-testid=login-email-input] / login-password-input / login-submit-button. Then disclaimer accept via [data-testid=disclaimer-accept]. Then Home dashboard with [data-testid=home-menu-search|scan|meals|report|ai|settings]. 6) Weekly report endpoint is /api/reports/weekly (PLURAL) — /api/report/weekly (the URL in the review-request spec) returns 404. 7) Meal log DELETE returns 200 (not 204).",
+  "rca_of_issue": "N/A — no defects introduced by iteration 12. Only a pre-existing 100-item default-limit observation on GET /api/foods that becomes a discoverability question now that the catalogue is ~10x larger."
+}

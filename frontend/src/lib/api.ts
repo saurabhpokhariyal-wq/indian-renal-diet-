@@ -63,6 +63,7 @@ export interface FoodOut {
   fluid_ml: number;
   personal_tier?: SafetyTier | null;
   personalized_note?: string | null;
+  serving_disclaimer?: string | null;
   is_favorite?: boolean;
   brand?: string | null;
   source?: string | null;

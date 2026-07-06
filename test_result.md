@@ -326,3 +326,69 @@ agent_communication:
            Switching to Tamil should show English fallbacks for the sub-strings without crash.
         6. Regression: existing search-input, favorites-row, tier-chips, meal-log, report,
            barcode scan pack-log flows still function.
+
+# ----------- Iteration 12: 992 INDB foods + serving_disclaimer field -----------
+backend:
+  - task: "Load 992 INDB foods alongside 35 curated foods; seed 1027 total"
+    implemented: true
+    working: true
+    file: "backend/server.py, backend/seed_data_indb.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          Added seed_data_indb.py (unchanged from source, 992 dishes, 223 with serving_disclaimer).
+          server.py now imports SEED_FOODS_INDB and the lifespan startup upserts both lists.
+          Confirmed startup log line: 'Seeded 1027 foods, 10 swaps'.
+          Zero id overlap between curated and INDB confirmed via set diff.
+          Curated foods (e.g. food-lauki-sabzi) untouched and retain original clinical_tip.
+      - working: true
+        agent: "main"
+        comment: |
+          FoodOut extended with optional serving_disclaimer; enrich_food_sync now passes
+          food.get('serving_disclaimer'). Verified 'Rasam with lemon' returns the disclaimer and
+          'Lauki Sabzi' returns null.
+
+frontend:
+  - task: "Serving disclaimer caution box on food detail screen"
+    implemented: true
+    working: true
+    file: "frontend/app/food/[id].tsx, frontend/src/lib/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          Added yellow caution box with alert-circle icon + testID 'serving-disclaimer' between
+          Portion Limit and Clinical Tip. Uses existing COLORS.yellowBg / yellowBorder / yellowText.
+          FoodOut TS type updated with optional serving_disclaimer.
+          Playwright screenshot confirms the box renders correctly for 'Rasam with lemon' and does
+          NOT render when the field is absent (verified for Lauki Sabzi manually earlier).
+
+test_plan:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Iteration 12 delivered — 1027 seeded foods and the new serving_disclaimer field are wired
+      through backend + frontend. Please verify:
+       Backend:
+        - GET /api/foods returns total >= 1027 (may be higher due to prior barcode-scanned entries).
+        - GET /api/foods/food-rasam-with-lemon returns non-null serving_disclaimer.
+        - GET /api/foods/food-lauki-sabzi returns null serving_disclaimer AND its original tip.
+        - Search still works: q='rasam' returns Rasam with lemon; q='palak' returns Palak Paneer.
+        - Meal-log POST/GET, favorites toggle, weekly report still function with the larger DB.
+       Frontend:
+        - Login, tap home-menu-search, search 'Rasam with lemon', tap the safety-card.
+          Verify testID 'serving-disclaimer' visible.
+        - Search 'Lauki Sabzi', tap it. Verify serving-disclaimer NOT rendered, no empty box.
+        - No console errors.

@@ -41,6 +41,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from seed_data import SEED_FOODS, SEED_SWAPS
+from seed_data_indb import SEED_FOODS_INDB
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -190,6 +191,7 @@ class FoodOut(BaseModel):
     fluid_ml: float = 0
     personal_tier: Optional[str] = None
     personalized_note: Optional[str] = None
+    serving_disclaimer: Optional[str] = None
     is_favorite: bool = False
     brand: Optional[str] = None
     source: Optional[str] = None
@@ -395,6 +397,7 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         fluid_ml=food.get("fluid_ml", 0),
         personal_tier=personal_tier_for(food, stage),
         personalized_note=personalized_note_for(food, stage),
+        serving_disclaimer=food.get("serving_disclaimer"),
         is_favorite=food["id"] in fav_ids,
         brand=food.get("brand"),
         source=food.get("source"),
@@ -419,11 +422,12 @@ async def lifespan(_app: FastAPI):
     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
-    for food in SEED_FOODS:
+    all_foods = SEED_FOODS + SEED_FOODS_INDB
+    for food in all_foods:
         await db.foods.update_one({"id": food["id"]}, {"$set": food}, upsert=True)
     for swap in SEED_SWAPS:
         await db.swaps.update_one({"id": swap["id"]}, {"$set": swap}, upsert=True)
-    logger.info("Seeded %d foods, %d swaps", len(SEED_FOODS), len(SEED_SWAPS))
+    logger.info("Seeded %d foods, %d swaps", len(all_foods), len(SEED_SWAPS))
     yield
     # Shutdown
     client.close()

@@ -145,6 +145,13 @@ export default function FoodDetailScreen() {
           <Text testID="detail-portion" style={styles.sectionBody}>{detail.food.portion_limit_text}</Text>
         </View>
 
+        {detail.food.serving_disclaimer ? (
+          <View testID="serving-disclaimer" style={styles.disclaimerBox}>
+            <Ionicons name="alert-circle" size={20} color={COLORS.yellowStrong} />
+            <Text style={styles.disclaimerText}>{detail.food.serving_disclaimer}</Text>
+          </View>
+        ) : null}
+
         <View style={styles.section}>
           <View style={styles.sectionHead}>
             <Ionicons name="medkit-outline" size={20} color={COLORS.brand} />
@@ -251,6 +258,17 @@ const styles = StyleSheet.create({
   sectionHead: { flexDirection: "row", alignItems: "center", gap: 8 },
   sectionTitle: { fontSize: FONT.bodyL, fontWeight: "800", color: COLORS.textPrimary },
   sectionBody: { fontSize: FONT.bodyL, color: COLORS.textPrimary, lineHeight: 26 },
+  disclaimerBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    padding: SIZE.m,
+    borderRadius: SIZE.radiusLg,
+    backgroundColor: COLORS.yellowBg,
+    borderWidth: 1,
+    borderColor: COLORS.yellowBorder,
+  },
+  disclaimerText: { flex: 1, fontSize: FONT.body, color: COLORS.yellowText, lineHeight: 22 },
   nutriRow: { flexDirection: "row", gap: SIZE.s, marginTop: 4 },
   nutriCell: {
     flex: 1,
