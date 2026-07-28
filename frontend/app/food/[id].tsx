@@ -145,6 +145,13 @@ export default function FoodDetailScreen() {
           <Text testID="detail-portion" style={styles.sectionBody}>{detail.food.portion_limit_text}</Text>
         </View>
 
+        {detail.food.data_quality_flag === "concentrated_base_pending_resourcing" ? (
+          <View testID="pending-resourcing-badge" style={styles.pendingBadge}>
+            <Ionicons name="time-outline" size={18} color={COLORS.textInverse} />
+            <Text style={styles.pendingBadgeText}>{t("pendingResourcing")}</Text>
+          </View>
+        ) : null}
+
         {detail.food.serving_disclaimer ? (
           <View testID="serving-disclaimer" style={styles.disclaimerBox}>
             <Ionicons name="alert-circle" size={20} color={COLORS.yellowStrong} />
@@ -269,6 +276,17 @@ const styles = StyleSheet.create({
     borderColor: COLORS.yellowBorder,
   },
   disclaimerText: { flex: 1, fontSize: FONT.body, color: COLORS.yellowText, lineHeight: 22 },
+  pendingBadge: {
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.redStrong,
+  },
+  pendingBadgeText: { color: COLORS.textInverse, fontWeight: "700", fontSize: FONT.label },
   nutriRow: { flexDirection: "row", gap: SIZE.s, marginTop: 4 },
   nutriCell: {
     flex: 1,

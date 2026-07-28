@@ -292,6 +292,13 @@ export const translations: Record<string, Entry> = {
     bn: "ব্র্যান্ড",
     mr: "ब्रँड",
   },
+  pendingResourcing: {
+    en: "🕒 Pending re-sourcing",
+    hi: "🕒 डेटा पुनः स्रोत की प्रतीक्षा",
+    ta: "🕒 மீள்-மூல தேடலுக்கு காத்திருக்கிறது",
+    bn: "🕒 পুনরায়-সোর্সিং অপেক্ষমাণ",
+    mr: "🕒 पुन्हा-सोर्सिंग प्रलंबित",
+  },
   logThisPack: {
     en: "Log this pack",
     hi: "इस पैक को लॉग करें",
