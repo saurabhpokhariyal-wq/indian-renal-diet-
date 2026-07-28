@@ -42,6 +42,7 @@ from starlette.responses import JSONResponse
 
 from seed_data import SEED_FOODS, SEED_SWAPS
 from seed_data_indb import SEED_FOODS_INDB
+from reconciliation import reconcile_seed
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -195,6 +196,9 @@ class FoodOut(BaseModel):
     is_favorite: bool = False
     brand: Optional[str] = None
     source: Optional[str] = None
+    tier_override: Optional[bool] = None
+    override_reason: Optional[str] = None
+    auto_rescaled: Optional[bool] = None
 
 
 class SwapOut(BaseModel):
@@ -401,6 +405,9 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         is_favorite=food["id"] in fav_ids,
         brand=food.get("brand"),
         source=food.get("source"),
+        tier_override=food.get("tier_override"),
+        override_reason=food.get("override_reason"),
+        auto_rescaled=food.get("auto_rescaled"),
     )
 
 
@@ -422,12 +429,26 @@ async def lifespan(_app: FastAPI):
     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
-    all_foods = SEED_FOODS + SEED_FOODS_INDB
+    all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB, logger=logger)
     for food in all_foods:
         await db.foods.update_one({"id": food["id"]}, {"$set": food}, upsert=True)
     for swap in SEED_SWAPS:
         await db.swaps.update_one({"id": swap["id"]}, {"$set": swap}, upsert=True)
     logger.info("Seeded %d foods, %d swaps", len(all_foods), len(SEED_SWAPS))
+
+    # Write sanity-ceiling violations to a review CSV (Step 7 output).
+    if recon_stats["sanity_violations"]:
+        import csv as _csv
+        review_path = Path(__file__).parent / "needs_manual_review.csv"
+        with open(review_path, "w", newline="", encoding="utf-8") as fh:
+            w = _csv.writer(fh)
+            w.writerow(["id", "name", "violations"])
+            for _id, _name, _vio in recon_stats["sanity_violations"]:
+                w.writerow([_id, _name, "; ".join(_vio)])
+        logger.info(
+            "Wrote %d rows to %s for manual review",
+            len(recon_stats["sanity_violations"]), review_path,
+        )
     yield
     # Shutdown
     client.close()

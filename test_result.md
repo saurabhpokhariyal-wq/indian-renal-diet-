@@ -392,3 +392,103 @@ agent_communication:
           Verify testID 'serving-disclaimer' visible.
         - Search 'Lauki Sabzi', tap it. Verify serving-disclaimer NOT rendered, no empty box.
         - No console errors.
+
+# ----------- Iteration 13: Seed-time reconciliation + audit script -----------
+backend:
+  - task: "Reconciliation pipeline: bucket rescale + reclassify + curated overrides + dedupe + sanity ceiling"
+    implemented: true
+    working: "NA"
+    file: "backend/reconciliation.py, backend/server.py, backend/scripts/audit_seed.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          New /app/backend/reconciliation.py exposes reconcile_seed() called from the lifespan
+          startup. It applies (in order):
+            Step 1 bucket classification (spice/condiment/soup/sweet/beverage, priority-ordered,
+                   evaluated against ORIGINAL values only)
+            Step 2 nutrient rescale per bucket (spice÷30 @5g, condiment÷10 @15g, soup÷5 @30g,
+                   sweet÷4.3 @35g, beverage×1.5 @225ml)
+            Step 3 reclassify safety_tier via _classify_from_nutrients (except tier_override)
+            Step 4 curated clinical overrides applied to 7 entries with override_reason strings
+            Step 5 auto_rescaled: True stamped on rescaled entries
+            Step 6 dedupe by lowercase name (curated first-wins); 9 duplicates dropped, logged
+            Step 7 sanity ceiling K>800/P>400/Na>1000 for solid foods <=150g → written to
+                   /app/backend/needs_manual_review.csv (42 rows this run) instead of silently
+                   left in place.
+          FoodOut extended with optional tier_override, override_reason, auto_rescaled.
+          Startup log confirms: input=1027 reclassified=421 rescaled=451 dupes=9 sanity_flags=42
+          overrides=7. Total DB rows after dedupe: 1018 (+ prior barcode-scanned rows).
+          The 4 patient-unsafe SEVERE_TIER_MISMATCH cases are now correctly RED:
+            food-soya-chunks-sweet-and-sour, food-raw-mango-chutney (now GREEN after 15g rescale — Na=72),
+            food-mayonnaise (RED SODIUM), food-cold-tomato-soup (RED SODIUM).
+
+  - task: "Standalone audit script /app/backend/scripts/audit_seed.py"
+    implemented: true
+    working: "NA"
+    file: "backend/scripts/audit_seed.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Runs the same pipeline against raw seed files without touching MongoDB. Reports counts
+          + samples for reclassified, rescaled_by_bucket, duplicates_dropped, sanity_violations,
+          and portion_limit_text vs disclaimer conflicts. Zero conflicts remaining. Supports
+          --json and --fail-on-flags flags for CI wiring.
+
+frontend:
+  - task: "FoodOut type updated with new optional fields"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/lib/api.ts"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: Added tier_override, override_reason, auto_rescaled to FoodOut. Not surfaced in UI yet; kept as data-only additions.
+
+test_plan:
+  current_focus:
+    - "Reconciliation pipeline: bucket rescale + reclassify + curated overrides + dedupe + sanity ceiling"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Iteration 13 delivers seed-time data reconciliation matching the CSV audit exactly.
+      Backend regression + acceptance-criteria testing needed. Frontend changes are TYPE-only
+      (FoodOut interface); please just check that existing screens still render (search,
+      detail, meals, favorites, scan).
+
+      Acceptance criteria to verify:
+       1. GET /api/foods/food-soya-chunks-sweet-and-sour → safety_tier == "RED", risk == "SODIUM"
+       2. GET /api/foods/food-cold-tomato-soup → safety_tier == "RED", risk == "SODIUM"
+       3. GET /api/foods/food-mayonnaise → safety_tier == "RED", risk == "SODIUM"
+       4. GET /api/foods/food-raw-mango-chutney → auto_rescaled == True, portion_g == 15,
+          portion_limit_text contains "15 g" (rescaled → no longer patient-unsafe at real portion)
+       5. GET /api/foods/food-chat-masala → auto_rescaled == True, portion_g == 5, safety_tier == "RED"
+       6. GET /api/foods/food-cheese-soup → auto_rescaled == True, portion_g == 30, serving_disclaimer
+          mentions "concentrated base" or "manual re-sourcing"
+       7. GET /api/foods/food-toor-dal → tier_override == True, safety_tier == "YELLOW" preserved
+       8. GET /api/foods/food-orange → tier_override == True, safety_tier == "RED" preserved
+       9. GET /api/foods/food-brown-rice → tier_override == True, override_reason non-empty
+      10. GET /api/foods count total >= 1018 (may be higher due to prior barcode scans, but not lower)
+      11. Duplicate ids food-cabbage-rolls-2, food-white-sauce-2, food-white-sauce-3,
+          food-caramel-custard-2, food-shepherd-s-pie-2, food-stuffed-bittergourd-2,
+          food-chicken-sandwich-2, food-cheese-and-tomato-sandwich-2, food-fruit-punch-2
+          should NOT be present in GET /api/foods (dedupe dropped them).
+      12. python /app/backend/scripts/audit_seed.py --fail-on-flags → exit 1 currently (42 sanity
+          flags remain, which is expected — the review CSV exists at
+          /app/backend/needs_manual_review.csv). Please verify the CSV was written and has
+          exactly 42 rows plus a header.
+      13. Regression: barcode scan, meal log, favorites, weekly report all still work.

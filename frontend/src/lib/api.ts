@@ -67,6 +67,9 @@ export interface FoodOut {
   is_favorite?: boolean;
   brand?: string | null;
   source?: string | null;
+  tier_override?: boolean | null;
+  override_reason?: string | null;
+  auto_rescaled?: boolean | null;
 }
 
 export interface SwapOut {

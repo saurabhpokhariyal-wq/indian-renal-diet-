@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 13 seed-time reconciliation pipeline verified. Backend: 18/19 pytest assertions PASSED. Only A11 fails — 9 dropped-duplicate IDs are still returned by GET /api/foods (root cause: lifespan upserts reconciled foods but never deletes stale IDs that earlier iterations already persisted to MongoDB). All other acceptance criteria (A2–A10 per-food tier/rescale/override, A12/A14 audit script exit codes, A13 needs_manual_review.csv row count) match spec exactly. Startup log line reproduced verbatim: 'Reconciliation: input=1027, reclassified=421, rescaled=451, duplicates_dropped=9, sanity_violations=42, portion/disclaimer_conflicts=0, curated_overrides=7' followed by 'Seeded 1018 foods, 10 swaps' and 'Wrote 42 rows to /app/backend/needs_manual_review.csv'. Regression R1–R5 all pass. Frontend F1–F4 all pass on mobile viewport 390x844 — chat masala detail shows the new '½–1 tsp (5 g)' portion + yellow 'Spice mix… 1 tsp' serving-disclaimer, and Rasam with lemon retains its hand-authored beverage/fluid disclaimer (preservation logic in rescale_food() correctly kept it).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/foods",
+        "issue": "A11 FAIL — 9 duplicate food IDs that reconcile_seed() explicitly drops (food-cabbage-rolls-2, food-white-sauce-2, food-white-sauce-3, food-caramel-custard-2, food-shepherd-s-pie-2, food-stuffed-bittergourd-2, food-chicken-sandwich-2, food-cheese-and-tomato-sandwich-2, food-fruit-punch-2) are STILL returned by /api/foods. Root cause: /app/backend/server.py lifespan() upserts the 1018 reconciled foods (line 434) but never purges stale IDs left behind by earlier iterations. Actual list length observed = 1028 (1018 reconciled + 9 stale dupes + 1 unrelated barcode-persisted row). The reconciliation module itself is correct — the pipeline drops them from the produced list, but MongoDB still has the older rows from previous startups.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter13_reconciliation.py",
+    "/app/test_reports/pytest/pytest_iter13.xml"
+  ],
+  "action_items": [
+    "Fix A11: in server.py lifespan() after the upsert loop, add a delete pass that removes any db.foods docs whose id is NOT in {f['id'] for f in all_foods}. Or explicitly delete the 9 known dropped IDs on startup. Preserve barcode-sourced rows (id prefix 'food-barcode-' or similar) via an allowlist check so /api/scan/barcode-persisted foods are not wiped.",
+    "Consider persisting reconciliation stats to a startup_metrics collection so audit_seed.py --json and the API can diverge alarmingly (safety net).",
+    "Optional: Rasam with lemon serving_disclaimer still says 'Values per 150ml here; a real glass is 200–250ml' while portion_limit_text now reads '1 glass (~225 ml)'. This is intentional (hand-authored disclaimer is preserved by design — see reconciliation.rescale_food line 180-181 comment), but the two numbers 150ml vs 225ml can look inconsistent to end users. Consider updating the hand-authored INDB disclaimer for rasam to say '225 ml' or drop the '150ml here' fragment to match the new portion."
+  ],
+  "critical_code_review_comments": [
+    "reconciliation.py is well-scoped, pure-functional, testable; steps are ordered correctly (bucket detection uses ORIGINAL values before rescale, tier reclass uses NEW values). Good separation from seed_data.py.",
+    "server.py lifespan() does not delete stale food IDs on startup — this is the root cause of A11 failure. Also no delete pass for stale swaps (low risk, only 10 swaps).",
+    "audit_seed.py --fail-on-flags currently exits 1 whenever sanity_violations > 0, which is exactly what the CSV is supposed to catch. Consider a separate --strict flag if you want CI to fail only on portion/disclaimer conflicts (which are truly zero-tolerance).",
+    "sanity_check() in reconciliation.py skips foods with portion > 150 g and beverages — sensible, but that means the 42 rows in needs_manual_review.csv are all solid foods with portion ≤ 150 g and any of K>800 / P>400 / Na>1000. Good."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter13_reconciliation.py (NEW — pytest suite for iter 13)"
+  ],
+  "success_rate": {"backend": "94.7% (18/19)", "frontend": "100% (4/4)"},
+  "seed_data_creation": "None — used existing seeded demo user and existing food catalog. One transient POST /api/meal-logs for chat-masala was created and immediately deleted in test_r3_meal_log_chat_masala.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Only the A11 duplicate-purge fix needs re-verification. Once fixed, re-run: pytest /app/backend/tests/test_iter13_reconciliation.py::TestFoodsList -v. All other tests (A2–A10, A12–A14, R1–R5, F1–F4) are green and should stay green. Frontend consent screen 'Before you begin → I understand' must be dismissed before home-menu-search becomes tappable — handle this in any future Playwright script.",
+  "rca_of_issue": "A11 root cause: In /app/backend/server.py lifespan() at line 432-437, `reconcile_seed()` correctly returns a deduped list of 1018 foods (dropping the 9 duplicates by lowercase-name). The code then does `db.foods.update_one({'id': food['id']}, {'$set': food}, upsert=True)` for each reconciled food. This upserts the good rows but never removes previously-inserted duplicate rows whose IDs are no longer in the seed. Because earlier iterations (before the reconciliation pipeline existed) inserted food-cabbage-rolls-2, food-white-sauce-2, etc., those rows persist in MongoDB and are still returned by GET /api/foods. Reproduction: `curl {EXPO_PUBLIC_BACKEND_URL}/api/foods?limit=2000 | jq '[.[]|select(.id|endswith(\"-2\"))|.id]'` — you will see all 9 stale IDs. Fix: after the upsert loop, add `await db.foods.delete_many({'id': {'$nin': [f['id'] for f in all_foods], '$not': {'$regex': '^food-barcode-'}}})` — or, simpler: `await db.foods.delete_many({'id': {'$in': ['food-cabbage-rolls-2','food-white-sauce-2','food-white-sauce-3','food-caramel-custard-2','food-shepherd-s-pie-2','food-stuffed-bittergourd-2','food-chicken-sandwich-2','food-cheese-and-tomato-sandwich-2','food-fruit-punch-2']}})` before the upsert."
+}
