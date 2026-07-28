@@ -175,9 +175,11 @@ def rescale_food(food: dict, bucket: str) -> dict:
         out["portion_g"] = spec["portion_g"]
         out["fluid_ml"] = 0
     out["portion_limit_text"] = spec["portion_limit_text"]
-    # Preserve any hand-authored disclaimer (many INDB beverages already have
-    # excellent ones); inject the bucket default only when nothing is set.
-    if not out.get("serving_disclaimer"):
+    # For beverages, always use the bucket default (INDB entries reference the
+    # stale 150 ml portion that we've now rescaled to 225 ml — keeping their
+    # text would leave the disclaimer contradicting the new portion). For all
+    # other buckets, preserve any hand-authored disclaimer if present.
+    if bucket == "beverage" or not out.get("serving_disclaimer"):
         out["serving_disclaimer"] = spec["disclaimer"]
     out["auto_rescaled"] = True
     return out

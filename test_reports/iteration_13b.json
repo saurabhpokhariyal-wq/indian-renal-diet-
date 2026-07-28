@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 13b retest — A11 fix verified and no regressions. Backend: 26/26 pytest tests PASSED (R1: all 9 dropped-duplicate IDs now return 404 and are absent from GET /api/foods; R2: soya-chunks/cold-tomato-soup/mayonnaise all RED, raw-mango-chutney auto_rescaled=true portion_g=15; R3: all 8 kept primary duplicate IDs return 200; R4: GET /api/foods returns >=1018 rows and POST /api/meal-logs for food-lauki-sabzi works; R5: food-rasam-with-lemon AND food-cold-coffee now both show serving_disclaimer='Beverage — counts as fluid. Values shown per 225 ml glass.' with no stale 150 ml text). Startup log confirms new line: 'Purged 9 stale seed rows no longer in reconciled catalog'. Frontend F1 PASSED on mobile viewport 390x844 — logged in as demo@renal.app, dismissed 'I understand' consent, tapped home-menu-search, searched 'Rasam with lemon', opened detail; testID serving-disclaimer renders '⚠ Beverage — counts as fluid. Values shown per 225 ml glass.' and Portion Limit reads '1 glass (~225 ml) — counts toward daily fluid limit'. No console errors, no red screen.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter13b_retest.py",
+    "/app/test_reports/pytest/pytest_iter13b.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py lifespan purge (`db.foods.delete_many({'id': {'$nin': reconciled_ids}, 'source': {'$ne': 'barcode'}})`) is the correct fix — preserves barcode-sourced persistent rows and only removes stale seed IDs. Log line 'Purged 9 stale seed rows...' confirms behavior at startup.",
+    "reconciliation.py rescale_food() beverage branch now unconditionally sets bucket-default disclaimer — verified both food-rasam-with-lemon (previously hand-authored '150ml' text) and food-cold-coffee now consistently expose the 225 ml text. This resolves the previous portion/disclaimer mismatch flagged as an optional item in iteration_13."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter13b_retest.py (NEW — pytest retest suite for iter 13b)"
+  ],
+  "success_rate": {"backend": "100% (26/26)", "frontend": "100% (1/1)"},
+  "seed_data_creation": "None — reused seeded demo user (demo@renal.app / demo123). One transient POST /api/meal-logs for food-lauki-sabzi in TestR4Regression, cleaned up in same test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "A11 is fully resolved; the 9 dropped-duplicate IDs are 404 both individually and in the /api/foods list, and the beverage disclaimer refresh works for Rasam with lemon and Cold coffee. No further retest needed for this bucket of tests. Test suite lives at /app/backend/tests/test_iter13b_retest.py and can be re-run any time via: EXPO_PUBLIC_BACKEND_URL=<url> pytest /app/backend/tests/test_iter13b_retest.py -v",
+  "rca_of_issue": "Original A11 root cause (iteration_13): server.py lifespan upserted reconciled foods but never purged stale IDs from earlier iterations. Fix applied by main agent: after upsert loop, `await db.foods.delete_many({'id': {'$nin': reconciled_ids}, 'source': {'$ne': 'barcode'}})` — reproduced startup log 'Purged 9 stale seed rows no longer in reconciled catalog' and each of the 9 IDs now returns 404. Secondary fix: reconciliation.rescale_food() beverage branch now always overwrites serving_disclaimer with bucket-default text so portion (225 ml) and disclaimer stay consistent."
+}

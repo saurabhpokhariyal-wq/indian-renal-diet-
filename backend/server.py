@@ -430,8 +430,16 @@ async def lifespan(_app: FastAPI):
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
     all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB, logger=logger)
+    reconciled_ids = {food["id"] for food in all_foods}
     for food in all_foods:
         await db.foods.update_one({"id": food["id"]}, {"$set": food}, upsert=True)
+    # Purge stale seed rows from earlier iterations (e.g. dropped duplicates,
+    # renamed IDs). Preserve barcode-persisted user data via source filter.
+    purge = await db.foods.delete_many(
+        {"id": {"$nin": list(reconciled_ids)}, "source": {"$ne": "barcode"}}
+    )
+    if purge.deleted_count:
+        logger.info("Purged %d stale seed rows no longer in reconciled catalog", purge.deleted_count)
     for swap in SEED_SWAPS:
         await db.swaps.update_one({"id": swap["id"]}, {"$set": swap}, upsert=True)
     logger.info("Seeded %d foods, %d swaps", len(all_foods), len(SEED_SWAPS))
