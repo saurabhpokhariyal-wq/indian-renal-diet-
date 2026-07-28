@@ -1,0 +1,31 @@
+{
+  "summary": "Iteration 13d fully green. Backend: 38/38 pytest PASSED for the 7 Group B per-dish serving-unit fixes (B1-B7), the 6 new CONCENTRATED_BASE_IDS additions (C1), Mongo count invariants (T1: flagged=39, tier_override=7, overlap=0), audit_seed.py --json (T2: exit 0, data_quality_flagged=39, portion_disclaimer_conflicts=0, duplicates_dropped=9), and light regression R1-R3 (weekly report 200, barcode scan 200, meal-log create 201). Frontend Playwright at 390x844 verified F1-F5: pending-resourcing-badge with '🕒 Pending re-sourcing' text renders on food-cheese-soup and the new food-chicken-manchurian, is absent on food-palak-paneer (detail-portion still visible) and food-soya-chikki (which shows GREEN Safe/Recommended card + serving-disclaimer with 'sugar-heavy' warning). Zero console errors. Startup log reproduced verbatim: 'Reconciliation: input=1027, reclassified=423, rescaled=446, duplicates_dropped=9, sanity_violations=40, portion/disclaimer_conflicts=0, curated_overrides=7, data_quality_flagged=39'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter13d_pending_resourcing.py",
+    "/app/test_reports/pytest/pytest_iter13d.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "food/[id].tsx correctly renders the pending-resourcing-badge (testID='pending-resourcing-badge') between Portion Limit and the yellow serving-disclaimer box only when food.data_quality_flag === 'concentrated_base_pending_resourcing'. Verified visible on cheese-soup + chicken-manchurian; absent on palak-paneer + soya-chikki.",
+    "i18n.ts pendingResourcing key is present in all 5 languages (en/hi/ta/bn/mr) with the 🕒 clock emoji baked into the string. English renders as '🕒 Pending re-sourcing' in the badge as expected.",
+    "reconciliation.CONCENTRATED_BASE_IDS now contains 39 IDs (32 prior + 7 new: chicken-manchurian, mutton-pulao, chicken-pulao, meat-and-macaroni-casserole, savoury-puffs, minced-meat-pancake, pearl-millet-infant-food). All 6 new dish-tier entries (C1) return data_quality_flag='concentrated_base_pending_resourcing' + safety_tier=RED. Set remains disjoint from tier_override (overlap=0).",
+    "seed_data_indb.py Group B per-dish edits verified: maa-chaane-ki-dal (75g,K=693,P=224,Na=32.5,RED,POTASSIUM), soyabean-curry (75g,K=423,P=108,Na=265,RED), moong-bean-dosa (60g,'1 dosa'/60g in portion_limit_text), moong-dal-cheela (60g,'1 cheela'/60g), sajina (150g unchanged; portion_limit_text has '30–50g' en-dash + 'not a full katori'; disclaimer mentions 'drumstick'), soya-chikki (25g,K=134,P=37,Na=4,GREEN,NONE, disclaimer flags 'sugar-heavy'), pearl-millet-infant-food (data_quality_flag set, portion_limit_text contains 'Awaiting', RED).",
+    "audit_seed.py --json is aligned with backend startup counters: data_quality_flagged=39, portion_disclaimer_conflicts_count=0, duplicates_dropped_count=9. No drift between reconciliation output and audit report."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter13d_pending_resourcing.py (NEW — 38 focused tests: B1-B7 + C1 + T1 + T2 + R1-R3)"
+  ],
+  "success_rate": {"backend": "100% (38/38)", "frontend": "100% (F1-F5 all pass)"},
+  "seed_data_creation": "One meal-log row created via R3 regression (food-lauki-sabzi, 1 serving, lunch, today's date) under demo@renal.app. No dish/foods catalog data mutated; verification was read-only against the seeded catalog.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter_13d is fully green. Backend test suite lives at /app/backend/tests/test_iter13d_pending_resourcing.py — rerun with: EXPO_PUBLIC_BACKEND_URL=<url> pytest /app/backend/tests/test_iter13d_pending_resourcing.py -v. NOTE for future auth-gated regression tests: POST /api/meal-logs now requires a 'date' field (ISO YYYY-MM-DD) in addition to food_id/servings/meal_type — the prior iter suites did not exercise this endpoint so no earlier test drift. Frontend flow to reach food detail from a fresh login: (1) fill login-email-input/login-password-input, (2) tap login-submit-button, (3) dismiss the 'Before you begin' disclaimer via text='I understand' (there is no testID on that button), (4) tap home-menu-search, (5) fill search-input (2.5s debounce), (6) tap safety-card-<food-id>. Prior iter-13/13b/13c suites are NOT rerun and remain green per their reports.",
+  "rca_of_issue": "N/A — no bugs found. All three deliverables (pending-resourcing badge JSX + i18n string, 7 Group B per-dish portion/nutrient edits, 6 new CONCENTRATED_BASE_IDS additions) behave exactly as specified in the review request."
+}

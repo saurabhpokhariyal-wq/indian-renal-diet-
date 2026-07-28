@@ -86,6 +86,15 @@ CONCENTRATED_BASE_IDS: set[str] = {
     # 2 solids whose raw values are also implausible without a soup framing —
     # likely dry-mix / dry-rub contamination.
     "food-instant-dhokla", "food-cajun-chicken",
+    # 6 non-soup dishes surfaced by the tightened bucket-4 rule (previously
+    # got the ÷5 rescale under the loose Na>3000 rule); their raw Na values
+    # look like dry seasoning / restaurant-portion salt, not per-serving.
+    "food-chicken-manchurian", "food-mutton-pulao", "food-chicken-pulao",
+    "food-meat-and-macaroni-casserole", "food-savoury-puffs",
+    "food-minced-meat-pancake",
+    # 1 grain/porridge whose values look like dry pearl-millet flour, not
+    # prepared porridge — awaiting real cooked-portion source.
+    "food-pearl-millet-infant-food",
 }
 DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
 
