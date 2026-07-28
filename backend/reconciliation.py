@@ -59,11 +59,58 @@ CURATED_TIER_OVERRIDES: dict[str, str] = {
 }
 
 
-# --------------------------- Bucket detection ---------------------------
+# --------------------------- Data-quality flags ---------------------------
+# These entries have RAW sodium/potassium values that appear to be per-100g of a
+# concentrated base (dry stock, bouillon cube, dry seasoning) rather than a
+# prepared serving. Their computed tier (RED) is a SAFE DEFAULT while awaiting a
+# clinician / IFCT re-sourcing pass — this is NOT the same as CURATED_TIER_OVERRIDES,
+# which is reserved for deliberate clinical judgement calls that disagree with
+# the formula.
+CONCENTRATED_BASE_IDS: set[str] = {
+    # 30 soups whose ÷5 rescaled sodium still exceeds 1000mg — original source
+    # was clearly per-100g of dry stock, not per-serving prepared soup.
+    "food-spinach-soup", "food-cheese-soup", "food-meat-consomme",
+    "food-consomme-au-vermicelli", "food-egg-drop-soup",
+    "food-chicken-sweet-corn-soup", "food-mulligatawny-soup",
+    "food-talaumein-soup", "food-green-pea-soup", "food-millet-soup",
+    "food-french-onion-soup", "food-lentil-soup",
+    "food-consomme-au-julienne", "food-cold-summer-garden-soup",
+    "food-mixed-vegetable-soup", "food-chicken-consomme",
+    "food-minestrone-soup", "food-cream-of-broccoli-soup",
+    "food-cream-of-carrot-soup", "food-cream-of-potato-soup",
+    "food-almond-soup", "food-cream-of-mixed-vegetable-soup",
+    "food-spaghetti-bolognese", "food-cream-of-mushroom-soup",
+    "food-clear-tomato-soup", "food-cream-of-green-peas-soup",
+    "food-cream-of-tomato-soup", "food-cream-of-spinach-soup",
+    "food-chinese-cabbage-and-meat-ball-soup", "food-instant-idli",
+    # 2 solids whose raw values are also implausible without a soup framing —
+    # likely dry-mix / dry-rub contamination.
+    "food-instant-dhokla", "food-cajun-chicken",
+}
+DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
+
+
+
 SPICE_MIX_PATTERNS = re.compile(
     r"\b(masala|powder|spice blend|chutney podi|garam|sambar|rasam powder|kashmiri)\b",
     re.IGNORECASE,
 )
+
+# End-anchored — only "X seeds baghar" / "X seed baghar" (a tempering-only dish)
+# should be treated as a spice mix. Full curries like "Onion tomato baghar" or
+# "Green gram whole with baghar" must NOT match.
+BAGHAR_SPICE_PATTERN = re.compile(
+    r"^\s*\w+\s+seeds?\s+baghar\s*$",
+    re.IGNORECASE,
+)
+
+# Only proper soups, consommes, stocks, broths, and clear liquid rasams get the
+# concentrated-base÷5 rescale — solid dishes with the same raw-Na pattern do not.
+SOUP_NAME_PATTERN = re.compile(
+    r"\b(soup|consomme|stock|shorba|broth)\b|\brasam\b(?!\s+powder)",
+    re.IGNORECASE,
+)
+
 SWEET_PATTERNS = re.compile(
     r"\b(ladoo|laddu|burfi|barfi|biscuit|cookie|halwa|kheer|rasgulla|jamun|jalebi|"
     r"pudding|custard|mousse|souffle|pastry|cake|swiss roll|chiffon|pie|gulab|"
@@ -90,15 +137,19 @@ def classify_bucket(food: dict) -> Optional[str]:
     # Bucket 2 — spice mix / dry masala (most specific first)
     if (at_150 and category == "condiment" and (k > 1500 or na > 3000)) or (
         SPICE_MIX_PATTERNS.search(name) and at_150
-    ):
+    ) or (BAGHAR_SPICE_PATTERN.match(name) and at_150):
         return "spice"
 
     # Bucket 3 — wet condiment
     if at_150 and category == "condiment":
         return "condiment"
 
-    # Bucket 4 — soup / stock / consomme (extreme sodium)
-    if at_150 and na > 3000:
+    # Bucket 4 — soup / stock / consomme / broth / clear rasam.
+    # Requires BOTH extreme sodium AND a soup/stock name pattern — a solid
+    # dish that happens to carry very high stored sodium (e.g. minced-meat-pancake)
+    # does NOT belong here because the "concentrate diluted into a small bowl"
+    # framing that justifies ÷5 does not apply to solids.
+    if at_150 and na > 3000 and SOUP_NAME_PATTERN.search(name):
         return "soup"
 
     # Bucket 5 — sweet / biscuit / confection
@@ -228,6 +279,21 @@ def apply_curated_overrides(foods: list[dict]) -> None:
             food["override_reason"] = reason
 
 
+def apply_data_quality_flags(foods: list[dict]) -> int:
+    """In-place: set data_quality_flag on entries with untrustworthy raw values.
+
+    Distinct from tier_override — these entries KEEP their formula-derived tier
+    (typically RED, which is safe while their real values are being re-sourced).
+    Returns the count of entries flagged.
+    """
+    count = 0
+    for food in foods:
+        if food.get("id") in CONCENTRATED_BASE_IDS:
+            food["data_quality_flag"] = DATA_QUALITY_FLAG_CONCENTRATED
+            count += 1
+    return count
+
+
 # --------------------------- Portion-limit vs disclaimer sanity ---------------------------
 def portion_disclaimer_conflict(food: dict) -> bool:
     """Return True if portion_limit_text says '150 g' but serving_disclaimer disagrees."""
@@ -258,6 +324,7 @@ def reconcile_seed(
         "sanity_violations": [],
         "portion_disclaimer_conflicts": [],
         "curated_overrides": 0,
+        "data_quality_flagged": 0,
     }
 
     all_foods = [dict(f) for f in curated] + [dict(f) for f in indb]
@@ -266,6 +333,9 @@ def reconcile_seed(
     # Step 4 (early): curated overrides — so classify_bucket() skips them.
     apply_curated_overrides(all_foods)
     stats["curated_overrides"] = sum(1 for f in all_foods if f.get("tier_override"))
+
+    # Data-quality flag (independent of bucket assignment).
+    stats["data_quality_flagged"] = apply_data_quality_flags(all_foods)
 
     # Step 1: bucket assignment using ORIGINAL values.
     buckets: list[Optional[str]] = [classify_bucket(f) for f in all_foods]
@@ -321,7 +391,8 @@ def reconcile_seed(
     if logger:
         logger.info(
             "Reconciliation: input=%d, reclassified=%d, rescaled=%d, duplicates_dropped=%d, "
-            "sanity_violations=%d, portion/disclaimer_conflicts=%d, curated_overrides=%d",
+            "sanity_violations=%d, portion/disclaimer_conflicts=%d, curated_overrides=%d, "
+            "data_quality_flagged=%d",
             stats["total_input"],
             len(stats["reclassified"]),
             len(stats["rescaled"]),
@@ -329,6 +400,7 @@ def reconcile_seed(
             len(stats["sanity_violations"]),
             len(stats["portion_disclaimer_conflicts"]),
             stats["curated_overrides"],
+            stats["data_quality_flagged"],
         )
         for dup_id, dup_name, kept_id in stats["duplicates_dropped"]:
             logger.info("  duplicate dropped: %s '%s' (kept %s)", dup_id, dup_name, kept_id)

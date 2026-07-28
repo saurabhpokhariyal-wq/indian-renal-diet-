@@ -199,6 +199,7 @@ class FoodOut(BaseModel):
     tier_override: Optional[bool] = None
     override_reason: Optional[str] = None
     auto_rescaled: Optional[bool] = None
+    data_quality_flag: Optional[str] = None
 
 
 class SwapOut(BaseModel):
@@ -408,6 +409,7 @@ def enrich_food_sync(food: dict, user: Optional[dict], fav_ids: Set[str]) -> Foo
         tier_override=food.get("tier_override"),
         override_reason=food.get("override_reason"),
         auto_rescaled=food.get("auto_rescaled"),
+        data_quality_flag=food.get("data_quality_flag"),
     )
 
 
@@ -432,7 +434,10 @@ async def lifespan(_app: FastAPI):
     all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB, logger=logger)
     reconciled_ids = {food["id"] for food in all_foods}
     for food in all_foods:
-        await db.foods.update_one({"id": food["id"]}, {"$set": food}, upsert=True)
+        # replace_one (not $set) so fields no longer applicable in the current
+        # reconciliation (e.g. a stale auto_rescaled from an earlier run whose
+        # bucket rules were looser) are removed on write.
+        await db.foods.replace_one({"id": food["id"]}, food, upsert=True)
     # Purge stale seed rows from earlier iterations (e.g. dropped duplicates,
     # renamed IDs). Preserve barcode-persisted user data via source filter.
     purge = await db.foods.delete_many(

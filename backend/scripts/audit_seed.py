@@ -38,6 +38,7 @@ def build_report() -> dict:
     return {
         "total_input": stats["total_input"],
         "curated_overrides": stats["curated_overrides"],
+        "data_quality_flagged": stats.get("data_quality_flagged", 0),
         "reclassified_count": len(stats["reclassified"]),
         "reclassified": stats["reclassified"][:50],  # sample
         "reclassified_by_direction": _direction_counts(stats["reclassified"]),
@@ -132,4 +133,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    raise SystemExit(main())
     raise SystemExit(main())

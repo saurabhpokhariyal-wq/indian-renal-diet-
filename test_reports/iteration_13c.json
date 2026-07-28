@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 13c backend-only verification of the four reconciliation follow-up fixes: 41/41 pytest tests PASSED. T1 poached-egg sodium corrected 1745->186 with RED tier / PHOSPHORUS primary risk and not auto_rescaled. T2 minced-meat-pancake kept at portion_g=150 with raw sodium 7413 and no soup rescale. T3 spaghetti-bolognese kept at portion_g=150 with data_quality_flag='concentrated_base_pending_resourcing' and no soup rescale. T4 real soups (food-cheese-soup, food-meat-consomme, food-mulligatawny-soup) remain auto_rescaled to portion_g=30 with data_quality_flag set. T5 baghar precision confirmed: only mustard-seeds-baghar and cumin-seeds-baghar are rescaled to 5g while onion-tomato-baghar and green-gram-whole-with-baghar stay at 150g. T6 Mongo invariants: data_quality_flag='concentrated_base_pending_resourcing' count==32, tier_override count==7, overlap==0. T7 audit_seed.py --json exits 0 and reports data_quality_flagged=32, rescaled_by_bucket.soup=29, rescaled_by_bucket.spice=35, portion_disclaimer_conflicts_count=0, curated_overrides=7. T8 needs_manual_review.csv has header + 45 data rows; food-poached-egg absent; minced-meat-pancake / spaghetti-bolognese / cajun-chicken / instant-idli / instant-dhokla all present with raw Na values. R1 regression: all 9 dropped duplicates still 404 and mayonnaise / soya-chunks-sweet-and-sour still RED. Startup log line reproduced verbatim: 'Reconciliation: input=1027, reclassified=423, rescaled=446, duplicates_dropped=9, sanity_violations=45, portion/disclaimer_conflicts=0, curated_overrides=7, data_quality_flagged=32'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter13c_reconciliation_fixes.py",
+    "/app/test_reports/pytest/pytest_iter13c.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "reconciliation.py bucket 4 soup rule now correctly requires BOTH sodium_mg > 3000 AND a dish-name regex match (soup|consomme|stock|shorba|broth or bare rasam). Verified: solid dishes minced-meat-pancake (Na=7413) and spaghetti-bolognese (Na=8038) no longer trip the rescale, while all three real-soup regression IDs still rescale to 30g.",
+    "reconciliation.CONCENTRATED_BASE_IDS is a proper 32-entry allowlist and is cleanly disjoint from the 7-entry tier_override set (Mongo intersection==0). This keeps the 'flagged for resourcing' bucket auditable and distinct from clinical exception overrides.",
+    "BAGHAR_SPICE_PATTERN r'^\\s*\\w+\\s+seeds?\\s+baghar\\s*$' correctly requires a 'seeds baghar' ending. Confirmed via API: onion-tomato-baghar and green-gram-whole-with-baghar (both containing 'baghar' but not '<x> seeds baghar') are left unrescaled at 150g.",
+    "server.py switch from update_one($set) to replace_one is the right choice for idempotent seeding since it clears stale keys (e.g. auto_rescaled) from earlier looser runs. No stale auto_rescaled=true seen on the four dishes T1-T3."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter13c_reconciliation_fixes.py (NEW — 41 focused tests covering T1-T8 + R1 regression)"
+  ],
+  "success_rate": {"backend": "100% (41/41)", "frontend": "not tested (per request)"},
+  "seed_data_creation": "None — read-only verification against the seeded catalog, no meal-logs or user data created.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iteration_13c is fully green. Test suite lives at /app/backend/tests/test_iter13c_reconciliation_fixes.py and can be rerun anytime with: EXPO_PUBLIC_BACKEND_URL=<url> pytest /app/backend/tests/test_iter13c_reconciliation_fixes.py -v. Regression suites from prior iterations (test_iter13_reconciliation.py, test_iter13b_retest.py) were NOT rerun this pass since no red flag surfaced; the light R1 subset embedded here reconfirms the earlier A2/A11 outcomes. If reconciliation.py is touched again, rerun all three iter-13* test files together.",
+  "rca_of_issue": "N/A — no bugs found this iteration. All four fixes (poached-egg data correction, soup name-guarded rescale, CONCENTRATED_BASE_IDS flag, baghar end-anchored regex) behave as specified and the replace_one upsert cleared stale rescale keys as intended."
+}

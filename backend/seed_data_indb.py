@@ -15248,11 +15248,11 @@ SEED_FOODS_INDB = [
         "portion_g": 150,
         "potassium_mg": 212,
         "phosphorus_mg": 251,
-        "sodium_mg": 1745,
+        "sodium_mg": 186,
         "protein_g": 18.0,
         "fluid_ml": 0,
         "portion_limit_text": "½ katori (75g), occasional only",
-        "actionable_clinical_tip": "High phosphorus (251 mg per 150g). Limit strictly and ensure binders are taken with the meal. Also salt-heavy (1745 mg sodium) — watch overall salt and fluid.",
+        "actionable_clinical_tip": "High phosphorus (251 mg per 150g, roughly 3 large eggs). Limit strictly and ensure phosphate binders are taken with the meal. Sodium is modest (~62 mg per egg) so cooking salt is the main variable to watch.",
     },
     {
         "id": "food-paneer-parantha-paratha",

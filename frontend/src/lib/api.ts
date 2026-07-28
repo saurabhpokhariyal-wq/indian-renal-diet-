@@ -70,6 +70,7 @@ export interface FoodOut {
   tier_override?: boolean | null;
   override_reason?: string | null;
   auto_rescaled?: boolean | null;
+  data_quality_flag?: string | null;
 }
 
 export interface SwapOut {
