@@ -28,6 +28,15 @@ const MENU: MenuItem[] = [
     accentBg: COLORS.brandLight,
   },
   {
+    key: "fruits",
+    icon: "nutrition",
+    titleKey: "menuFruits",
+    subtitleKey: "menuFruitsSub",
+    href: "/fruits",
+    accent: COLORS.greenStrong,
+    accentBg: COLORS.greenBg,
+  },
+  {
     key: "scan",
     icon: "camera",
     titleKey: "menuScan",

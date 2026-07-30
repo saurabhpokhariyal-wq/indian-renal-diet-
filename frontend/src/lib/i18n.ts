@@ -299,6 +299,35 @@ export const translations: Record<string, Entry> = {
     bn: "🕒 পুনরায়-সোর্সিং অপেক্ষমাণ",
     mr: "🕒 पुन्हा-सोर्सिंग प्रलंबित",
   },
+  menuFruits: {
+    en: "Fruit Guide",
+    hi: "फल गाइड",
+    ta: "பழ வழிகாட்டி",
+    bn: "ফল গাইড",
+    mr: "फळांचे मार्गदर्शन",
+  },
+  menuFruitsSub: {
+    en: "Which fruits are kidney-safe",
+    hi: "कौन से फल किडनी के लिए सुरक्षित हैं",
+    ta: "எந்த பழங்கள் சிறுநீரகத்திற்கு பாதுகாப்பானவை",
+    bn: "কোন ফলগুলি কিডনির জন্য নিরাপদ",
+    mr: "कोणती फळे किडनीसाठी सुरक्षित आहेत",
+  },
+  fruitGuideTitle: {
+    en: "Fruit Guide",
+    hi: "फल गाइड",
+    ta: "பழ வழிகாட்டி",
+    bn: "ফল গাইড",
+    mr: "फळांचे मार्गदर्शन",
+  },
+  fruitGuideSubtitle: {
+    en: "What to eat, watch, and avoid",
+    hi: "क्या खाएं, संभल कर खाएं, और परहेज करें",
+  },
+  fruitGuideIntro: {
+    en: "Potassium is the main concern with fruit. Serving sizes matter — a large fruit or a whole cup pushes even a safe fruit into caution. Always check with your dietitian and stay within your daily potassium budget.",
+    hi: "फलों में मुख्य चिंता पोटैशियम की होती है। मात्रा महत्वपूर्ण है — बड़ा फल या पूरा कप सुरक्षित फल को भी सावधानी में डाल सकता है। हमेशा अपने डाइटिशियन से जांच लें और अपने दैनिक पोटैशियम बजट में रहें।",
+  },
   logThisPack: {
     en: "Log this pack",
     hi: "इस पैक को लॉग करें",

@@ -177,6 +177,27 @@ export interface FoodScan {
   raw: string | null;
 }
 
+export interface FruitEntry {
+  name: string;
+  hindi: string;
+  serving: string;
+  potassium_mg: number;
+  note: string;
+  linked_food_id: string | null;
+}
+
+export interface FruitGuideSection {
+  title: string;
+  subtitle: string;
+  fruits: FruitEntry[];
+}
+
+export interface FruitGuide {
+  GREEN: FruitGuideSection;
+  YELLOW: FruitGuideSection;
+  RED: FruitGuideSection;
+}
+
 export type Lang = "en" | "hi" | "ta" | "bn" | "mr";
 
 // ---------------- API ----------------
@@ -233,6 +254,8 @@ export const api = {
 
   scanBarcode: (barcode: string) =>
     request<FoodScan>("/scan/barcode", { method: "POST", body: JSON.stringify({ barcode }) }, true),
+
+  getFruitGuide: () => request<FruitGuide>("/fruits/guide", {}, true),
 
   askAi: (question: string, lang: Lang = "en") =>
     request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question, lang }) }, true),

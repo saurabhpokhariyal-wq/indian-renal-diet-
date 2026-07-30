@@ -43,6 +43,7 @@ from starlette.responses import JSONResponse
 from seed_data import SEED_FOODS, SEED_SWAPS
 from seed_data_indb import SEED_FOODS_INDB
 from reconciliation import reconcile_seed
+from fruit_guide import get_fruit_guide
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -569,6 +570,13 @@ async def update_profile(body: ProfileUpdate, current_user=Depends(get_current_u
         await db.users.update_one({"id": current_user["id"]}, {"$set": update})
         current_user.update(update)
     return _user_to_out(current_user)
+
+
+@api.get("/fruits/guide")
+async def fruits_guide():
+    """Patient-facing curated fruit reference for CKD/dialysis."""
+    return get_fruit_guide()
+
 
 
 # ==================== FOODS ====================
