@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 16 (Vegetables Guide + Snacks Guide) verified end-to-end. Backend: 7/7 pytest cases passed against GET /api/vegetables/guide and GET /api/snacks/guide (authenticated). Tier sizes match spec: veg GREEN=10, YELLOW=8, RED=11; snacks GREEN=6, YELLOW=8, RED=12. Every row exposes {name, hindi, serving, potassium_mg, note, linked_food_id}. Anchor rows validated: GREEN 'Bottle Gourd (Lauki)' linked_food_id='food-lauki-sabzi'; RED 'Potato (regular)' potassium_mg=420 linked_food_id='food-aloo-sabzi'; RED 'Drumstick Leaves (Sajina)' linked_food_id='food-sajina'; snacks GREEN contains 'Roasted Makhana (unsalted)' and RED contains 'Namkeen / Bhujia / Mixture' AND 'Instant Noodles (Maggi etc.)'. Frontend (390x844): F1 all 4 guide cards (fruits/beverages/vegetables/snacks) + home-menu-search visible on Home. F2 /vegetables shows veg-section-GREEN; veg-row-bottle-gourd-lauki is tappable and navigates to /food/food-lauki-sabzi with detail-portion rendered. F3 veg-section-RED renders; veg-row-potato-regular text contains 'K 420 mg' and taps navigate to /food/food-aloo-sabzi. F4 vegetables-back returns to home dashboard (home-menu-search visible). F5 /snacks shows snack-section-GREEN + snack-row-roasted-makhana-unsalted. F6 snack-section-RED contains snack-row-namkeen-bhujia-mixture AND snack-row-instant-noodles-maggi-etc. F7 Language switch: lang-hi -> home-menu-vegetables card text becomes 'सब्जी गाइड' and /vegetables header shows 'सब्जी गाइड'; lang-en reset works. F8 Zero console errors across the full flow. R1 Regression: home-menu-fruits + home-menu-beverages still on Home; /fruits still renders fruit-section-GREEN and /beverages still renders beverage-section-GREEN. R2 Search 'palak' returns visible result cards (Palak Paneer, Arhar with spinach, Besan and spinach etc.) — flow still works. R3 Home dashboard shows 10 menu cards (Search/Fruits/Beverages/Vegetables/Snacks/Scan/Meals/Report/Ask AI/Settings) with no overflow or crash at 390x844 (task narrative said 'now has 8' but parenthetical listed 10; actual live count is 10 and layout is clean).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_vegetables_snacks_guide.py",
+    "/app/test_reports/pytest/pytest_iter16.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "vegetableGuide* and snackGuide* i18n keys ship en+hi only (frontend/src/lib/i18n.ts); ta/bn/mr will fall back to English — same known gap as fruitGuide* and beverageGuide*, worth completing before those locales are exposed.",
+    "GET /api/vegetables/guide and GET /api/snacks/guide in backend/server.py:590-599 do not include Depends(get_current_user); they succeed without a token (same pattern as /api/fruits/guide and /api/beverages/guide). Consistent with prior iterations — flagging for awareness only.",
+    "Task narrative claims Home grid 'now has 8 menu cards' but the actual list enumerated (Search/Scan/Fruits/Beverages/Vegetables/Snacks/Meals/Report/Ask AI/Settings) is 10, and 10 cards are indeed rendered. Grid layout is clean on 390x844 — no design bug, just PR wording mismatch."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_vegetables_snacks_guide.py",
+    "/app/test_reports/iteration_16.json"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None — used seeded demo@renal.app / demo123.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter16 (Vegetables + Snacks Guides) fully green. GET /api/vegetables/guide returns {GREEN,YELLOW,RED} each with {title, subtitle, vegetables:[{name,hindi,serving,potassium_mg,note,linked_food_id}]}. GET /api/snacks/guide is parallel with 'snacks' list key. Row testIDs are auto-generated: `veg-row-` / `snack-row-` + name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''). Home dashboard now has 10 menu cards (Search, Fruits, Beverages, Vegetables, Snacks, Scan, Meals, Report, Ask AI, Settings). Login testIDs: login-email-input / login-password-input / login-submit-button; disclaimer accept testID is 'disclaimer-accept' (must be tapped once per session before Home menu grid becomes reachable).",
+  "rca_of_issue": "N/A — no defects found."
+}

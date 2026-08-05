@@ -280,6 +280,8 @@ export const api = {
   getFruitGuide: () => request<FruitGuide>("/fruits/guide", {}, true),
 
   getBeverageGuide: () => request<BeverageGuide>("/beverages/guide", {}, true),
+  getVegetableGuide: () => request<Record<string, { title: string; subtitle: string; vegetables: FruitEntry[] }>>("/vegetables/guide", {}, true),
+  getSnackGuide: () => request<Record<string, { title: string; subtitle: string; snacks: FruitEntry[] }>>("/snacks/guide", {}, true),
 
   askAi: (question: string, lang: Lang = "en") =>
     request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question, lang }) }, true),

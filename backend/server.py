@@ -45,6 +45,8 @@ from seed_data_indb import SEED_FOODS_INDB
 from reconciliation import reconcile_seed
 from fruit_guide import get_fruit_guide
 from beverage_guide import get_beverage_guide
+from vegetable_guide import get_vegetable_guide
+from snack_guide import get_snack_guide
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -583,6 +585,18 @@ async def fruits_guide():
 async def beverages_guide():
     """Patient-facing curated beverage reference for CKD/dialysis."""
     return get_beverage_guide()
+
+
+@api.get("/vegetables/guide")
+async def vegetables_guide():
+    """Patient-facing curated vegetable reference for CKD/dialysis."""
+    return get_vegetable_guide()
+
+
+@api.get("/snacks/guide")
+async def snacks_guide():
+    """Patient-facing curated snack reference for CKD/dialysis."""
+    return get_snack_guide()
 
 
 
