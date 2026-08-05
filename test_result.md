@@ -492,3 +492,79 @@ agent_communication:
           /app/backend/needs_manual_review.csv). Please verify the CSV was written and has
           exactly 42 rows plus a header.
       13. Regression: barcode scan, meal log, favorites, weekly report all still work.
+
+# ---------------- Iteration 17 (Proteins & Grains Guides) ----------------
+
+backend_iter17:
+  - task: "GET /api/proteins/guide returns curated protein guide (GREEN/YELLOW/RED)"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, backend/protein_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          New endpoint mirroring /api/snacks/guide. Should return JSON with keys GREEN,
+          YELLOW, RED each having title, subtitle, and a "proteins" array of entries
+          (name, hindi, serving, potassium_mg, note, linked_food_id).
+  - task: "GET /api/grains/guide returns curated grains guide (GREEN/YELLOW/RED)"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, backend/grain_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          New endpoint. Should return JSON with keys GREEN, YELLOW, RED each having
+          title, subtitle, and a "grains" array of entries.
+
+frontend_iter17:
+  - task: "Proteins Guide screen (/proteins) renders GREEN/YELLOW/RED sections"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/proteins.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: New screen matching snacks.tsx pattern. Uses api.getProteinGuide.
+  - task: "Grains Guide screen (/grains) renders GREEN/YELLOW/RED sections"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/grains.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: New screen. Uses api.getGrainGuide.
+  - task: "Home dashboard shows Proteins Guide and Grains Guide cards that route correctly"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: Two new menu cards inserted after Snacks — icons egg/pizza, href /proteins and /grains.
+
+test_plan_iter17:
+  current_focus:
+    - "New proteins/grains backend endpoints"
+    - "New proteins/grains guide screens"
+    - "Home dashboard routes to /proteins and /grains"
+    - "Regression: fruits, beverages, vegetables, snacks guides still work"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"

@@ -47,6 +47,8 @@ from fruit_guide import get_fruit_guide
 from beverage_guide import get_beverage_guide
 from vegetable_guide import get_vegetable_guide
 from snack_guide import get_snack_guide
+from protein_guide import get_protein_guide
+from grain_guide import get_grain_guide
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -597,6 +599,18 @@ async def vegetables_guide():
 async def snacks_guide():
     """Patient-facing curated snack reference for CKD/dialysis."""
     return get_snack_guide()
+
+
+@api.get("/proteins/guide")
+async def proteins_guide():
+    """Patient-facing curated protein reference for CKD/dialysis."""
+    return get_protein_guide()
+
+
+@api.get("/grains/guide")
+async def grains_guide():
+    """Patient-facing curated grains & rotis reference for CKD/dialysis."""
+    return get_grain_guide()
 
 
 
