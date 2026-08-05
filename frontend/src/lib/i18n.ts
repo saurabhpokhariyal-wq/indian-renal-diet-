@@ -313,6 +313,35 @@ export const translations: Record<string, Entry> = {
     bn: "কোন ফলগুলি কিডনির জন্য নিরাপদ",
     mr: "कोणती फळे किडनीसाठी सुरक्षित आहेत",
   },
+  menuBeverages: {
+    en: "Beverage Guide",
+    hi: "पेय पदार्थ गाइड",
+    ta: "பானங்கள் வழிகாட்டி",
+    bn: "পানীয় গাইড",
+    mr: "पेय मार्गदर्शन",
+  },
+  menuBeveragesSub: {
+    en: "Chai, coconut water, juices — safe vs avoid",
+    hi: "चाय, नारियल पानी, जूस — सुरक्षित बनाम परहेज",
+    ta: "தேநீர், இளநீர், சாறுகள் — பாதுகாப்பானவை vs தவிர்க்கவேண்டியவை",
+    bn: "চা, নারকেল জল, রস — নিরাপদ বনাম এড়ানো",
+    mr: "चहा, नारळपाणी, ज्यूस — सुरक्षित vs टाळावे",
+  },
+  beverageGuideTitle: {
+    en: "Beverage Guide",
+    hi: "पेय पदार्थ गाइड",
+    ta: "பானங்கள் வழிகாட்டி",
+    bn: "পানীয় গাইড",
+    mr: "पेय मार्गदर्शन",
+  },
+  beverageGuideSubtitle: {
+    en: "Drink smart — potassium + fluid count together",
+    hi: "समझदारी से पिएं — पोटैशियम और तरल दोनों साथ गिने जाते हैं",
+  },
+  beverageGuideIntro: {
+    en: "For beverages, both potassium AND fluid volume matter. Every glass counts toward your daily fluid limit, even water. Milk-based drinks (chai, lassi, malt drinks) also add phosphorus. Check your dietitian's budget for both.",
+    hi: "पेय पदार्थों में पोटैशियम और तरल मात्रा दोनों महत्वपूर्ण हैं। पानी सहित हर गिलास आपकी दैनिक तरल सीमा में गिना जाता है। दूध वाले पेय (चाय, लस्सी, माल्ट) फास्फोरस भी बढ़ाते हैं।",
+  },
   fruitGuideTitle: {
     en: "Fruit Guide",
     hi: "फल गाइड",

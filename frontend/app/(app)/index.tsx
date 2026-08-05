@@ -37,6 +37,15 @@ const MENU: MenuItem[] = [
     accentBg: COLORS.greenBg,
   },
   {
+    key: "beverages",
+    icon: "water",
+    titleKey: "menuBeverages",
+    subtitleKey: "menuBeveragesSub",
+    href: "/beverages",
+    accent: COLORS.aiBlue,
+    accentBg: "#E0F2FE",
+  },
+  {
     key: "scan",
     icon: "camera",
     titleKey: "menuScan",

@@ -44,6 +44,7 @@ from seed_data import SEED_FOODS, SEED_SWAPS
 from seed_data_indb import SEED_FOODS_INDB
 from reconciliation import reconcile_seed
 from fruit_guide import get_fruit_guide
+from beverage_guide import get_beverage_guide
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -576,6 +577,12 @@ async def update_profile(body: ProfileUpdate, current_user=Depends(get_current_u
 async def fruits_guide():
     """Patient-facing curated fruit reference for CKD/dialysis."""
     return get_fruit_guide()
+
+
+@api.get("/beverages/guide")
+async def beverages_guide():
+    """Patient-facing curated beverage reference for CKD/dialysis."""
+    return get_beverage_guide()
 
 
 
