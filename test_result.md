@@ -568,3 +568,39 @@ test_plan_iter17:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 18 (FoodGuideLayout refactor) ----------------
+
+frontend_iter18:
+  - task: "Refactor 6 guide screens to use shared FoodGuideLayout component"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx, frontend/app/{fruits,beverages,vegetables,snacks,proteins,grains}.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Created FoodGuideLayout (src/components) and rewrote all six guide screens as tiny
+          10-line wrappers. TestID prefixes normalized to singular:
+            fruits    -> fruit-section-*, fruit-row-*
+            beverages -> beverage-section-*, beverage-row-*   (was bev-row-*)
+            vegetables-> vegetable-section-*, vegetable-row-* (was veg-*)
+            snacks    -> snack-section-*, snack-row-*
+            proteins  -> protein-section-*, protein-row-*
+            grains    -> grain-section-*, grain-row-*
+          Back-button testIDs remain plural (fruits-back, beverages-back, etc).
+          Beverages uses showFluidChip + introTheme="aiBlue"; all others use brand green intro.
+          NO behavioural changes intended - pure refactor. All 6 screens should render identically.
+test_plan_iter18:
+  current_focus:
+    - "All six guide screens still render (fruits, beverages, vegetables, snacks, proteins, grains)"
+    - "Beverages shows fluid_ml chip; the other five do not"
+    - "TestID prefixes work with new singular scheme (fruit-, beverage-, vegetable-, snack-, protein-, grain-)"
+    - "Tapping any linked row still navigates to /food/{id}"
+    - "Home dashboard cards still route correctly"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
