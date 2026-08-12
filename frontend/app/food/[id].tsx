@@ -7,7 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { SmartSwapCard } from "@/src/components/SmartSwapCard";
 import { api, type FoodDetail, type SafetyTier } from "@/src/lib/api";
+import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { formatK, formatNa } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 function today(): string {
@@ -28,6 +30,8 @@ function NutriCell({ label, value, testID }: { label: string; value: string; tes
 export default function FoodDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useLang();
+  const { user } = useAuth();
+  const unit = user?.nutrient_unit ?? "mg";
   const [detail, setDetail] = useState<FoodDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
@@ -183,11 +187,11 @@ export default function FoodDetailScreen() {
             <Text style={styles.sectionTitle}>{t("perPortion")} ({Math.round(detail.food.portion_g)}g)</Text>
           </View>
           <View style={styles.nutriRow}>
-            <NutriCell label={t("nutrientPotassium")} value={`${Math.round(detail.food.potassium_mg)} mg`} testID="nutri-potassium" />
+            <NutriCell label={t("nutrientPotassium")} value={formatK(detail.food.potassium_mg, unit)} testID="nutri-potassium" />
             <NutriCell label={t("nutrientPhosphorus")} value={`${Math.round(detail.food.phosphorus_mg)} mg`} testID="nutri-phosphorus" />
           </View>
           <View style={styles.nutriRow}>
-            <NutriCell label={t("nutrientSodium")} value={`${Math.round(detail.food.sodium_mg)} mg`} testID="nutri-sodium" />
+            <NutriCell label={t("nutrientSodium")} value={formatNa(detail.food.sodium_mg, unit)} testID="nutri-sodium" />
             <NutriCell label={t("nutrientProtein")} value={`${detail.food.protein_g.toFixed(1)} g`} testID="nutri-protein" />
           </View>
           {detail.food.fluid_ml > 0 ? (

@@ -7,7 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { NutrientBar } from "@/src/components/NutrientBar";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { api, type MealLogOut, type MealLogSummary } from "@/src/lib/api";
+import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { mgToUserUnit } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 function isoDate(d: Date): string {
@@ -30,6 +32,8 @@ function prettyDate(iso: string, todayIso: string, todayLabel: string): string {
 
 export default function MealLogScreen() {
   const { t, lang } = useLang();
+  const { user } = useAuth();
+  const unit = user?.nutrient_unit ?? "mg";
   const todayIso = isoDate(new Date());
   const [date, setDate] = useState(todayIso);
   const [logs, setLogs] = useState<MealLogOut[]>([]);
@@ -118,8 +122,10 @@ export default function MealLogScreen() {
           <NutrientBar
             testID="budget-potassium"
             label={t("nutrientPotassium")}
-            value={summary?.totals.potassium_mg ?? 0}
-            limit={summary?.limits.potassium_mg ?? 2000}
+            value={mgToUserUnit("K", summary?.totals.potassium_mg ?? 0, unit)}
+            limit={mgToUserUnit("K", summary?.limits.potassium_mg ?? 2000, unit)}
+            unit={unit}
+            decimals={unit === "mEq" ? 1 : 0}
           />
           <NutrientBar
             testID="budget-phosphorus"
@@ -130,8 +136,10 @@ export default function MealLogScreen() {
           <NutrientBar
             testID="budget-sodium"
             label={t("nutrientSodium")}
-            value={summary?.totals.sodium_mg ?? 0}
-            limit={summary?.limits.sodium_mg ?? 2000}
+            value={mgToUserUnit("Na", summary?.totals.sodium_mg ?? 0, unit)}
+            limit={mgToUserUnit("Na", summary?.limits.sodium_mg ?? 2000, unit)}
+            unit={unit}
+            decimals={unit === "mEq" ? 1 : 0}
           />
         </View>
       </View>

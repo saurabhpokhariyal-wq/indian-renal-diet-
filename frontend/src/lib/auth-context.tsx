@@ -10,7 +10,7 @@ interface AuthCtx {
   signUp: (email: string, password: string, fullName?: string) => Promise<void>;
   signOut: () => Promise<void>;
   setStage: (stage: Stage) => Promise<void>;
-  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) => Promise<void>;
+  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null; nutrient_unit?: "mg" | "mEq" }) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated);
   }, []);
 
-  const updateProfile = useCallback(async (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) => {
+  const updateProfile = useCallback(async (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null; nutrient_unit?: "mg" | "mEq" }) => {
     const updated = await api.updateProfile(patch);
     setUser(updated);
   }, []);

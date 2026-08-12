@@ -604,3 +604,86 @@ test_plan_iter18:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 19 (Nutrient unit: mg / mEq) ----------------
+
+backend_iter19:
+  - task: "User model gets nutrient_unit (mg default, mEq optional). PATCH /api/auth/profile accepts it. GET /api/auth/me returns it. AI grounded/context blocks include both mg + mEq for K and Na."
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Added `nutrient_unit: Literal["mg","mEq"] = "mg"` to UserOut/ProfileUpdate.
+          _user_to_out returns it (falls back to "mg" for legacy users).
+          _build_ai_context now emits `K 158 mg (4.0 mEq)` style dual-unit strings
+          in daily limits + today's intake + grounded food data.
+
+frontend_iter19:
+  - task: "Global mg/mEq toggle available in Settings; persists via profile PATCH."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/settings.tsx, frontend/src/lib/units.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "FoodGuideLayout displays K in user's chosen unit."
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Food detail (K, Na cells) respects unit; Phosphorus stays mg."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/food/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Meal-log NutrientBars for K and Na respect unit; Phosphorus stays mg. Progress percentages remain correct."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/meal-log.tsx, frontend/src/components/NutrientBar.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Scan (barcode) pack panel NutrientBars respect unit for K and Na."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/scan.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Weekly report on-screen NutrientBars respect unit; PDF table always shows both mg and mEq for K and Na."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/report.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Doctor-limit inputs in Settings adapt to selected unit; values convert canonically to mg before save; decimals allowed in mEq mode."
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/settings.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+
+test_plan_iter19:
+  current_focus:
+    - "User can toggle mg <-> mEq in Settings; preference persists to backend"
+    - "K and Na numbers everywhere flip units correctly"
+    - "Doctor-limits round-trip: enter 51 mEq → saved as ~2000 mg → re-read as 51.2 mEq"
+    - "Phosphorus stays mg everywhere"
+    - "AI answers include both units in patient context"
+    - "Weekly PDF report shows both mg and mEq for K/Na"
+    - "No regression on: food search, food detail load, meal log CRUD, favorites, scan"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"

@@ -8,25 +8,38 @@ import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
 import { SUPPORTED_LANGS, langLabel, type Lang } from "@/src/lib/i18n";
 import type { Stage } from "@/src/lib/api";
+import { mgToUserUnit, userUnitToMg, type NutrientUnit } from "@/src/lib/units";
 import { COLORS, FONT, SIZE } from "@/src/theme";
 
 export default function SettingsScreen() {
   const { user, signOut, setStage, updateProfile } = useAuth();
   const { lang, setLang, t } = useLang();
   const [diabetic, setDiabetic] = useState<boolean>(user?.diabetic ?? false);
+  const [unit, setUnit] = useState<NutrientUnit>(user?.nutrient_unit ?? "mg");
   const [k, setK] = useState<string>("");
   const [p, setP] = useState<string>("");
   const [na, setNa] = useState<string>("");
   const [savingLimits, setSavingLimits] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
 
+  // (Doctor limit values are formatted inline in the useEffect below.)
+
   useEffect(() => {
     if (!user) return;
     setDiabetic(!!user.diabetic);
+    setUnit(user.nutrient_unit ?? "mg");
     const dl = user.doctor_limits;
-    setK(dl?.potassium_mg ? String(dl.potassium_mg) : "");
+    // Display doctor limits in the user's chosen unit (canonical mg → mEq if needed).
+    const currentUnit: NutrientUnit = user.nutrient_unit ?? "mg";
+    if (dl?.potassium_mg) {
+      const v = mgToUserUnit("K", dl.potassium_mg, currentUnit);
+      setK(currentUnit === "mg" ? String(Math.round(v)) : v.toFixed(1));
+    } else setK("");
     setP(dl?.phosphorus_mg ? String(dl.phosphorus_mg) : "");
-    setNa(dl?.sodium_mg ? String(dl.sodium_mg) : "");
+    if (dl?.sodium_mg) {
+      const v = mgToUserUnit("Na", dl.sodium_mg, currentUnit);
+      setNa(currentUnit === "mg" ? String(Math.round(v)) : v.toFixed(1));
+    } else setNa("");
   }, [user]);
 
   const doSignOut = async () => {
@@ -44,15 +57,36 @@ export default function SettingsScreen() {
     try { await setStage(s); } catch { /* ignore */ }
   };
 
+  const changeUnit = async (next: NutrientUnit) => {
+    if (next === unit) return;
+    // Re-express current inputs in the new unit (round-trip via canonical mg)
+    const kMg = k ? userUnitToMg("K", Number(k), unit) : 0;
+    const naMg = na ? userUnitToMg("Na", Number(na), unit) : 0;
+    setUnit(next);
+    if (k) {
+      const v = mgToUserUnit("K", kMg, next);
+      setK(next === "mg" ? String(Math.round(v)) : v.toFixed(1));
+    }
+    if (na) {
+      const v = mgToUserUnit("Na", naMg, next);
+      setNa(next === "mg" ? String(Math.round(v)) : v.toFixed(1));
+    }
+    try {
+      await updateProfile({ nutrient_unit: next });
+    } catch {
+      /* ignore */
+    }
+  };
+
   const saveLimits = async () => {
     if (savingLimits) return;
     setSavingLimits(true);
     try {
       await updateProfile({
         doctor_limits: {
-          potassium_mg: k ? Number(k) : null,
+          potassium_mg: k ? Math.round(userUnitToMg("K", Number(k), unit)) : null,
           phosphorus_mg: p ? Number(p) : null,
-          sodium_mg: na ? Number(na) : null,
+          sodium_mg: na ? Math.round(userUnitToMg("Na", Number(na), unit)) : null,
         },
       });
       setSavedFlash(true);
@@ -147,15 +181,37 @@ export default function SettingsScreen() {
               <Text testID="settings-limits-default" style={styles.defaultsPill}>{t("usingDefaults")}</Text>
             ) : null}
 
+            {/* Nutrient display unit toggle */}
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>{t("nutrientPotassium")} (mg)</Text>
+              <Text style={styles.fieldLabel}>{t("unitToggleLabel")}</Text>
+              <Text style={styles.rowSubtle}>{t("unitToggleSub")}</Text>
+              <View style={styles.unitRow}>
+                <TouchableOpacity
+                  testID="settings-unit-mg"
+                  style={[styles.unitBtn, unit === "mg" && styles.unitBtnActive]}
+                  onPress={() => changeUnit("mg")}
+                >
+                  <Text style={[styles.unitBtnText, unit === "mg" && styles.unitBtnTextActive]}>mg</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  testID="settings-unit-meq"
+                  style={[styles.unitBtn, unit === "mEq" && styles.unitBtnActive]}
+                  onPress={() => changeUnit("mEq")}
+                >
+                  <Text style={[styles.unitBtnText, unit === "mEq" && styles.unitBtnTextActive]}>mEq</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>{t("nutrientPotassium")} ({unit})</Text>
               <TextInput
                 testID="settings-limit-potassium"
                 style={styles.input}
                 value={k}
-                onChangeText={(v) => setK(v.replace(/[^0-9]/g, ""))}
-                keyboardType="number-pad"
-                placeholder="e.g. 2000"
+                onChangeText={(v) => setK(unit === "mEq" ? v.replace(/[^0-9.]/g, "") : v.replace(/[^0-9]/g, ""))}
+                keyboardType={unit === "mEq" ? "decimal-pad" : "number-pad"}
+                placeholder={unit === "mEq" ? "e.g. 51" : "e.g. 2000"}
                 placeholderTextColor="#A8A29E"
               />
             </View>
@@ -172,14 +228,14 @@ export default function SettingsScreen() {
               />
             </View>
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>{t("nutrientSodium")} (mg)</Text>
+              <Text style={styles.fieldLabel}>{t("nutrientSodium")} ({unit})</Text>
               <TextInput
                 testID="settings-limit-sodium"
                 style={styles.input}
                 value={na}
-                onChangeText={(v) => setNa(v.replace(/[^0-9]/g, ""))}
-                keyboardType="number-pad"
-                placeholder="e.g. 2000"
+                onChangeText={(v) => setNa(unit === "mEq" ? v.replace(/[^0-9.]/g, "") : v.replace(/[^0-9]/g, ""))}
+                keyboardType={unit === "mEq" ? "decimal-pad" : "number-pad"}
+                placeholder={unit === "mEq" ? "e.g. 87" : "e.g. 2000"}
                 placeholderTextColor="#A8A29E"
               />
             </View>
@@ -282,6 +338,14 @@ const styles = StyleSheet.create({
   stageBtnActive: { borderColor: COLORS.brand, backgroundColor: COLORS.brandLight },
   stageBtnText: { color: COLORS.textSecondary, fontWeight: "700", fontSize: FONT.label },
   stageBtnTextActive: { color: COLORS.brand },
+  unitRow: { flexDirection: "row", gap: SIZE.s, marginTop: 6 },
+  unitBtn: {
+    flex: 1, height: 44, borderRadius: SIZE.radiusPill, borderWidth: 2, borderColor: COLORS.border,
+    backgroundColor: COLORS.bgDefault, alignItems: "center", justifyContent: "center",
+  },
+  unitBtnActive: { borderColor: COLORS.brand, backgroundColor: COLORS.brandLight },
+  unitBtnText: { color: COLORS.textSecondary, fontWeight: "700", fontSize: FONT.bodyL },
+  unitBtnTextActive: { color: COLORS.brand },
   field: { gap: 4 },
   fieldLabel: { fontSize: FONT.body, color: COLORS.textPrimary, fontWeight: "600" },
   input: {

@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { SafetyTier } from "@/src/lib/api";
+import { useAuth } from "@/src/lib/auth-context";
+import { formatK } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 /**
@@ -99,6 +101,8 @@ export function FoodGuideLayout({
   showFluidChip = false,
   errorLabel,
 }: FoodGuideLayoutProps) {
+  const { user } = useAuth();
+  const unit = user?.nutrient_unit ?? "mg";
   const [guide, setGuide] = useState<GuideData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,6 +209,7 @@ export function FoodGuideLayout({
                     tier={tier}
                     testId={`${testIdPrefix}-row-${slug(entry.name)}`}
                     showFluidChip={showFluidChip}
+                    unit={unit}
                   />
                 ))}
               </View>
@@ -223,11 +228,13 @@ function GuideRow({
   tier,
   testId,
   showFluidChip,
+  unit,
 }: {
   entry: GuideEntry;
   tier: SafetyTier;
   testId: string;
   showFluidChip: boolean;
+  unit: "mg" | "mEq";
 }) {
   const meta = TIER_META[tier];
   const tappable = !!entry.linked_food_id;
@@ -247,7 +254,7 @@ function GuideRow({
         <View style={styles.titleRow}>
           <Text style={styles.name}>{entry.name}</Text>
           <View style={styles.metrics}>
-            <Text style={styles.kmg}>K {entry.potassium_mg} mg</Text>
+            <Text style={styles.kmg}>K {formatK(entry.potassium_mg, unit)}</Text>
             {showFluidChip && typeof entry.fluid_ml === "number" ? (
               <View style={styles.fluidChip}>
                 <Ionicons name="water" size={12} color={COLORS.aiBlue} />

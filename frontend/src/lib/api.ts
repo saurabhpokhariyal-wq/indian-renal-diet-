@@ -100,6 +100,7 @@ export interface UserOut {
   stage: Stage;
   diabetic: boolean;
   doctor_limits: DoctorLimits | null;
+  nutrient_unit: "mg" | "mEq";
 }
 
 export interface AuthResponse {
@@ -237,7 +238,7 @@ export const api = {
   me: () => request<UserOut>("/auth/me", {}, true),
   setStage: (stage: Stage) =>
     request<UserOut>("/auth/stage", { method: "POST", body: JSON.stringify({ stage }) }, true),
-  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null }) =>
+  updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null; nutrient_unit?: "mg" | "mEq" }) =>
     request<UserOut>("/auth/profile", { method: "PATCH", body: JSON.stringify(patch) }, true),
 
   listFoods: (q?: string, tier?: string, favoritesOnly = false) => {

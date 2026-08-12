@@ -7,6 +7,8 @@ interface Props {
   value: number;
   limit: number;
   unit?: string;
+  /** Decimal places for the numeric value + limit. Default 0 (integer). */
+  decimals?: number;
   testID?: string;
 }
 
@@ -16,18 +18,19 @@ function tierColor(pct: number): { fill: string; text: string } {
   return { fill: COLORS.redStrong, text: COLORS.redText };
 }
 
-export function NutrientBar({ label, value, limit, unit = "mg", testID }: Props) {
+export function NutrientBar({ label, value, limit, unit = "mg", decimals = 0, testID }: Props) {
   const rawPct = limit > 0 ? (value * 100) / limit : 0;
   const clampedPct = Math.max(0, Math.min(100, rawPct));
   const { fill, text } = tierColor(rawPct);
   const over = rawPct > 100;
+  const fmt = (n: number) => (decimals > 0 ? n.toFixed(decimals) : String(Math.round(n)));
   return (
     <View testID={testID} style={styles.row}>
       <View style={styles.header}>
         <Text style={styles.label}>{label}</Text>
         <Text testID={testID ? `${testID}-value` : undefined} style={[styles.value, { color: over ? COLORS.redStrong : COLORS.textPrimary }]}>
-          {Math.round(value)}
-          <Text style={styles.limitText}> / {Math.round(limit)}{unit}</Text>
+          {fmt(value)}
+          <Text style={styles.limitText}> / {fmt(limit)} {unit}</Text>
         </Text>
       </View>
       <View style={styles.track}>

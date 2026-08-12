@@ -204,6 +204,11 @@ export const translations: Record<string, Entry> = {
   editStage: { en: "Change stage", hi: "स्तर बदलें" },
   editLimits: { en: "Doctor targets", hi: "डॉक्टर के लक्ष्य" },
   usingDefaults: { en: "Using stage defaults", hi: "स्टेज-आधारित डिफ़ॉल्ट" },
+  unitToggleLabel: { en: "Display units (K & Na)", hi: "प्रदर्शन इकाई (K और Na)" },
+  unitToggleSub: {
+    en: "Choose how potassium and sodium show throughout the app. 1 mEq K = 39.1 mg, 1 mEq Na = 23 mg.",
+    hi: "पूरे ऐप में पोटैशियम और सोडियम कैसे दिखें चुनें। 1 mEq K = 39.1 mg, 1 mEq Na = 23 mg।",
+  },
 
   // Favorites
   favoritesTitle: { en: "My Favorites", hi: "पसंदीदा" },

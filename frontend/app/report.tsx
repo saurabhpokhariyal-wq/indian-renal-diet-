@@ -10,6 +10,7 @@ import { NutrientBar } from "@/src/components/NutrientBar";
 import { api, type WeeklyReport } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { formatBoth, mgToUserUnit } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -99,9 +100,9 @@ export default function ReportScreen() {
   <h2>Average daily nutrients</h2>
   <table>
     <tr><th>Nutrient</th><th>Average</th><th>Daily limit</th><th>%</th></tr>
-    <tr><td>Potassium</td><td>${Math.round(r.avg_daily.potassium_mg)} mg</td><td>${r.limits.potassium_mg} mg</td><td>${Math.round((r.avg_daily.potassium_mg * 100) / r.limits.potassium_mg)}%</td></tr>
+    <tr><td>Potassium</td><td>${formatBoth("K", r.avg_daily.potassium_mg)}</td><td>${formatBoth("K", r.limits.potassium_mg)}</td><td>${Math.round((r.avg_daily.potassium_mg * 100) / r.limits.potassium_mg)}%</td></tr>
     <tr><td>Phosphorus</td><td>${Math.round(r.avg_daily.phosphorus_mg)} mg</td><td>${r.limits.phosphorus_mg} mg</td><td>${Math.round((r.avg_daily.phosphorus_mg * 100) / r.limits.phosphorus_mg)}%</td></tr>
-    <tr><td>Sodium</td><td>${Math.round(r.avg_daily.sodium_mg)} mg</td><td>${r.limits.sodium_mg} mg</td><td>${Math.round((r.avg_daily.sodium_mg * 100) / r.limits.sodium_mg)}%</td></tr>
+    <tr><td>Sodium</td><td>${formatBoth("Na", r.avg_daily.sodium_mg)}</td><td>${formatBoth("Na", r.limits.sodium_mg)}</td><td>${Math.round((r.avg_daily.sodium_mg * 100) / r.limits.sodium_mg)}%</td></tr>
     <tr><td>Protein</td><td>${r.avg_daily.protein_g.toFixed(1)} g</td><td>—</td><td>—</td></tr>
   </table>
 
@@ -211,24 +212,36 @@ export default function ReportScreen() {
           <Text style={styles.cardTitle}>{t("avgDaily")}</Text>
           <Text style={styles.avgSub}>{t("avgVsLimit")}</Text>
           <View style={{ gap: 14, marginTop: 8 }}>
-            <NutrientBar
-              testID="avg-potassium"
-              label={t("nutrientPotassium")}
-              value={report.avg_daily.potassium_mg}
-              limit={report.limits.potassium_mg}
-            />
-            <NutrientBar
-              testID="avg-phosphorus"
-              label={t("nutrientPhosphorus")}
-              value={report.avg_daily.phosphorus_mg}
-              limit={report.limits.phosphorus_mg}
-            />
-            <NutrientBar
-              testID="avg-sodium"
-              label={t("nutrientSodium")}
-              value={report.avg_daily.sodium_mg}
-              limit={report.limits.sodium_mg}
-            />
+            {(() => {
+              const unit = user?.nutrient_unit ?? "mg";
+              const dec = unit === "mEq" ? 1 : 0;
+              return (
+                <>
+                  <NutrientBar
+                    testID="avg-potassium"
+                    label={t("nutrientPotassium")}
+                    value={mgToUserUnit("K", report.avg_daily.potassium_mg, unit)}
+                    limit={mgToUserUnit("K", report.limits.potassium_mg, unit)}
+                    unit={unit}
+                    decimals={dec}
+                  />
+                  <NutrientBar
+                    testID="avg-phosphorus"
+                    label={t("nutrientPhosphorus")}
+                    value={report.avg_daily.phosphorus_mg}
+                    limit={report.limits.phosphorus_mg}
+                  />
+                  <NutrientBar
+                    testID="avg-sodium"
+                    label={t("nutrientSodium")}
+                    value={mgToUserUnit("Na", report.avg_daily.sodium_mg, unit)}
+                    limit={mgToUserUnit("Na", report.limits.sodium_mg, unit)}
+                    unit={unit}
+                    decimals={dec}
+                  />
+                </>
+              );
+            })()}
           </View>
         </View>
 

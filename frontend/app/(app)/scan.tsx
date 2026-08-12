@@ -9,7 +9,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { NutrientBar } from "@/src/components/NutrientBar";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { api, type FoodScan, type NutrientLimits, type SafetyTier } from "@/src/lib/api";
+import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
+import { mgToUserUnit } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 type Mode = "vision" | "barcode";
@@ -448,16 +450,24 @@ function PackNutrientPanel({
   title: string;
   labels: { potassium: string; phosphorus: string; sodium: string };
 }) {
-  const k = result.potassium_mg ?? 0;
+  const { user } = useAuth();
+  const unit = user?.nutrient_unit ?? "mg";
+  const kMg = result.potassium_mg ?? 0;
   const p = result.phosphorus_mg ?? 0;
-  const na = result.sodium_mg ?? 0;
+  const naMg = result.sodium_mg ?? 0;
   // If limits aren't loaded yet, use sensible defaults so bars still convey magnitude
-  const kLimit = limits?.potassium_mg ?? 2000;
+  const kLimitMg = limits?.potassium_mg ?? 2000;
   const pLimit = limits?.phosphorus_mg ?? 1000;
-  const naLimit = limits?.sodium_mg ?? 2000;
+  const naLimitMg = limits?.sodium_mg ?? 2000;
 
   // Only render if we actually have nutrient values (i.e., barcode result)
-  if (k <= 0 && p <= 0 && na <= 0) return null;
+  if (kMg <= 0 && p <= 0 && naMg <= 0) return null;
+
+  const kVal = mgToUserUnit("K", kMg, unit);
+  const kLim = mgToUserUnit("K", kLimitMg, unit);
+  const naVal = mgToUserUnit("Na", naMg, unit);
+  const naLim = mgToUserUnit("Na", naLimitMg, unit);
+  const dec = unit === "mEq" ? 1 : 0;
 
   return (
     <View testID="pack-nutrient-panel" style={styles.packPanel}>
@@ -465,9 +475,9 @@ function PackNutrientPanel({
         <Ionicons name="stats-chart" size={16} color={COLORS.brand} />
         <Text style={styles.packPanelTitle}>{title}</Text>
       </View>
-      <NutrientBar testID="pack-potassium" label={labels.potassium} value={k} limit={kLimit} />
+      <NutrientBar testID="pack-potassium" label={labels.potassium} value={kVal} limit={kLim} unit={unit} decimals={dec} />
       <NutrientBar testID="pack-phosphorus" label={labels.phosphorus} value={p} limit={pLimit} />
-      <NutrientBar testID="pack-sodium" label={labels.sodium} value={na} limit={naLimit} />
+      <NutrientBar testID="pack-sodium" label={labels.sodium} value={naVal} limit={naLim} unit={unit} decimals={dec} />
     </View>
   );
 }

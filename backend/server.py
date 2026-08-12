@@ -52,6 +52,7 @@ from grain_guide import get_grain_guide
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
+NutrientUnit = Literal["mg", "mEq"]
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -154,6 +155,7 @@ class UserOut(BaseModel):
     stage: Stage = "unknown"
     diabetic: bool = False
     doctor_limits: Optional["DoctorLimits"] = None
+    nutrient_unit: NutrientUnit = "mg"
 
 
 class DoctorLimits(BaseModel):
@@ -173,6 +175,7 @@ class StageUpdate(BaseModel):
 class ProfileUpdate(BaseModel):
     diabetic: Optional[bool] = None
     doctor_limits: Optional[DoctorLimits] = None
+    nutrient_unit: Optional[NutrientUnit] = None
 
 
 class AuthResponse(BaseModel):
@@ -532,6 +535,7 @@ def _user_to_out(user: dict) -> UserOut:
         stage=user.get("stage", "unknown"),
         diabetic=bool(user.get("diabetic", False)),
         doctor_limits=DoctorLimits(**dl) if dl else None,
+        nutrient_unit=user.get("nutrient_unit", "mg"),
     )
 
 
@@ -571,6 +575,8 @@ async def update_profile(body: ProfileUpdate, current_user=Depends(get_current_u
         else:
             dl = body.doctor_limits.model_dump(exclude_none=True)
             update["doctor_limits"] = dl if dl else None
+    if "nutrient_unit" in set_fields and body.nutrient_unit is not None:
+        update["nutrient_unit"] = body.nutrient_unit
     if update:
         await db.users.update_one({"id": current_user["id"]}, {"$set": update})
         current_user.update(update)
@@ -1210,11 +1216,18 @@ async def _build_ai_context(user: dict, lang: str) -> str:
         "\n\n---\nPATIENT CONTEXT (use this to personalize your advice):\n"
         f"- CKD stage: {stage_label}\n"
         f"- Diabetic: {diabetic}\n"
-        f"- Daily limits: potassium {int(limits.potassium_mg)}mg, "
-        f"phosphorus {int(limits.phosphorus_mg)}mg, sodium {int(limits.sodium_mg)}mg\n"
-        f"- Today's intake so far: potassium {int(totals['potassium_mg'])}mg, "
-        f"phosphorus {int(totals['phosphorus_mg'])}mg, sodium {int(totals['sodium_mg'])}mg, "
-        f"protein {totals['protein_g']:.1f}g, fluid {int(totals['fluid_ml'])}ml"
+        f"- Preferred display unit for K and Na: {user.get('nutrient_unit','mg')} "
+        f"(1 mEq K = 39.1 mg; 1 mEq Na = 23 mg — use the patient's preferred unit "
+        f"first in your answer, then include the other in brackets)\n"
+        f"- Daily limits: potassium {int(limits.potassium_mg)} mg "
+        f"({limits.potassium_mg/39.1:.1f} mEq), "
+        f"phosphorus {int(limits.phosphorus_mg)} mg, "
+        f"sodium {int(limits.sodium_mg)} mg ({limits.sodium_mg/23:.1f} mEq)\n"
+        f"- Today's intake so far: potassium {int(totals['potassium_mg'])} mg "
+        f"({totals['potassium_mg']/39.1:.1f} mEq), "
+        f"phosphorus {int(totals['phosphorus_mg'])} mg, "
+        f"sodium {int(totals['sodium_mg'])} mg ({totals['sodium_mg']/23:.1f} mEq), "
+        f"protein {totals['protein_g']:.1f} g, fluid {int(totals['fluid_ml'])} ml"
     )
     if user.get("diabetic"):
         ctx += "\n- Because the patient is diabetic, also flag foods with high glycemic load."
@@ -1320,10 +1333,10 @@ async def _build_grounded_food_block(question: str, user: dict) -> str:
         parts = [
             f"- {f['name']} ({f['hindi_name']}) — tier: {tier_str}",
             f"  portion: {f.get('portion_limit_text','')} · per portion: "
-            f"K {int(f.get('potassium_mg', 0))}mg, "
-            f"P {int(f.get('phosphorus_mg', 0))}mg, "
-            f"Na {int(f.get('sodium_mg', 0))}mg, "
-            f"protein {f.get('protein_g', 0):.1f}g",
+            f"K {int(f.get('potassium_mg', 0))} mg ({f.get('potassium_mg',0)/39.1:.1f} mEq), "
+            f"P {int(f.get('phosphorus_mg', 0))} mg, "
+            f"Na {int(f.get('sodium_mg', 0))} mg ({f.get('sodium_mg',0)/23:.1f} mEq), "
+            f"protein {f.get('protein_g', 0):.1f} g",
             f"  tip: {f.get('actionable_clinical_tip','')}",
         ]
         if note:
