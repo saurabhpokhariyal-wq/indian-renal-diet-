@@ -1,0 +1,37 @@
+food_id,kind,before,after,reason
+food-classic-club-sandwich,category-unchanged,snack,snack,"already snack — Sandwich — solid meal, not a drink"
+food-buttermilk-biscuit,category-unchanged,snack,snack,already snack — Biscuit — routes through the sweet bucket via name pattern
+food-coffee-biscuit,category-unchanged,snack,snack,already snack — Biscuit — routes through the sweet bucket via name pattern
+food-kadhai-paneer,category-unchanged,dairy,dairy,already dairy — Paneer curry — cheese-based main
+food-classic-seasoned-black-beans,category-unchanged,dal,dal,already dal — Legume dish — belongs in the dal/legume taxonomy
+food-milk-cake,category-unchanged,dairy,dairy,already dairy — Milk-solids sweet — dairy triggers the sweet bucket via name
+food-orange-gateau,category-unchanged,snack,snack,already snack — Cake — sweet bucket via SWEET_PATTERNS
+food-black-forest-gateau,category-unchanged,snack,snack,already snack — Cake — sweet bucket via SWEET_PATTERNS
+food-macaroni-salad,category-unchanged,snack,snack,already snack — Pasta salad — cold side; snack fits best in current taxonomy
+food-vanilla-souffle,category-unchanged,snack,snack,already snack — Souffle — SWEET_PATTERNS bucket
+food-vanilla-ice-cream-with-egg,category-unchanged,dairy,dairy,already dairy — Ice cream — dairy-based frozen sweet
+food-vanilla-ice-cream-without-egg,category-unchanged,dairy,dairy,already dairy — Ice cream — dairy-based frozen sweet
+food-lemon-souffle,category-unchanged,snack,snack,already snack — Souffle — SWEET_PATTERNS bucket
+food-pineapple-souffle,category-unchanged,snack,snack,already snack — Souffle — SWEET_PATTERNS bucket
+food-orange-souffle,category-unchanged,snack,snack,already snack — Souffle — SWEET_PATTERNS bucket
+food-chocolate-souffle,category-unchanged,snack,snack,already snack — Souffle — SWEET_PATTERNS bucket
+food-steamed-orange-pudding,category-unchanged,snack,snack,already snack — Pudding — SWEET_PATTERNS bucket
+food-milk-cookies,category-unchanged,snack,snack,already snack — Cookie — SWEET_PATTERNS bucket
+food-steamed-cake-with-chocolate-sauce,category-unchanged,snack,snack,already snack — Cake — SWEET_PATTERNS bucket
+food-mayonnaise-without-eggs,category-unchanged,condiment,condiment,"already condiment — Mayo is a spread/dressing, not a drink — belongs in condiment bucket"
+food-french-dressing,category-unchanged,condiment,condiment,already condiment — Salad dressing — condiment bucket
+food-curd-dressing,category-unchanged,condiment,condiment,already condiment — Yogurt-based dressing — condiment bucket
+food-coffee-drops,category-unchanged,snack,snack,"already snack — Candy drop — solid confection, not a drink"
+food-curried-cauliflower-soup,category-unchanged,snack,snack,already snack — Soup — the reconciliation soup bucket (Na>3000 + name pattern) can catch it; snack keeps solids framing
+food-chicken-stock,category-unchanged,beverage,beverage,already beverage — KEEP as beverage — stock IS a liquid base sipped or drunk; app taxonomy has no dedicated stock category
+food-egg-nog,category-unchanged,beverage,beverage,"already beverage — KEEP as beverage — egg nog is drunk from a glass, ~200 ml is a realistic serving"
+food-choconut-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet (matches vanilla-ice-cream category)
+food-peach-melba-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-coffee-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-fruit-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-chocolate-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-mango-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-chocochip-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-caramel-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-strawberry-ice-cream,category-change,beverage,dairy,Ice cream — dairy-based frozen sweet
+food-masala-urad-dal-vada,category-change,condiment,snack,"Vada is a fried lentil snack, NOT a condiment — audit-plausibility catch"

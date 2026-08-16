@@ -956,3 +956,98 @@ test_plan_iter22:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 23 (Sajina rescale + category mislabel bugfix + audit check) ----------------
+
+backend_iter23:
+  - task: "food-sajina rescaled from 150g stored to 40g reference portion"
+    implemented: true
+    working: "NA"
+    file: "backend/seed_data_indb.py (patched via scripts/patch_iter23.py)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          K 874→233, P 375→100, Na 18→5, protein 16.2→4.3, portion_g 150→40.
+          safety_tier auto-recomputed by reclassify_tier() — do NOT hand-check,
+          the formula picked YELLOW from the new numbers (dropped from RED as
+          the user predicted).
+  - task: "Category mislabel fix: 24 formerly-beverage-tagged solid dishes recategorized; 2 legitimate liquids (chicken-stock, egg-nog) explicitly kept as beverage"
+    implemented: true
+    working: "NA"
+    file: "backend/seed_data_indb.py, backend/category_review.csv"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Every decision logged in backend/category_review.csv (audit trail). Reconciliation
+          pipeline now regenerates portion_limit_text + serving_disclaimer + fluid_ml from
+          the corrected category — we do NOT hand-edit those derived fields.
+  - task: "Pipeline: always regenerate portion_limit_text on rescale; regenerate serving_disclaimer when stored value matches a known auto-generated template"
+    implemented: true
+    working: "NA"
+    file: "backend/reconciliation.py (rescale_food + _STALE_DISCLAIMER_MARKERS)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Fixes the "stale bucket disclaimer preserved across category changes" gap.
+          Hand-authored curated disclaimers (e.g. sajina's, tier_override entries)
+          don't match any auto-template marker and are preserved unchanged.
+  - task: "Pipeline: solids-cannot-be-fluids normalizer strips fluid_ml on any non-beverage entry"
+    implemented: true
+    working: "NA"
+    file: "backend/reconciliation.py (Step 2b sanity pass in reconcile_seed)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Catches the exact bug the user hit: a sandwich tagged beverage carried
+          fluid_ml=150, and after category correction it still didn't hit any
+          rescale bucket. Now: if category != beverage and fluid_ml > 0, strip
+          fluid_ml and (if disclaimer also looks auto-generated) reset it to
+          'Values shown per stored portion.'
+  - task: "audit_seed.py gains a permanent category-plausibility check across beverage/snack/condiment name patterns"
+    implemented: true
+    working: "NA"
+    file: "backend/scripts/audit_seed.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Anchored regex + negative lookahead so "milkshake with ice cream"
+          doesn't false-positive. Current state: zero category-plausibility
+          flags. --fail-on-flags now also gates on this new check.
+
+test_plan_iter23:
+  current_focus:
+    - "GET /api/foods/food-sajina — safety_tier ∈ {YELLOW,GREEN} (formula-computed from new numbers, NOT RED); portion_g=40; potassium_mg=233; phosphorus_mg=100; sodium_mg=5; protein_g=4.3."
+    - "GET /api/foods/food-classic-club-sandwich — category=snack; fluid_ml=0; serving_disclaimer does NOT contain 'count as FLUID intake'."
+    - "GET /api/foods/food-buttermilk-biscuit — category=snack; portion_g=35 (sweet bucket rescale); disclaimer references single-piece not 150 g portion."
+    - "GET /api/foods/food-kadhai-paneer — category=dairy; portion_g=35 (routes through sweet bucket via SWEET_PATTERNS on 'paneer' or by K/P threshold in dairy)."
+    - "GET /api/foods/food-vanilla-ice-cream-with-egg — category=dairy; fluid_ml=0 (stripped by solids-cannot-be-fluids pass)."
+    - "GET /api/foods/food-macaroni-salad, food-orange-souffle, food-milk-cookies — all category NOT 'beverage', fluid_ml=0, no 'count as FLUID' text."
+    - "GET /api/foods/food-chicken-stock — category=beverage still (explicit human decision kept); fluid_ml>0."
+    - "GET /api/foods/food-egg-nog — category=beverage still (explicit human decision kept); fluid_ml>0."
+    - "Additional audit catches applied: food-choconut-ice-cream, food-mango-ice-cream, food-strawberry-ice-cream etc. all category=dairy; food-masala-urad-dal-vada category=snack (was condiment)."
+    - "backend/category_review.csv exists, has 36 rows, header 'food_id,kind,before,after,reason'."
+    - "python3 scripts/audit_seed.py shows Category-plausibility flags = 0."
+    - "REGRESSION: /api/foods list still returns >= 1018 entries. /api/foods/food-toor-dal, food-apple, food-potato still 200 with intact fields. /api/auth/me still works. /api/ai/ask still works. /api/meal-logs CRUD still works."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"

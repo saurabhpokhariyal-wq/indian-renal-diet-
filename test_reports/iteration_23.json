@@ -1,0 +1,15 @@
+{
+  "summary": "Iteration 23 backend verification — all 46 pytest cases PASSED (100%). Verified: (1) food-sajina rescaled to 40g portion with K=233, P=100, Na=5, protein=4.3, safety_tier=YELLOW (formula-recomputed, not RED), serving_disclaimer still references 30g cooked guidance; (2) 19 clearly-wrong entries: category != 'beverage', fluid_ml==0, no fluid disclaimer; (3) 7 judgment-call decisions: mayonnaise-without-eggs/french-dressing/curd-dressing=condiment, coffee-drops/curried-cauliflower-soup=snack, chicken-stock/egg-nog kept as beverage; (4) 9 audit-surfaced ice creams recategorized to 'dairy' + masala-urad-dal-vada=snack; (5) category_review.csv has 36 data rows with exact header; (6) audit_seed.py prints 'Category-plausibility flags:  0' and exits 0; (7) solids-cannot-be-fluids invariant holds across full /api/foods listing (>=1000 foods, no non-beverage has fluid_ml>0); (8) regression: total foods, toor-dal K, apple K, /api/auth/me, POST /api/meal-logs, POST /api/ai/ask all working. No issues found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []},
+  "test_report_links": ["/app/backend/tests/test_iter23_data_quality.py", "/app/test_reports/pytest/iter23_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": ["/app/backend/tests/test_iter23_data_quality.py"],
+  "success_rate": {"backend": "100% (46/46)", "frontend": "N/A (backend-only iteration)"},
+  "seed_data_creation": "None. One meal-log for demo user with food-apple/date=today was created as part of regression test; benign.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Note: /api/foods/{id} returns a wrapped shape {\"food\": {...}, \"swap\": ...}. POST /api/meal-logs requires a 'date' field (ISO date). Helper _food() in test_iter23_data_quality.py unwraps the response. Auth uses access_token from /api/auth/login. Demo creds: demo@renal.app / demo123.",
+  "rca_of_issue": "N/A — this iteration was a fix verification and the fix landed correctly."
+}
