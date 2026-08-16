@@ -43,12 +43,13 @@ from starlette.responses import JSONResponse
 from seed_data import SEED_FOODS, SEED_SWAPS
 from seed_data_indb import SEED_FOODS_INDB
 from reconciliation import reconcile_seed
-from fruit_guide import get_fruit_guide
-from beverage_guide import get_beverage_guide
-from vegetable_guide import get_vegetable_guide
-from snack_guide import get_snack_guide
-from protein_guide import get_protein_guide
-from grain_guide import get_grain_guide
+from fruit_guide import get_fruit_guide, FRUIT_GUIDE
+from beverage_guide import get_beverage_guide, BEVERAGE_GUIDE
+from vegetable_guide import get_vegetable_guide, VEGETABLE_GUIDE
+from snack_guide import get_snack_guide, SNACK_GUIDE
+from protein_guide import get_protein_guide, PROTEIN_GUIDE
+from grain_guide import get_grain_guide, GRAIN_GUIDE
+from guide_utils import collect_needs_sourcing, write_needs_sourcing_csv
 
 Stage = Literal["pre_dialysis", "dialysis", "unknown"]
 MealType = Literal["breakfast", "lunch", "dinner", "snack", "meal"]
@@ -471,6 +472,24 @@ async def lifespan(_app: FastAPI):
             "Wrote %d rows to %s for manual review",
             len(recon_stats["sanity_violations"]), review_path,
         )
+
+    # Write guide_needs_sourcing.csv — every guide entry missing sodium_mg plus
+    # the 7 explicitly-flagged dishes we chose not to add without a real number.
+    try:
+        missing_rows = collect_needs_sourcing([
+            ("fruit",     FRUIT_GUIDE,     "fruits"),
+            ("vegetable", VEGETABLE_GUIDE, "vegetables"),
+            ("snack",     SNACK_GUIDE,     "snacks"),
+            ("beverage",  BEVERAGE_GUIDE,  "beverages"),
+            ("protein",   PROTEIN_GUIDE,   "proteins"),
+            ("grain",     GRAIN_GUIDE,     "grains"),
+        ])
+        write_needs_sourcing_csv(
+            Path(__file__).parent / "guide_needs_sourcing.csv",
+            missing_rows,
+        )
+    except Exception:
+        logger.exception("Failed to write guide_needs_sourcing.csv")
     yield
     # Shutdown
     client.close()

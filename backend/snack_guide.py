@@ -2,6 +2,11 @@
 
 Snacks are the sneakiest source of sodium and phosphorus in an Indian diet.
 Even 'homemade' items can be problematic once salt/besan/dairy get involved.
+
+Every entry stores `potassium_mg` (source of truth); the API layer derives
+`potassium_meq` (mg / 39.1) and `high_sodium` (sodium_mg >= 400) via
+`guide_utils.enrich_guide` — the two units cannot drift apart. UI renders both
+figures side-by-side (e.g. "162 mg / 4.1 mEq").
 """
 
 SNACK_GUIDE = {
@@ -29,6 +34,33 @@ SNACK_GUIDE = {
             {"name": "Idli (1 piece)", "hindi": "Idli / इडली", "serving": "1 piece (60 g)", "potassium_mg": 90, "note": "One idli with mild chutney is fine. Sambar is very high sodium — skip or use a spoonful only.", "linked_food_id": None},
             {"name": "Upma (small portion)", "hindi": "Upma / उपमा", "serving": "½ katori (75 g)", "potassium_mg": 130, "note": "Small portions OK. Watch added mustard-seed tempering + salt.", "linked_food_id": None},
             {"name": "Bread Toast (plain, no butter)", "hindi": "Bread toast / ब्रेड टोस्ट", "serving": "1 slice (30 g)", "potassium_mg": 55, "note": "One slice with jam OR unsalted butter — not both. Multigrain bread is HIGHER phosphorus.", "linked_food_id": None},
+            {
+                "name": "Dhokla (steamed, plain)",
+                "hindi": "Dhokla / ढोकला",
+                "serving": "1 piece (58 g)",
+                "potassium_mg": 240,
+                "sodium_mg": 310,
+                "note": "One piece alone already carries meaningful sodium from the batter salt and tempering. Stick to a single piece, and skip the usual green chutney which adds more.",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Pani Puri / Golgappa",
+                "hindi": "Pani puri / पानी पुरी",
+                "serving": "6 pieces with pani",
+                "potassium_mg": 250,
+                "sodium_mg": 450,
+                "note": "The 'pani' itself is the unpredictable part — street-vendor spiced water sodium content varies a lot and can't be controlled the way a home recipe can. Treat as an occasional indulgence, not a routine snack.",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Banana Chips (Kerala, coconut-oil fried)",
+                "hindi": "Kela chips / केला चिप्स",
+                "serving": "1 small handful (30 g)",
+                "potassium_mg": 140,
+                "sodium_mg": None,  # brand-dependent; unsalted traditional recipe is low, packaged versions vary
+                "note": "Moderate potassium concentrated by frying (raw banana already carries K, frying reduces water content and concentrates it further). Sodium depends heavily on brand/recipe — homemade with light rock salt is safer than packaged.",
+                "linked_food_id": None,
+            },
         ],
     },
     "RED": {
@@ -51,5 +83,8 @@ SNACK_GUIDE = {
     },
 }
 
+from guide_utils import enrich_guide
+
+
 def get_snack_guide() -> dict:
-    return SNACK_GUIDE
+    return enrich_guide(SNACK_GUIDE, "snacks")

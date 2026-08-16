@@ -687,3 +687,170 @@ test_plan_iter19:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 20 (Guide enrichment: mEq + sodium badge + new entries) ----------------
+
+backend_iter20:
+  - task: "guide_utils.py enriches every guide entry with potassium_meq (mg/39.1, 1dp) and high_sodium (sodium_mg >= 400)"
+    implemented: true
+    working: "NA"
+    file: "backend/guide_utils.py, backend/{fruit,vegetable,snack,beverage,protein,grain}_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Every get_*_guide() now runs through enrich_guide(). potassium_mg remains
+          source of truth. potassium_meq is derived at load time and never hand-
+          entered. sodium_mg defaults to null for entries where a real number
+          isn't sourced yet — no formulaic backfill.
+  - task: "Ten new researched entries added across 5 guide files"
+    implemented: true
+    working: "NA"
+    file: "backend/{vegetable,fruit,protein,beverage,snack}_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          vegetable: Bitter Gourd (280mg, Na=None), Raw Banana (400mg, Na=None) — YELLOW
+          fruit: Muskmelon (400mg, Na=24) — YELLOW
+          protein: Egg Yolk alone (19mg, Na=8) — RED (phosphorus concern)
+          beverage: Almond Milk (67mg, Na=60) — GREEN; Jaljeera (150mg, Na=600), Aam Panna (150mg, Na=800) — YELLOW; Thandai (425mg, Na=109) — RED
+          snack: Dhokla (240mg, Na=310) — YELLOW; Pani Puri (250mg, Na=450), Banana Chips (140mg, Na=None) — YELLOW
+  - task: "guide_needs_sourcing.csv generated at startup — 7 flagged dishes + all sodium-missing entries"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py lifespan + backend/guide_utils.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+
+frontend_iter20:
+  - task: "Guide rows show BOTH mg and mEq for potassium regardless of user's toggle. Order flips based on toggle preference."
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Format is "K 150 mg / 3.8 mEq" (mg mode) or "K 3.8 mEq / 150 mg" (mEq mode).
+          Both figures always visible per user request; toggle only affects order.
+  - task: "High Sodium warning badge renders on any entry with high_sodium=true, independent of tier"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Small red pill badge with warning icon: "High Sodium — 600 mg per serving".
+          Visible on Jaljeera and Aam Panna (YELLOW tier), correctly appears on any
+          entry with sodium_mg >= 400. Uses testID pattern `${rowTestId}-high-sodium`.
+
+test_plan_iter20:
+  current_focus:
+    - "All /api/{fruits,vegetables,snacks,beverages,proteins,grains}/guide responses include potassium_meq (rounded 1dp) and high_sodium (bool) on every entry."
+    - "potassium_meq = round(potassium_mg / 39.1, 1) — spot-check a few (Egg White boiled: 110→2.8, Water: 0→0.0, Coconut Water: 500→12.8)."
+    - "sodium_mg == null on entries where we didn't source a value; new entries with values have them (Jaljeera 600, Aam Panna 800, Dhokla 310, Pani Puri 450, Thandai 109, Almond Milk 60, Muskmelon 24, Egg Yolk 8)."
+    - "high_sodium == true when sodium_mg >= 400 (Jaljeera, Aam Panna, Pani Puri) — false otherwise even for Thandai (109) and Dhokla (310)."
+    - "guide_needs_sourcing.csv exists at /app/backend/guide_needs_sourcing.csv with the 7 flagged dishes (Vada Pav, Misal Pav, Sattu Sharbat, Sol Kadhi, Momos, Bhel Puri, Sev Puri) plus rows for every entry missing sodium_mg."
+    - "Frontend: /beverages Jaljeera row shows 'K 150 mg / 3.8 mEq' AND a red 'High Sodium — 600 mg per serving' badge."
+    - "Frontend: /snacks Pani Puri row shows 'K 250 mg / 6.4 mEq' AND a red 'High Sodium — 450 mg per serving' badge."
+    - "Frontend: /proteins Egg Yolk (alone) entry appears in RED tier with 'K 19 mg / 0.5 mEq' (NO sodium badge — sodium is 8mg)."
+    - "Frontend: With user toggled to mEq (Settings → mEq), guide rows flip to 'K 3.8 mEq / 150 mg' style (mEq first)."
+    - "Regression: all 6 guide screens still render, tap navigation still works, home dashboard still routes correctly."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+# ---------------- Iteration 21 (IFCT 2017 corrections + new entries) ----------------
+
+backend_iter21:
+  - task: "Egg Yolk (alone) updated to IFCT M006 values"
+    implemented: true
+    working: "NA"
+    file: "backend/protein_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          K 18mg (was 19), P 100mg (new), Na 8mg, source="IFCT 2017, code M006".
+          Note updated to cite IFCT phosphorus figure (100mg per yolk).
+  - task: "Whole Egg (boiled) enriched with P + Na fields (K unchanged)"
+    implemented: true
+    working: "NA"
+    file: "backend/protein_guide.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+  - task: "Muskmelon corrected to IFCT E046 value (K 400→294)"
+    implemented: true
+    working: "NA"
+    file: "backend/fruit_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "New IFCT-sourced entries added: Radish + Water Chestnut (veg YELLOW); Fresh Fig (fruit GREEN); Ber (fruit YELLOW); Bael + Phalsa (fruit RED); Khoa (protein RED)"
+    implemented: true
+    working: "NA"
+    file: "backend/vegetable_guide.py, backend/fruit_guide.py, backend/protein_guide.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Guide file docstrings updated with sourcing convention + legume-methodology caveat"
+    implemented: true
+    working: "NA"
+    file: "backend/protein_guide.py, backend/vegetable_guide.py, backend/fruit_guide.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+
+frontend_iter21:
+  - task: "GuideEntry type extended with optional source, phosphorus_mg fields"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+  - task: "Guide rows render a subtle 'Source: IFCT 2017, code XXX' caption when source field is present"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/FoodGuideLayout.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+
+test_plan_iter21:
+  current_focus:
+    - "GET /api/proteins/guide RED has Egg Yolk with K=18, phosphorus_mg=100, sodium_mg=8, source contains 'M006'."
+    - "GET /api/proteins/guide RED has Khoa with K=161, phosphorus_mg=143, sodium_mg=14, source contains 'L004'."
+    - "GET /api/proteins/guide YELLOW has Whole Egg (boiled) with K=63, phosphorus_mg=105, sodium_mg=61, source contains 'M004'."
+    - "GET /api/fruits/guide YELLOW has Muskmelon with K=294 (not 400), source contains 'E046'."
+    - "GET /api/fruits/guide GREEN has Fig, fresh with K=116, source contains 'E020'."
+    - "GET /api/fruits/guide YELLOW has Ber with K=237, source contains 'E068'."
+    - "GET /api/fruits/guide RED has Bael with K=409, source contains 'E008'; and Phalsa with K=362, source contains 'E052'."
+    - "GET /api/vegetables/guide YELLOW has Radish with K=287, source contains 'F012'; and Water Chestnut with K=382, source contains 'F016'."
+    - "potassium_meq derived correctly on all new entries: Egg Yolk 0.5, Khoa 4.1, Muskmelon 7.5, Fig 3.0, Ber 6.1, Bael 10.5, Phalsa 9.3, Radish 7.3, Water Chestnut 9.8."
+    - "high_sodium is False for all new entries (all sodium_mg < 400)."
+    - "Frontend: /proteins Egg Yolk row shows subtle 'Source: IFCT 2017, code M006 (scaled to ~17 g)' caption below the note. TestID pattern ${rowTestId}-source."
+    - "Frontend: /fruits Muskmelon row shows K 294 mg / 7.5 mEq and source caption."
+    - "Regression: iter 20 high-sodium badges (Jaljeera, Aam Panna, Pani Puri) still render. Existing entries without source field do NOT render a Source: caption."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"

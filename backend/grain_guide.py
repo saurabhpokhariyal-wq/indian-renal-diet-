@@ -1,4 +1,9 @@
-"""Curated grains & rotis reference for CKD/dialysis patients."""
+"""Curated grains & rotis reference for CKD/dialysis patients.
+
+Every entry stores `potassium_mg` (source of truth); the API layer derives
+`potassium_meq` (mg / 39.1) and `high_sodium` (sodium_mg >= 400) via
+`guide_utils.enrich_guide` so the two units cannot drift apart. UI renders both
+figures side-by-side (e.g. "162 mg / 4.1 mEq")."""
 GRAIN_GUIDE = {
     "GREEN": {"title": "Safe — daily portions", "subtitle": "Refined grains are usually kinder to kidneys than whole grains here.",
         "grains": [
@@ -29,4 +34,8 @@ GRAIN_GUIDE = {
             {"name": "Cornflakes with Milk", "hindi": "Cornflakes", "serving": "1 katori (30 g)", "potassium_mg": 199, "note": "Milk pushes phosphorus over the RED line. Fortified cornflakes add phosphate additives.", "linked_food_id": "food-cornflakes-with-milk"},
         ]},
 }
-def get_grain_guide() -> dict: return GRAIN_GUIDE
+from guide_utils import enrich_guide
+
+
+def get_grain_guide() -> dict:
+    return enrich_guide(GRAIN_GUIDE, "grains")

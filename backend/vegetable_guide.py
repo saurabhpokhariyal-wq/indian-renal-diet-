@@ -1,6 +1,14 @@
 """Curated vegetable reference for CKD/dialysis patients.
 
-Grouped by potassium content and preparation notes (leaching, boiling)."""
+Grouped by potassium content and preparation notes (leaching, boiling).
+Every entry stores `potassium_mg` (source of truth); the API layer derives
+`potassium_meq` (mg / 39.1) and `high_sodium` (sodium_mg >= 400) via
+`guide_utils.enrich_guide` so the two units never drift apart. UI renders
+both figures side-by-side (e.g. "162 mg / 4.1 mEq").
+
+Sourcing convention: entries with a "source" field are directly measured from
+IFCT 2017 (ICMR-NIN) at the code cited. Others are on legacy web data and are
+candidates for the next IFCT backfill."""
 
 VEGETABLE_GUIDE = {
     "GREEN": {
@@ -31,6 +39,44 @@ VEGETABLE_GUIDE = {
             {"name": "Kaddu (Pumpkin)", "hindi": "Kaddu / कद्दू", "serving": "1 katori (100 g)", "potassium_mg": 340, "note": "Contains vitamins but modest K. Half-katori for advanced CKD.", "linked_food_id": None},
             {"name": "Beetroot (small portion)", "hindi": "Chukandar / चुकंदर", "serving": "¼ cup (40 g)", "potassium_mg": 130, "note": "Small pieces in a salad only. Beetroot juice is RED.", "linked_food_id": None},
             {"name": "Mushroom", "hindi": "Khumbi / खुम्बी", "serving": "½ katori (50 g)", "potassium_mg": 158, "note": "Small portions. Avoid canned mushrooms (heavy sodium).", "linked_food_id": None},
+            {
+                "name": "Bitter Gourd (Karela)",
+                "hindi": "Karela / करेला",
+                "serving": "1 katori cooked (100 g)",
+                "potassium_mg": 280,
+                "sodium_mg": None,  # naturally low (~6–11 mg raw per USDA); recipe salt not sourced
+                "note": "Moderate potassium naturally, and boiling further reduces it. Salt is added during prep in most recipes — go light. Naturally low sodium if unsalted.",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Raw Banana (Kaccha Kela)",
+                "hindi": "Kaccha kela / कच्चा केला",
+                "serving": "1 katori sabzi (100 g)",
+                "potassium_mg": 400,
+                "sodium_mg": None,
+                "note": "Similar potassium load to ripe banana — starchy but still K-dense. Half-katori portions preferred. Deep-fried banana chips concentrate this further — see Snacks.",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Radish (Mooli)",
+                "hindi": "Mooli / मूली",
+                "serving": "1 katori (100 g)",
+                "potassium_mg": 287,
+                "sodium_mg": 24,
+                "note": "Often assumed 'light' because it's watery, but potassium is meaningfully higher than most gourds. Half-katori portions preferred, whether eaten raw as salad or cooked as mooli sabzi/paratha stuffing.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code F012",
+            },
+            {
+                "name": "Water Chestnut (Singhada)",
+                "hindi": "Singhada / सिंघाड़ा",
+                "serving": "1 katori (100 g)",
+                "potassium_mg": 382,
+                "sodium_mg": 13,
+                "note": "Common fasting-day (vrat) food, often overlooked in renal diet planning because it isn't a 'regular' vegetable. Moderate-high potassium — worth flagging specifically for patients who fast regularly.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code F016",
+            },
         ],
     },
     "RED": {
@@ -52,5 +98,8 @@ VEGETABLE_GUIDE = {
     },
 }
 
+from guide_utils import enrich_guide
+
+
 def get_vegetable_guide() -> dict:
-    return VEGETABLE_GUIDE
+    return enrich_guide(VEGETABLE_GUIDE, "vegetables")

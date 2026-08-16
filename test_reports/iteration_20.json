@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 20 verified end-to-end. Backend: 25/25 tests pass (test_iter20_sodium_potassium_meq.py) — every guide entry across fruits/vegetables/snacks/beverages/proteins/grains exposes derived potassium_meq (float) and high_sodium (bool). Spot values verified: Apple K_meq≈4.0; new entries Muskmelon (fruit YELLOW K=400 Na=24), Karela+Raw Banana (veg YELLOW K=280/400 Na=null), Dhokla (snack YELLOW K=240 Na=310 hs=false), Pani Puri (K=250 Na=450 hs=TRUE), Banana Chips (K=140 Na=null), Almond Milk (bev GREEN K=67 Na=60), Jaljeera (YELLOW K=150 Na=600 hs=TRUE), Aam Panna (YELLOW K=150 Na=800 hs=TRUE), Thandai (RED K=425 Na=109 hs=false), Egg Yolk alone (protein RED K=19 Na=8 hs=false, K_meq=0.5). CSV file /app/backend/guide_needs_sourcing.csv has 156 rows (7 flagged-not-added + 149 sodium-null) with correct header. Regression preserved: /api/foods, /api/foods/food-toor-dal, /api/auth, /api/meal-logs CRUD, nutrient_unit mg↔mEq round-trip. Frontend (mobile 390x844): /beverages Jaljeera row shows 'K 150 mg / 3.8 mEq' with red 'High Sodium — 600 mg per serving' badge (testID beverage-row-jaljeera-high-sodium present); Aam Panna 800 mg badge present; Thandai & Almond Milk correctly have NO badge; /snacks Pani Puri shows 450 mg badge; Dhokla & Banana Chips no badge (correct); /proteins Egg Yolk (alone) shows 'K 19 mg / 0.5 mEq' with no sodium badge (correct); after toggling mEq in Settings the Jaljeera row correctly flips to 'K 3.8 mEq / 150 mg' with badge unchanged. Muskmelon fruit row also verified.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter20_sodium_potassium_meq.py",
+    "/app/test_reports/pytest/pytest_iter20.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "guide_utils.py enrich_entry() is clean, single source of truth for potassium_meq and high_sodium — no hand-conversion in guide dicts (verified). sodium_mg=null preserved (never guessed).",
+    "FoodGuideLayout row testID uses slug(entry.name); note testIDs for entries with long names (e.g. 'Thandai (festival, milk-based)') become long slugs like 'beverage-row-thandai-festival-milk-based-*'. The Jaljeera/Aam Panna/Egg Yolk (alone) entries used shorter names so `beverage-row-jaljeera-high-sodium` etc. match the spec exactly.",
+    "guide_needs_sourcing.csv total row count is 156 (7 flagged + 149 sodium-null), well within expected 140–200 band — bookkeeping pipeline mirrors needs_manual_review.csv convention."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter20_sodium_potassium_meq.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (25/25)",
+    "frontend": "100% (all verifiable rows + toggle + badges)"
+  },
+  "seed_data_creation": "none — uses seeded demo@renal.app user (nutrient_unit patched to mg and back to mEq during test; final left at mEq per test flow — non-destructive).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "For iteration 20 the guide row testID pattern is `{prefix}-row-{slug(name)}[-k|-high-sodium]`. Full names of new entries in the guide dicts are longer than the spec's short-hand (e.g. 'Thandai (festival, milk-based)', 'Unsweetened Almond Milk (plain, store-bought)', 'Dhokla (steamed, plain)', 'Pani Puri / Golgappa', 'Banana Chips (Kerala, coconut-oil fried)', 'Muskmelon (Kharbuja)', 'Egg Yolk (alone)'). Use those exact names when computing slugs. Also: user's nutrient_unit persists across sessions in DB — reset to 'mg' explicitly in Settings before validating default ordering.",
+  "rca_of_issue": "n/a — no bugs found."
+}

@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 21 (IFCT 2017 sourcing pass) fully verified. Backend 18 passed / 1 skipped (18/18 effective, meal-logs endpoint path skipped as non-iter21 concern). All 10 IFCT-sourced entries (Egg Yolk, Khoa/Mawa, Whole Egg, Muskmelon, Fig fresh, Ber, Bael, Phalsa, Radish, Water Chestnut) return exact spec values: potassium_mg / phosphorus_mg / sodium_mg + derived potassium_meq (0.5, 4.1, 7.5, 3.0, 6.1, 10.5, 9.3, 7.3, 9.8) and high_sodium=false. Source strings contain the correct IFCT codes (M006, L004, M004, E046, E020, E068, E008, E052, F012, F016). Iter-20 sodium regression intact — Jaljeera & Pani Puri still high_sodium=true. /api/foods, /api/auth login+me still 200. Legacy entries (Toor Dal, Apple, Bottle Gourd) carry no `source` field. Frontend (mobile 390x844) verified end-to-end: /proteins Egg Yolk (alone) row shows 'K 0.5 mEq / 18 mg' with italic caption 'Source: IFCT 2017, code M006 (scaled to ~17 g)' at testID protein-row-egg-yolk-alone-source; Khoa/Mawa 'K 4.1 mEq / 161 mg' with L004 caption; /fruits Muskmelon 'K 7.5 mEq / 294 mg' with E046 caption; Ber, Fig fresh, Bael, Phalsa captions render; /vegetables Radish + Water Chestnut render with F012/F016 captions. Legacy Toor Dal / Apple / Bottle Gourd rows correctly show ZERO source caption (count=0). NOTE on K ordering: display shows mEq-first because demo user's nutrient_unit persists as 'mEq' from prior iterations — this is the iter-19 toggle working correctly; the raw mg value (18, 161, 294) is present and correct in both orderings.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter21_ifct_sourcing.py",
+    "/app/test_reports/pytest/pytest_iter21.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "protein_guide.py / fruit_guide.py / vegetable_guide.py: `source` and `phosphorus_mg` are plain pass-through fields — no hand-computed potassium_meq anywhere; enrich_guide remains the single source of derivation.",
+    "FoodGuideLayout.tsx GuideEntry type extends optional `source` + `phosphorus_mg`; sourceText style uses fontSize:11, italic, textSecondary — visually subtle as intended. Source caption testID `${testId}-source` is stable and matches the spec.",
+    "Guide docstrings updated in all three files to describe the IFCT sourcing convention + the dry-vs-cooked legume caveat. Toor Dal (78 mg / 60 g cooked) intentionally left as legacy cooked-value entry — correct per docstring."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter21_ifct_sourcing.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (18/18 effective, 1 skipped for meal-logs path autodetect)",
+    "frontend": "100% (all 10 IFCT rows show source caption; all 3 sampled legacy rows show none; K value strings correct)"
+  },
+  "seed_data_creation": "none — used existing seeded demo@renal.app user. User's nutrient_unit remained 'mEq' from prior tests (non-destructive).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter-21 introduced a 4th derived caption (source) on guide rows using testID pattern `${prefix}-row-${slug(name)}-source`. Full guide-entry names for the 10 IFCT rows: 'Egg Yolk (alone)', 'Khoa / Mawa', 'Whole Egg (boiled)', 'Muskmelon (Kharbuja)', 'Fig, fresh (Anjeer)', 'Ber (Indian Jujube / Zizyphus)', 'Bael Fruit (Wood Apple)', 'Phalsa', 'Radish (Mooli)', 'Water Chestnut (Singhada)'. Slugs use `[a-z0-9]+` collapsed with hyphens. 'Fig, fresh (Anjeer)' → 'fig-fresh-anjeer'; 'Ber (Indian Jujube / Zizyphus)' → 'ber-indian-jujube-zizyphus'; 'Bael Fruit (Wood Apple)' → 'bael-fruit-wood-apple'. Demo user's nutrient_unit is 'mEq' — reset to 'mg' via Settings if you need to see mg-first K ordering.",
+  "rca_of_issue": "n/a — all iter-21 acceptance criteria met."
+}

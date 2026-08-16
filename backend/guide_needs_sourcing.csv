@@ -1,0 +1,156 @@
+guide,tier,name,hindi,reason
+flagged-not-added,n/a,Vada Pav,,meaningful sodium noted in sources but no consistent per-serving figure
+flagged-not-added,n/a,Misal Pav,,sodium heavy but no consistent per-serving figure
+flagged-not-added,n/a,Sattu Sharbat,,sodium content depends heavily on black salt used
+flagged-not-added,n/a,Sol Kadhi,,recipe-variable — needs an IFCT/USDA figure
+flagged-not-added,n/a,Momos,,filling + dipping sauce push sodium high but no citable per-serving number
+flagged-not-added,n/a,Bhel Puri,,chutneys make sodium recipe-dependent
+flagged-not-added,n/a,Sev Puri,,chutneys make sodium recipe-dependent
+fruit,GREEN,Apple,Seb / सेब,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Pear,Nashpati / नाशपाती,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Papaya,Papita / पपीता,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Pineapple,Ananas / अनानास,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Watermelon,Tarbooz / तरबूज,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Blueberries,Blueberry,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Strawberries,Strawberry,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Cranberries,Cranberry,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Grapes (small portion),Angoor / अंगूर,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,GREEN,Lychee,Litchi / लीची,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Guava,Amrood / अमरूद,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Peach,Aadu / आड़ू,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Plum,Aloo bukhara / आलू बुखारा,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Cherry,Cherry,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Mango (small portion),Aam / आम,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Jackfruit (ripe),Kathal / कटहल,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Pomegranate,Anaar / अनार,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,YELLOW,Kiwi,Kiwi,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Banana,Kela / केला,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Orange,Santra / संतरा,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Mango (whole),Aam / आम,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Sapota / Chikoo,Chikoo / चीकू,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Custard Apple,Sitaphal / सीताफल,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Dates,Khajoor / खजूर,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Raisins,Kishmish / किशमिश,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Dried Apricots,Khubani / खुबानी,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Prunes,Aloo bukhara sukha / आलू बुखारा सूखा,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Coconut Water,Nariyal Paani / नारियल पानी,sodium_mg not yet sourced — do not guess; flag for real data
+fruit,RED,Amla / Indian Gooseberry (raw),Amla / आंवला,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Bottle Gourd (Lauki),Lauki / लौकी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Round Gourd (Tinda),Tinda / टिंडा,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Ridge Gourd (Turai),Turai / तुरई,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Ash Gourd (Petha),Petha / पेठा,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Cabbage,Patta gobi / पत्ता गोभी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Cauliflower,Phool gobi / फूल गोभी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Cucumber,Kheera / खीरा,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Green Beans (French/Cluster),Beans / बीन्स,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Bell Pepper (Capsicum),Shimla mirch / शिमला मिर्च,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,GREEN,Onion (raw/cooked),Pyaz / प्याज,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Tomato (fresh),Tamatar / टमाटर,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Carrot,Gajar / गाजर,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Brinjal (Aubergine),Baingan / बैंगन,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Green Peas,Matar / मटर,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Okra (Bhindi),Bhindi / भिंडी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Kaddu (Pumpkin),Kaddu / कद्दू,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Beetroot (small portion),Chukandar / चुकंदर,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Mushroom,Khumbi / खुम्बी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Bitter Gourd (Karela),Karela / करेला,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,YELLOW,Raw Banana (Kaccha Kela),Kaccha kela / कच्चा केला,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Potato (regular),Aloo / आलू,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Sweet Potato,Shakarkandi / शकरकंदी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Yam (Suran),Suran / सूरन,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Colocasia (Arbi),Arbi / अरबी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Spinach (Palak),Palak / पालक,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Drumstick Leaves (Sajina),Sajina saag / सजिना साग,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Amaranth Leaves (Chaulai),Chaulai / चौलाई,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Fenugreek Leaves (Methi),Methi / मेथी,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Mustard Leaves (Sarson),Sarson / सरसों,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Bamboo Shoots,Bans / बांस,sodium_mg not yet sourced — do not guess; flag for real data
+vegetable,RED,Avocado,Avocado,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Roasted Makhana (unsalted),Makhana / मखाना,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Puffed Rice (unsalted),Murmura / मुरमुरा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Homemade Khakhra (plain),Khakhra / खाखरा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Apple / Pear slices,Seb / Nashpati,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Cucumber Sticks,Kheera / खीरा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,GREEN,Rice Puffs / Kurmura chivda (unsalted homemade),Chivda / चिवड़ा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Roasted Chana (small handful),Bhuna chana / भुना चना,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Peanut Chikki (small piece),Moongfali chikki / मूंगफली चिक्की,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Dry Fruit Trail (very small),Sukha meva / सूखा मेवा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Sabudana Khichdi (small katori),Sabudana khichdi / साबूदाना खिचड़ी,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Poha (small portion),Poha / पोहा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Idli (1 piece),Idli / इडली,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,Upma (small portion),Upma / उपमा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,"Bread Toast (plain, no butter)",Bread toast / ब्रेड टोस्ट,sodium_mg not yet sourced — do not guess; flag for real data
+snack,YELLOW,"Banana Chips (Kerala, coconut-oil fried)",Kela chips / केला चिप्स,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Namkeen / Bhujia / Mixture,Namkeen / नमकीन,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,"Potato Chips (Lays, Kurkure)",Chips / चिप्स,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Papad (fried or roasted),Papad / पापड़,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Pakoras (any variety),Pakora / पकौड़ा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Samosa,Samosa / समोसा,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Kachori,Kachori / कचौड़ी,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Sev / Ganthiya,Sev / सेव,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,"Cheese-based snacks (cubes, sticks)",Cheese snacks,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Chocolate / Dark Chocolate,Chocolate,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,"Commercial Biscuits (Marie, cream, cookies)",Biskut / बिस्कुट,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Instant Noodles (Maggi etc.),Maggi / मैगी,sodium_mg not yet sourced — do not guess; flag for real data
+snack,RED,Popcorn (salted/buttered),Popcorn / पॉपकॉर्न,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Water,Paani / पानी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Buttermilk (Chaas),Chaas / छाछ,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Herbal Tea (unsweetened),Herbal chai,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Rice Water (Kanji),Kanji / कांजी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Barley Water,Jau ka paani / जौ का पानी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Ginger-Lemon Water,Adrak-nimbu paani / अदरक-नींबू पानी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,GREEN,Weak Black Tea (no milk),Bina doodh ki chai / बिना दूध की चाय,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Masala Chai (with milk),Masala chai / मसाला चाय,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Filter Coffee (with milk),Coffee / कॉफी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Green Tea,Green tea,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Sweet Lassi,Meethi lassi / मीठी लस्सी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Sugarcane Juice,Ganne ka ras / गन्ने का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,Nimbu Paani (lightly sweetened),Nimbu paani / नींबू पानी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,YELLOW,"Milk (plain, small glass)",Doodh / दूध,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Coconut Water (Nariyal Paani),Nariyal paani / नारियल पानी,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Fresh Orange Juice,Santra juice / संतरे का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Mosambi (Sweet Lime) Juice,Mosambi juice / मोसंबी का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Pomegranate Juice,Anaar juice / अनार का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Bottled Fruit Juice,Bottled juice,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Sports / Energy Drinks,Energy drinks,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Bournvita / Horlicks / Boost,Malt drinks,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Tomato Juice,Tamatar juice / टमाटर का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Beetroot Juice,Chukandar juice / चुकंदर का रस,sodium_mg not yet sourced — do not guess; flag for real data
+beverage,RED,Beer / Alcohol,Sharab / शराब,sodium_mg not yet sourced — do not guess; flag for real data
+protein,GREEN,Egg White (boiled),Anda safed / अंडे का सफेद,sodium_mg not yet sourced — do not guess; flag for real data
+protein,GREEN,Egg White Bhurji,Anda safed bhurji,sodium_mg not yet sourced — do not guess; flag for real data
+protein,GREEN,Grilled/Baked Chicken Breast,Chicken breast / चिकन,sodium_mg not yet sourced — do not guess; flag for real data
+protein,GREEN,Grilled Fish (fresh water),Machhli / मछली,sodium_mg not yet sourced — do not guess; flag for real data
+protein,GREEN,"Cottage Cheese (Paneer, small)",Paneer / पनीर,sodium_mg not yet sourced — do not guess; flag for real data
+protein,YELLOW,Toor Dal (arhar),Toor dal / अरहर दाल,sodium_mg not yet sourced — do not guess; flag for real data
+protein,YELLOW,Moong Dal (yellow),Moong dal / मूंग दाल,sodium_mg not yet sourced — do not guess; flag for real data
+protein,YELLOW,Masoor Dal (red split),Masoor dal / मसूर दाल,sodium_mg not yet sourced — do not guess; flag for real data
+protein,YELLOW,"Tofu (plain, unsalted)",Tofu / टोफू,sodium_mg not yet sourced — do not guess; flag for real data
+protein,YELLOW,Sprouted Moong (small),Ankurit moong / अंकुरित मूंग,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Rajma / Chole / Kidney Beans,Rajma / राजमा,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Palak Paneer,Palak paneer / पालक पनीर,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Mutton / Red Meat,Mutton / मटन,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Prawns / Shellfish,Jheenga / झींगा,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,"Processed Meats (sausage, salami)",Sausage / सॉसेज,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Milk (full glass),Doodh / दूध,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Cheese (any variety),Cheese / चीज़,sodium_mg not yet sourced — do not guess; flag for real data
+protein,RED,Soybean / Soya Chunks (curry),Soya chunks / सोया चंक्स,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,Boiled White Rice,Chawal / चावल,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,Semolina (Suji/Rava),Suji / सूजी,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,Refined Wheat Flour (Maida) Roti,Maida roti / मैदा,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,White Bread (plain),White bread,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,"Vermicelli (Sevaiyan, plain)",Sevaiyan / सेवइयां,sodium_mg not yet sourced — do not guess; flag for real data
+grain,GREEN,"Sago (Sabudana, boiled)",Sabudana / साबूदाना,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,Whole Wheat Atta Roti,Atta roti / आटा रोटी,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,Bajra Roti,Bajra roti / बाजरा रोटी,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,Jowar Roti,Jowar roti / ज्वार रोटी,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,"Oats (plain, small)",Oats / जई,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,Brown Rice,Brown chawal / ब्राउन चावल,sodium_mg not yet sourced — do not guess; flag for real data
+grain,YELLOW,Poha (small serving),Poha / पोहा,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Multigrain Roti / Bread,Multigrain roti,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Ragi (Finger Millet),Ragi / रागी,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Quinoa,Quinoa,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Whole Wheat Pasta,Whole wheat pasta,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,"Millets (Kodo, Foxtail, etc.)",Bajra / जौ,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Muesli / Granola,Muesli,sodium_mg not yet sourced — do not guess; flag for real data
+grain,RED,Cornflakes with Milk,Cornflakes,sodium_mg not yet sourced — do not guess; flag for real data

@@ -12,6 +12,11 @@ Guidance rules used to place each drink:
 
 Every entry lists FLUID mL per serving so patients on a restricted fluid budget
 can add it up. `linked_food_id` deep-links to a matching seed entry when one exists.
+
+Every entry stores `potassium_mg` (source of truth); the API layer derives
+`potassium_meq` (mg / 39.1) and `high_sodium` (sodium_mg >= 400) via
+`guide_utils.enrich_guide` — the two units cannot drift apart. UI renders both
+figures side-by-side (e.g. "162 mg / 4.1 mEq").
 """
 
 BEVERAGE_GUIDE = {
@@ -82,6 +87,16 @@ BEVERAGE_GUIDE = {
                 "note": "1-2 cups a day is fine. Adding milk moves this into YELLOW because of phosphorus and potassium in milk.",
                 "linked_food_id": None,
             },
+            {
+                "name": "Unsweetened Almond Milk (plain, store-bought)",
+                "hindi": "Badam milk (bina meetha)",
+                "serving": "1 cup (240 ml)",
+                "potassium_mg": 67,
+                "fluid_ml": 240,
+                "sodium_mg": 60,
+                "note": "Distinct from Thandai — this is plain unsweetened almond milk, not the festival nut-paste drink. Genuinely low potassium and phosphorus, a reasonable dairy-milk substitute. Check the label — some commercial brands add potassium citrate as a stabilizer, which changes this.",
+                "linked_food_id": None,
+            },
         ],
     },
     "YELLOW": {
@@ -140,6 +155,26 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 90,
                 "fluid_ml": 200,
                 "note": "Lemon juice + water + a pinch of sugar is fine. Avoid the salt-heavy version and skip if diabetic (or use no sugar).",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Jaljeera",
+                "hindi": "Jaljeera / जलजीरा",
+                "serving": "1 glass (150-200 ml)",
+                "potassium_mg": 150,
+                "fluid_ml": 175,
+                "sodium_mg": 600,  # recipe-variable, 75-1179 mg across sources — using cautious high estimate
+                "note": "Potassium is moderate, but sodium is the real concern here — black salt (kala namak) is a defining ingredient and recipe sodium varies wildly (roughly 75-1200 mg depending on how it's made). Ask for it made without added salt if ordering out.",
+                "linked_food_id": None,
+            },
+            {
+                "name": "Aam Panna",
+                "hindi": "Aam panna / आम पन्ना",
+                "serving": "1 glass (200 ml)",
+                "potassium_mg": 150,
+                "fluid_ml": 200,
+                "sodium_mg": 800,  # recipe-variable, 195-1175 mg across sources — cautious high estimate
+                "note": "Same pattern as Jaljeera — potassium is moderate but black salt makes sodium the real variable, and it swings hugely by recipe. Homemade with rock salt omitted or minimized is far safer than a restaurant version.",
                 "linked_food_id": None,
             },
             {
@@ -247,11 +282,24 @@ BEVERAGE_GUIDE = {
                 "note": "Even though K is modest, alcohol worsens BP control and dehydrates. Every drink counts toward the strict fluid limit. Ask your nephrologist before any alcohol.",
                 "linked_food_id": None,
             },
+            {
+                "name": "Thandai (festival, milk-based)",
+                "hindi": "Thandai / ठंडाई",
+                "serving": "1 glass (200 ml)",
+                "potassium_mg": 425,
+                "fluid_ml": 200,
+                "sodium_mg": 109,
+                "note": "Milk + almonds + multiple nuts/seeds stacks potassium AND phosphorus (~293 mg P per glass). Festival-occasion only, not a routine drink.",
+                "linked_food_id": None,
+            },
         ],
     },
 }
 
 
+from guide_utils import enrich_guide
+
+
 def get_beverage_guide() -> dict:
     """Return the curated beverage guide grouped by tier (GREEN/YELLOW/RED)."""
-    return BEVERAGE_GUIDE
+    return enrich_guide(BEVERAGE_GUIDE, "beverages")

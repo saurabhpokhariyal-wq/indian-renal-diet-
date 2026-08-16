@@ -13,7 +13,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { SafetyTier } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
-import { formatK } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 /**
@@ -33,9 +32,21 @@ export interface GuideEntry {
   hindi?: string;
   serving: string;
   potassium_mg: number;
+  /** Derived server-side: potassium_mg / 39.1, rounded to 1 dp. */
+  potassium_meq?: number;
   fluid_ml?: number; // only used for beverages
+  /** Sourced sodium content in mg. Missing values are `null` (never guessed). */
+  sodium_mg?: number | null;
+  /** Sourced phosphorus content in mg. Missing values are `null`. Rarely rendered
+   *  directly on guide rows — kept on the model for AI grounding and detail views. */
+  phosphorus_mg?: number | null;
+  /** Derived server-side: true when sodium_mg >= 400 (matches seed-DB RED threshold). */
+  high_sodium?: boolean;
   note: string;
   linked_food_id?: string | null;
+  /** Provenance string when the entry was sourced from a primary dataset
+   *  (e.g. "IFCT 2017, code E046"). Absent for legacy web-sourced entries. */
+  source?: string;
 }
 
 export interface GuideSection {
@@ -247,6 +258,19 @@ function GuideRow({
       }
     : { testID: testId };
 
+  // Guide rows show BOTH units regardless of the user's global toggle — clinicians and
+  // patients need to cross-reference between food-label mg counts and lab-report mEq.
+  // The user's preferred unit is placed first for consistency with the rest of the app.
+  const mg = Math.round(entry.potassium_mg);
+  const meq =
+    typeof entry.potassium_meq === "number"
+      ? entry.potassium_meq.toFixed(1)
+      : (entry.potassium_mg / 39.1).toFixed(1);
+  const kStr =
+    unit === "mEq"
+      ? `${meq} mEq / ${mg} mg`
+      : `${mg} mg / ${meq} mEq`;
+
   return (
     <Wrapper style={styles.row} {...wrapperProps}>
       <View style={[styles.dot, { backgroundColor: meta.strong }]} />
@@ -254,7 +278,7 @@ function GuideRow({
         <View style={styles.titleRow}>
           <Text style={styles.name}>{entry.name}</Text>
           <View style={styles.metrics}>
-            <Text style={styles.kmg}>K {formatK(entry.potassium_mg, unit)}</Text>
+            <Text style={styles.kmg} testID={`${testId}-k`}>K {kStr}</Text>
             {showFluidChip && typeof entry.fluid_ml === "number" ? (
               <View style={styles.fluidChip}>
                 <Ionicons name="water" size={12} color={COLORS.aiBlue} />
@@ -265,7 +289,23 @@ function GuideRow({
         </View>
         {entry.hindi ? <Text style={styles.hindi}>{entry.hindi}</Text> : null}
         <Text style={styles.serving}>{entry.serving}</Text>
+        {entry.high_sodium ? (
+          <View style={styles.sodiumBadge} testID={`${testId}-high-sodium`}>
+            <Ionicons name="warning" size={12} color={COLORS.redStrong} />
+            <Text style={styles.sodiumBadgeText}>
+              High Sodium
+              {typeof entry.sodium_mg === "number"
+                ? ` — ${Math.round(entry.sodium_mg)} mg per serving`
+                : ""}
+            </Text>
+          </View>
+        ) : null}
         <Text style={styles.note}>{entry.note}</Text>
+        {entry.source ? (
+          <Text style={styles.sourceText} testID={`${testId}-source`}>
+            Source: {entry.source}
+          </Text>
+        ) : null}
       </View>
       {tappable ? (
         <Ionicons name="chevron-forward" size={18} color={COLORS.textSecondary} />
@@ -354,7 +394,31 @@ const styles = StyleSheet.create({
     borderColor: COLORS.aiBlue,
   },
   fluidText: { fontSize: FONT.label, fontWeight: "700", color: COLORS.aiBlue },
+  sodiumBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.redBg,
+    borderWidth: 1,
+    borderColor: COLORS.redBorder,
+    marginTop: 6,
+  },
+  sodiumBadgeText: {
+    fontSize: FONT.label,
+    fontWeight: "800",
+    color: COLORS.redStrong,
+  },
   hindi: { fontSize: FONT.label, color: COLORS.textSecondary, marginTop: 1 },
   serving: { fontSize: FONT.label, color: COLORS.brand, fontWeight: "700", marginTop: 4 },
   note: { fontSize: FONT.body, color: COLORS.textPrimary, lineHeight: 22, marginTop: 4 },
+  sourceText: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontStyle: "italic",
+    marginTop: 6,
+  },
 });

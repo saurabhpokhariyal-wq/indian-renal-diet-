@@ -4,6 +4,16 @@ Common Indian and international fruits grouped by kidney-safety tier. Each row
 maps to a realistic single serving (a "1 fruit" mental model, not per-100g),
 with potassium/phosphorus/sodium data sourced from IFCT 2017 + USDA composites.
 
+Every entry stores `potassium_mg` (source of truth); the API layer derives
+`potassium_meq` (mg / 39.1) and `high_sodium` (sodium_mg >= 400) via
+`guide_utils.enrich_guide` — the two units cannot drift apart. UI renders both
+figures side-by-side (e.g. "162 mg / 4.1 mEq").
+
+Sourcing convention: entries with a "source" field are directly measured from
+IFCT 2017 (ICMR-NIN) at the code cited (per-100g figures scaled to the stated
+serving weight — no other transformation). Others are still on legacy web
+data and are candidates for the next IFCT backfill.
+
 Guidance rules used to place each fruit:
   GREEN   — potassium under ~200 mg per stated serving; safe daily
   YELLOW  — potassium 200-350 mg per serving; safe if portion-controlled
@@ -100,6 +110,16 @@ FRUIT_GUIDE = {
                 "note": "Low-K when eaten in a modest portion. Skip if diabetic (very sweet).",
                 "linked_food_id": None,
             },
+            {
+                "name": "Fig, fresh (Anjeer)",
+                "hindi": "Anjeer / अंजीर",
+                "serving": "1 medium (50 g)",
+                "potassium_mg": 116,
+                "sodium_mg": 1,
+                "note": "Fresh fig is moderate — this is distinct from dried anjeer, which concentrates potassium heavily (see dried fruit section) and is a very different risk profile at the same weight.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code E020 (scaled to 50 g)",
+            },
         ],
     },
     "YELLOW": {
@@ -169,6 +189,26 @@ FRUIT_GUIDE = {
                 "potassium_mg": 215,
                 "note": "Vitamin-C rich. Stick to one small kiwi per day.",
                 "linked_food_id": None,
+            },
+            {
+                "name": "Muskmelon (Kharbuja)",
+                "hindi": "Kharbuja / खरबूजा",
+                "serving": "1 katori cubed (150 g)",
+                "potassium_mg": 294,
+                "sodium_mg": 24,
+                "note": "IFCT-measured value, lower than watermelon per gram but still meaningful at a full katori. High water content also counts toward fluid intake for dialysis patients.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code E046 (scaled to 150 g)",
+            },
+            {
+                "name": "Ber (Indian Jujube / Zizyphus)",
+                "hindi": "Ber / बेर",
+                "serving": "5-6 small (100 g)",
+                "potassium_mg": 237,
+                "sodium_mg": 2,
+                "note": "Common roadside/seasonal fruit, moderate potassium. Fine in small quantities, not a handful.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code E068",
             },
         ],
     },
@@ -264,11 +304,34 @@ FRUIT_GUIDE = {
                 "note": "K is low, but raw amla is high in oxalates — can worsen kidney-stone risk. Cooked/preserved amla (murabba, achar) is heavily sugared or salted — also avoid.",
                 "linked_food_id": None,
             },
+            {
+                "name": "Bael Fruit (Wood Apple)",
+                "hindi": "Bael / बेल",
+                "serving": "1 katori pulp (100 g)",
+                "potassium_mg": 409,
+                "sodium_mg": 2,
+                "note": "Popular as a summer sherbet base in North India — the pulp itself is high-potassium. If made into a drink, treat as a RED beverage, not a minor garnish.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code E008",
+            },
+            {
+                "name": "Phalsa",
+                "hindi": "Phalsa / फालसा",
+                "serving": "1 katori (100 g)",
+                "potassium_mg": 362,
+                "sodium_mg": 2,
+                "note": "Regional North/West Indian summer berry, easy to overlook since it's seasonal and less discussed than mango or watermelon. High potassium per katori.",
+                "linked_food_id": None,
+                "source": "IFCT 2017, code E052",
+            },
         ],
     },
 }
 
 
+from guide_utils import enrich_guide
+
+
 def get_fruit_guide() -> dict:
     """Return the curated fruit guide grouped by tier (GREEN/YELLOW/RED)."""
-    return FRUIT_GUIDE
+    return enrich_guide(FRUIT_GUIDE, "fruits")
