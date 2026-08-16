@@ -1,0 +1,43 @@
+{
+  "summary": "Iter 22 backend + frontend tested. P0 grounding bug fix VERIFIED end-to-end: LLM correctly returns 'I don't have verified data for zorplok curry' with NO invented SAFE/CAUTION/AVOID tier. All 15 pytest cases pass (100%). Frontend NL meal-logging flow (login -> /meal-log -> Log by text -> parse -> pick candidates -> commit -> back to /meal-log) works with all required testIDs present.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter22_grounding_and_meal_nl.py",
+    "/app/test_reports/pytest/pytest_iter22.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is now 1760 lines — should be split into routers (auth, foods, meal_logs, ai) in a future iteration."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter22_grounding_and_meal_nl.py (new)"
+  ],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% (all critical flow steps)"},
+  "seed_data_creation": "None — tests use existing food-apple, food-toor-dal seed rows and clean up all created meal logs.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter 22 P0 fix verified: /ai/ask against a made-up dish name ('zorplok curry') returns the exact 'I don't have verified data...' disclaimer with zero tier verdicts. Guide-only foods (khoa RED, water chestnut YELLOW) correctly retrieved via _find_relevant_guide_entries. /ai/log-meal returns parsed items with candidates that OMIT nutrient fields (potassium_mg confirmed absent). No-write invariant confirmed. quantity_multiplier flows through create -> GET list -> summary -> weekly report (67.7 mg avg K delta = 3 * 158 / 7 to 1 decimal). Validation: qty=0 -> 422, qty=15 -> 422, omitted -> default 1.0. Regression endpoints /foods, /foods/food-toor-dal, /auth/me, /meal-logs all 200.",
+  "rca_of_issue": "P0 root cause (per problem statement): base system prompt instructed the model to classify Indian foods as SAFE/CAUTION/AVOID as a blanket rule, and _build_grounded_food_block returned an empty string on no-match so the model happily invented tiers from general knowledge. Fix (verified in this iteration): (a) AI_SYSTEM_PROMPT_BASE now has an explicit GROUNDING RULE that forbids tiering foods absent from the grounded block and dictates the exact 'I don't have verified data' disclaimer response; (b) _build_grounded_food_block now returns an explicit '(no matching food found...)' marker instead of an empty string when both DB and guide retrieval come up empty; (c) _find_relevant_guide_entries added as a second retrieval path over the 6 curated guides so reference-only entries (Khoa, Water Chestnut) are visible to /ai/ask.",
+  "verified_behaviors": {
+    "p0_zorplok_curry": "Response contains 'I don't have verified data for zorplok curry' and zero SAFE/CAUTION/AVOID tokens.",
+    "potato_grounded": "Response cites 420 mg potassium and RED tier with tinda swap suggestion.",
+    "khoa_guide_only": "Response cites RED tier + phosphorus + potassium concern for 30g portion.",
+    "water_chestnut_guide_only": "Response cites YELLOW/singhada with 382 mg K portion.",
+    "tamil_unicode": "மாம்பழம் query returns 200 without crashing.",
+    "meal_nl_parse": "'2 rotis, 1 katori dal, small bowl of curd' yields 3 items with roti qty=2.0, each with 5 candidates, no potassium_mg leaked in candidates.",
+    "no_write_invariant": "meal_logs count identical before/after /ai/log-meal.",
+    "qty_summary": "food-apple K=158; qty=2 log -> summary shows 316 mg (2x).",
+    "qty_validation": "422 on qty=0 and qty=15; default 1.0 when omitted.",
+    "weekly_scaling": "Delta = 67.7 mg matches expected 3*158/7 exactly to 1 decimal.",
+    "frontend_nl_flow": "Login -> Meals tab -> 'Log by text' green button -> /log-meal-nl -> input '2 rotis, 1 katori dal' -> Parse & preview -> 2 item cards with 5 candidates each and qty controls (qty-0 shows 2 auto-populated from LLM) -> select candidates -> Confirm & log -> navigates back to /meal-log."
+  }
+}

@@ -229,6 +229,10 @@ class MealLogCreate(BaseModel):
     food_id: str
     date: str
     meal_type: MealType = "meal"
+    # How many "one portion" units of the food were eaten. 1.0 = one standard
+    # portion (the food's stored per-portion K/P/Na/protein/fluid values).
+    # Capped at 10 to catch obvious NLP-parse errors like "twenty rotis".
+    quantity_multiplier: float = Field(default=1.0, gt=0.0, le=10.0)
 
     @field_validator("date")
     @classmethod
@@ -245,8 +249,57 @@ class MealLogOut(BaseModel):
     food_id: str
     date: str
     meal_type: str
+    quantity_multiplier: float = 1.0
     food: FoodOut
     created_at: str
+
+
+class AiLogMealRequest(BaseModel):
+    """Free-text meal description to parse into loggable items.
+
+    Example: {"text":"2 rotis, 1 katori dal, small bowl curd",
+              "date":"2026-08-20", "meal_type":"lunch", "lang":"en"}
+    """
+    text: str
+    date: str
+    meal_type: MealType = "meal"
+    lang: Optional[Literal["en", "hi", "ta", "bn", "mr"]] = "en"
+
+    @field_validator("date")
+    @classmethod
+    def _v_date(cls, v: str) -> str:
+        try:
+            date_cls.fromisoformat(v)
+        except (ValueError, TypeError) as e:
+            raise ValueError("date must be a valid YYYY-MM-DD calendar date") from e
+        return v
+
+
+class ParsedMealItem(BaseModel):
+    """One item extracted from the user's free-text meal description.
+
+    * `item_text` is the exact user words (never LLM-invented food name).
+    * `quantity_multiplier` is what the LLM extracted from phrases like
+      "2 rotis" (→ 2.0) or "half katori" (→ 0.5).
+    * `outcome` tells the frontend what to render:
+        - "match_single": one confident match; needs one-tap confirmation
+        - "match_multiple": several candidates; user must pick
+        - "no_match": nothing found; user can search manually or skip
+    * `candidates` is a compact list of {food_id, name, hindi_name, safety_tier}
+      the frontend can render as choices. Nutrient totals are NEVER included
+      here — they're computed at commit time from the canonical food doc.
+    """
+    item_text: str
+    quantity_multiplier: float = Field(default=1.0, gt=0.0, le=10.0)
+    outcome: Literal["match_single", "match_multiple", "no_match"]
+    candidates: List[dict] = []
+
+
+class AiLogMealResponse(BaseModel):
+    parsed_items: List[ParsedMealItem]
+    # Frontend renders a confirmation screen; on confirm it fires
+    # POST /meal-logs per item with the food_id + quantity_multiplier.
+    notice: Optional[str] = None
 
 
 class AiAskRequest(BaseModel):
@@ -769,13 +822,14 @@ async def weekly_report(
         food = foods_by_id.get(log["food_id"])
         if not food:
             continue
+        qty = float(log.get("quantity_multiplier", 1.0) or 1.0)
         tier = personal_tier_for(food, current_user.get("stage", "unknown"))
         totals[tier] += 1
         bucket = day_map.setdefault(log["date"], {"green": 0, "yellow": 0, "red": 0})
         bucket[tier.lower()] += 1
         name_by_tier[tier][food["name"]] = name_by_tier[tier].get(food["name"], 0) + 1
         for k in nutrient_totals:
-            nutrient_totals[k] += float(food.get(k, 0) or 0)
+            nutrient_totals[k] += float(food.get(k, 0) or 0) * qty
 
     def top(d: dict, n: int = 3) -> List[str]:
         return [k for k, _ in sorted(d.items(), key=lambda kv: kv[1], reverse=True)[:n]]
@@ -832,8 +886,9 @@ async def meal_log_summary(
             food = foods_by_id.get(log["food_id"])
             if not food:
                 continue
+            qty = float(log.get("quantity_multiplier", 1.0) or 1.0)
             for k in totals:
-                totals[k] += float(food.get(k, 0) or 0)
+                totals[k] += float(food.get(k, 0) or 0) * qty
 
     return MealLogSummary(
         date=date,
@@ -1148,6 +1203,7 @@ async def list_meal_logs(
             food_id=log["food_id"],
             date=log["date"],
             meal_type=log.get("meal_type", "meal"),
+            quantity_multiplier=float(log.get("quantity_multiplier", 1.0)),
             food=enrich_food_sync(food, current_user, fav_ids),
             created_at=log["created_at"],
         ))
@@ -1165,6 +1221,7 @@ async def create_meal_log(body: MealLogCreate, current_user=Depends(get_current_
         "food_id": body.food_id,
         "date": body.date,
         "meal_type": body.meal_type,
+        "quantity_multiplier": float(body.quantity_multiplier),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.meal_logs.insert_one(log)
@@ -1174,6 +1231,7 @@ async def create_meal_log(body: MealLogCreate, current_user=Depends(get_current_
         food_id=log["food_id"],
         date=log["date"],
         meal_type=log["meal_type"],
+        quantity_multiplier=log["quantity_multiplier"],
         food=enrich_food_sync(food, current_user, fav_ids),
         created_at=log["created_at"],
     )
@@ -1191,11 +1249,25 @@ async def delete_meal_log(log_id: str, current_user=Depends(get_current_user)):
 AI_SYSTEM_PROMPT_BASE = (
     "You are a friendly Indian Renal Diet coach for CKD/dialysis patients. "
     "You answer in short, plain language (max 6 sentences). "
-    "Always classify Indian foods as SAFE (green), CAUTION (yellow) or AVOID (red) "
-    "based on potassium, phosphorus, sodium and fluid load. "
-    "When something is unsafe, ALWAYS suggest a kidney-friendly Indian swap. "
-    "Do NOT give medical dosages. Always add a one-line reminder to check with the patient's nephrologist "
-    "for personal targets. Use warm, encouraging tone."
+    "Use warm, encouraging tone. Do NOT give medical dosages. Always add a "
+    "one-line reminder to check with the patient's nephrologist for personal targets. "
+    "\n\n"
+    "GROUNDING RULE — READ CAREFULLY:\n"
+    "You may ONLY classify a specific food as SAFE (green), CAUTION (yellow) or "
+    "AVOID (red) when that exact food appears in the GROUNDED FOOD DATA block "
+    "below. Do NOT estimate a food's safety from general knowledge — the app's "
+    "verified database is the single source of truth, and general nutrition data "
+    "for Indian foods often differs from what CKD patients actually need.\n"
+    "\n"
+    "If the patient asks about a food that is NOT in the GROUNDED FOOD DATA "
+    "block, respond plainly: 'I don't have verified data for that food in the "
+    "app's database yet. Please use the Search or Scan feature to look it up, "
+    "or ask your dietitian.' — do NOT guess a tier, do NOT invent K/P/Na numbers. "
+    "You can still answer general (non-food-specific) questions about CKD diet "
+    "principles without needing a grounded match.\n"
+    "\n"
+    "When a food IS in the grounded block and its tier is RED, ALWAYS suggest a "
+    "kidney-friendly Indian swap using the 'recommended swap' line if provided."
 )
 
 
@@ -1222,8 +1294,9 @@ async def _build_ai_context(user: dict, lang: str) -> str:
             food = foods_by_id.get(log["food_id"])
             if not food:
                 continue
+            qty = float(log.get("quantity_multiplier", 1.0) or 1.0)
             for k in totals:
-                totals[k] += float(food.get(k, 0) or 0)
+                totals[k] += float(food.get(k, 0) or 0) * qty
 
     stage_label = {
         "dialysis": "on dialysis (hemodialysis or peritoneal)",
@@ -1270,19 +1343,38 @@ def _lang_instruction(name: str, script: str, sample: str) -> str:
     )
 
 
-# Common English + Hindi filler words to strip when picking search tokens from
-# the user's question. Everything else of length >= 3 becomes a search term.
+# Common filler words across the app's 5 supported languages. Stripped from
+# the user's question before token search — anything else of length >= 3 is a
+# candidate search term. Missing a language's stopwords doesn't break search,
+# but it *pollutes* the OR-regex with grammatical particles and degrades match
+# quality specifically for that language.
 _AI_STOPWORDS: Set[str] = {
+    # English
     "the", "and", "for", "are", "any", "can", "you", "will", "have", "has", "had", "with",
     "this", "that", "these", "those", "what", "which", "when", "where", "how", "why",
     "safe", "eat", "ate", "eating", "food", "foods", "should", "shall", "would", "could",
     "kidney", "renal", "dialysis", "ckd", "ok", "okay", "good", "bad", "high", "low",
     "diet", "much", "many", "some", "more", "less", "than", "then", "into", "about",
-    "please", "help", "give", "tell", "know",
-    # Hindi
+    "please", "help", "give", "tell", "know", "much",
+    # Hindi (Devanagari)
     "क्या", "है", "हैं", "हो", "कर", "करना", "मुझे", "मेरे", "मेरा", "मेरी",
     "खा", "खाना", "खाऊं", "खाऊँ", "सकते", "सकता", "सकती", "किसे", "किन",
     "और", "या", "के", "की", "का", "को", "में", "पर", "से", "यह", "वह",
+    # Marathi (Devanagari — some overlap with Hindi is OK)
+    "आहे", "आहेत", "मला", "माझे", "माझा", "माझी", "तुम्ही", "तुझे",
+    "खाऊ", "खाणे", "शकतो", "शकते", "शकतात", "कशाला",
+    "आणि", "किंवा", "साठी", "मध्ये", "पण", "जर", "तर",
+    # Tamil script
+    "நான்", "நீ", "நீங்கள்", "என்", "என்ன", "எப்படி", "எப்போது", "எங்கே", "ஏன்",
+    "சாப்பிட", "சாப்பிடலாமா", "சாப்பிட்டேன்", "சாப்பாடு",
+    "மற்றும்", "அல்லது", "ஒரு", "இது", "அது", "இல்லை",
+    "பாதுகாப்பான", "பாதுகாப்பு", "சிறுநீரக",
+    # Bengali script
+    "আমি", "তুমি", "আপনি", "আমার", "তোমার", "আপনার",
+    "কি", "কী", "কেন", "কেমন", "কোথায়", "কখন",
+    "খাবার", "খাওয়া", "খেতে", "পারি", "পারব", "পারবো",
+    "এবং", "অথবা", "একটি", "এটি", "সেটি", "নয়", "না",
+    "নিরাপদ", "কিডনি", "ডায়ালিসিস",
 }
 
 
@@ -1295,20 +1387,7 @@ async def _find_relevant_foods(
     case-insensitive regex OR-match on food name / hindi_name / category.
     Returns at most `limit` distinct food docs.
     """
-    if not question:
-        return []
-    # Normalize punctuation → spaces; keep Devanagari intact.
-    cleaned = re.sub(r"[^\w\u0900-\u097F]+", " ", question, flags=re.UNICODE).strip()
-    if not cleaned:
-        return []
-    tokens: List[str] = []
-    seen: Set[str] = set()
-    for raw in cleaned.split():
-        t = raw.lower()
-        if len(t) < 3 or t in _AI_STOPWORDS or t in seen:
-            continue
-        seen.add(t)
-        tokens.append(t)
+    tokens = _tokenize_question(question)
     if not tokens:
         return []
 
@@ -1331,11 +1410,113 @@ async def _find_relevant_foods(
     return found
 
 
+def _tokenize_question(question: str) -> List[str]:
+    """Shared tokenizer used by every retrieval path (foods, guides, meal-log
+    extraction). Splits on whitespace/punctuation, keeps Devanagari, Tamil,
+    and Bengali intact, drops multilingual stopwords, deduplicates."""
+    if not question:
+        return []
+    cleaned = re.sub(
+        r"[^\w"
+        r"\u0900-\u097F"  # Devanagari
+        r"\u0B80-\u0BFF"  # Tamil
+        r"\u0980-\u09FF"  # Bengali
+        r"]+",
+        " ",
+        question,
+        flags=re.UNICODE,
+    ).strip()
+    if not cleaned:
+        return []
+    tokens: List[str] = []
+    seen: Set[str] = set()
+    for raw in cleaned.split():
+        t = raw.lower()
+        if len(t) < 3 or t in _AI_STOPWORDS or t in seen:
+            continue
+        seen.add(t)
+        tokens.append(t)
+    return tokens
+
+
+# Guide files that /ai/ask needs to see. Kept in one place so a future addition
+# (e.g. dessert_guide.py) can be plugged in by extending this list.
+_GUIDE_SOURCES: List[tuple[str, str, "callable"]] = []  # populated at import
+
+
+def _register_guides() -> None:
+    """Late binding — imports the guide getters here to avoid a circular import
+    order concern with this module's own top-level guide imports."""
+    global _GUIDE_SOURCES
+    _GUIDE_SOURCES = [
+        ("fruit",     "fruits",     get_fruit_guide),
+        ("vegetable", "vegetables", get_vegetable_guide),
+        ("snack",     "snacks",     get_snack_guide),
+        ("beverage",  "beverages",  get_beverage_guide),
+        ("protein",   "proteins",   get_protein_guide),
+        ("grain",     "grains",     get_grain_guide),
+    ]
+
+
+def _find_relevant_guide_entries(question: str, limit: int = 6) -> List[dict]:
+    """Second retrieval path — matches the same tokens against the 5+ curated
+    guide files. Returns a flat list of {guide, tier, entry} rows so the
+    grounded-food block can render them alongside DB foods. Some guide entries
+    are intentionally reference-only (linked_food_id=None) and never make it
+    into db.foods, so this path is required to close the visibility gap for
+    /ai/ask questions like 'is khoa safe?' or 'what about water chestnut?'."""
+    if not _GUIDE_SOURCES:
+        _register_guides()
+    tokens = _tokenize_question(question)
+    if not tokens:
+        return []
+    lower_tokens = [t.lower() for t in tokens]
+    matches: List[dict] = []
+    seen: Set[str] = set()
+    for guide_name, entries_key, getter in _GUIDE_SOURCES:
+        try:
+            guide = getter()
+        except Exception:
+            continue
+        for tier_key, tier_data in guide.items():
+            if not isinstance(tier_data, dict) or entries_key not in tier_data:
+                continue
+            for entry in tier_data[entries_key]:
+                haystack = f"{entry.get('name','')} {entry.get('hindi','')}".lower()
+                if not any(tok in haystack for tok in lower_tokens):
+                    continue
+                dedupe_key = f"{guide_name}|{entry.get('name','')}"
+                if dedupe_key in seen:
+                    continue
+                seen.add(dedupe_key)
+                matches.append({
+                    "guide": guide_name,
+                    "tier": tier_key,
+                    "entry": entry,
+                })
+                if len(matches) >= limit:
+                    return matches
+    return matches
+
+
 async def _build_grounded_food_block(question: str, user: dict) -> str:
-    """Inject authoritative food classifications matching the question."""
+    """Inject authoritative food classifications matching the question.
+
+    Also queries the 5 curated guide files so that reference-only entries
+    (Khoa, Water Chestnut, Bael, etc. — no linked_food_id) are still visible
+    to /ai/ask. Returns an explicit "no match" marker rather than an empty
+    string when nothing matches — the base system prompt's grounding rule
+    depends on this signal to stop the model from guessing."""
     foods = await _find_relevant_foods(question, user)
-    if not foods:
-        return ""
+    guide_hits = _find_relevant_guide_entries(question, limit=6)
+
+    if not foods and not guide_hits:
+        return (
+            "\n\n---\nGROUNDED FOOD DATA:\n"
+            "(no matching food found in the app's verified database or curated "
+            "guides for this question — per the grounding rule above, do NOT "
+            "invent a tier or numbers for whatever food the user named)"
+        )
 
     stage: Stage = user.get("stage", "unknown") or "unknown"  # type: ignore
     lines: List[str] = [
@@ -1372,6 +1553,30 @@ async def _build_grounded_food_block(question: str, user: dict) -> str:
                         f"— {swap.get('clinical_benefit_explanation','')}"
                     )
         lines.extend(parts)
+
+    # Guide-only matches (reference-only, sometimes not present in db.foods).
+    for hit in guide_hits:
+        e = hit["entry"]
+        na = e.get("sodium_mg")
+        na_str = f"Na {int(na)} mg" if isinstance(na, (int, float)) else "Na not sourced"
+        p_val = e.get("phosphorus_mg")
+        p_str = f"P {int(p_val)} mg, " if isinstance(p_val, (int, float)) else ""
+        src = f"  source: {e['source']}" if e.get("source") else ""
+        lines.append(
+            f"- {e.get('name','')} ({e.get('hindi','')}) — tier: {hit['tier']} [from {hit['guide']}_guide]"
+        )
+        lines.append(
+            f"  portion: {e.get('serving','')} · per portion: "
+            f"K {int(e.get('potassium_mg', 0))} mg "
+            f"({e.get('potassium_meq', e.get('potassium_mg',0)/39.1):.1f} mEq), "
+            f"{p_str}{na_str}"
+            + (f" — HIGH SODIUM WARNING" if e.get('high_sodium') else "")
+        )
+        if e.get("note"):
+            lines.append(f"  note: {e['note']}")
+        if src:
+            lines.append(src)
+
     return "\n".join(lines)
 
 
@@ -1400,6 +1605,140 @@ async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_
     except Exception:
         logger.exception("AI ask failed")
         raise HTTPException(status_code=502, detail="AI service temporarily unavailable")
+
+
+# ==================== AI LOG-MEAL (natural-language meal parsing) ====================
+_LOG_MEAL_EXTRACT_PROMPT = (
+    "You are a strict structural parser for a renal-diet meal logger. Extract only "
+    "the eaten items and their portion counts from the user's free-text meal "
+    "description. NEVER invent food names not mentioned by the user. NEVER add "
+    "nutrient values, safety tiers, or database identifiers — that is done by the "
+    "application after your response.\n"
+    "\n"
+    "Output ONLY a JSON array. Each element must be an object with exactly these "
+    "keys:\n"
+    "  item_text: str  — the food-item words as the user wrote them (lower-cased, "
+    "singular-form OK if obvious, no editorial changes)\n"
+    "  quantity_multiplier: number — count of servings. '2 rotis' → 2.0, "
+    "'half katori' or 'half cup' → 0.5, 'one small bowl' → 1.0. Default 1.0 when "
+    "not stated. Cap absurd values at 10.\n"
+    "\n"
+    "Example input: '2 rotis, 1 katori dal, small bowl of curd'\n"
+    "Example output: [\n"
+    '  {"item_text":"roti","quantity_multiplier":2.0},\n'
+    '  {"item_text":"dal","quantity_multiplier":1.0},\n'
+    '  {"item_text":"curd","quantity_multiplier":1.0}\n'
+    "]\n"
+    "\n"
+    "Reply with ONLY the JSON array and nothing else."
+)
+
+
+def _safety_summary_for_candidate(food: dict, user: dict) -> dict:
+    """Compact food summary shipped as a candidate for user confirmation. No
+    computed nutrient totals — the frontend needs enough to render a choice."""
+    return {
+        "food_id": food["id"],
+        "name": food.get("name", ""),
+        "hindi_name": food.get("hindi_name", ""),
+        "category": food.get("category", ""),
+        "safety_tier": personal_tier_for(food, user.get("stage", "unknown")),
+        "portion_limit_text": food.get("portion_limit_text", ""),
+    }
+
+
+async def _resolve_meal_item(item: dict, user: dict) -> ParsedMealItem:
+    """Turn one {item_text, quantity_multiplier} extracted item into a
+    ParsedMealItem with outcome + candidates. Reuses _find_relevant_foods so
+    /ai/log-meal and /ai/ask share ONE retrieval implementation."""
+    text = str(item.get("item_text", "")).strip()
+    try:
+        qty = float(item.get("quantity_multiplier", 1.0))
+    except (TypeError, ValueError):
+        qty = 1.0
+    qty = max(0.1, min(qty, 10.0))
+
+    if not text:
+        return ParsedMealItem(
+            item_text=text, quantity_multiplier=qty,
+            outcome="no_match", candidates=[]
+        )
+
+    matches = await _find_relevant_foods(text, user, limit=5)
+    if not matches:
+        return ParsedMealItem(
+            item_text=text, quantity_multiplier=qty,
+            outcome="no_match", candidates=[]
+        )
+
+    candidates = [_safety_summary_for_candidate(f, user) for f in matches]
+    outcome: Literal["match_single", "match_multiple"] = (
+        "match_single" if len(candidates) == 1 else "match_multiple"
+    )
+    return ParsedMealItem(
+        item_text=text, quantity_multiplier=qty,
+        outcome=outcome, candidates=candidates
+    )
+
+
+@api.post("/ai/log-meal", response_model=AiLogMealResponse)
+@limiter.limit("10/minute", key_func=_rate_key_user)
+async def ai_log_meal(
+    request: Request, body: AiLogMealRequest,
+    current_user=Depends(get_current_user),
+):
+    """Parse free-text meal description into loggable items.
+
+    Strictly retrieval-then-confirm — the LLM only extracts structure from the
+    user's own words; every food identity + nutrient number comes from
+    _find_relevant_foods against the app's verified DB. The endpoint NEVER
+    writes to meal_logs on its own — the frontend renders a confirmation
+    screen and calls POST /meal-logs per confirmed item.
+    """
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=503, detail="AI service is not configured")
+    text = (body.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Meal description cannot be empty")
+
+    # 1. LLM extraction — structure only, no nutrient generation.
+    extracted: List[dict] = []
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        session_id = f"user-{current_user['id']}-mealparse"
+        chat = (
+            LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=session_id,
+                system_message=_LOG_MEAL_EXTRACT_PROMPT,
+            )
+            .with_model("anthropic", "claude-sonnet-4-5-20250929")
+        )
+        raw = await chat.send_message(UserMessage(text=text))
+        raw_str = str(raw).strip()
+        # Strip ```json fences if the model added them.
+        if raw_str.startswith("```"):
+            raw_str = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_str, flags=re.IGNORECASE)
+        import json as _json
+        parsed = _json.loads(raw_str)
+        if isinstance(parsed, list):
+            extracted = [x for x in parsed if isinstance(x, dict)]
+    except Exception:
+        logger.exception("Meal-text extraction failed; falling back to whole-string retrieval")
+        extracted = [{"item_text": text, "quantity_multiplier": 1.0}]
+
+    if not extracted:
+        return AiLogMealResponse(
+            parsed_items=[],
+            notice="Couldn't identify any food items in that message. Please describe your meal like '2 rotis, 1 katori dal'.",
+        )
+
+    # 2. Retrieval per item — reuses the same _find_relevant_foods as /ai/ask.
+    resolved: List[ParsedMealItem] = []
+    for item in extracted[:20]:  # protective cap
+        resolved.append(await _resolve_meal_item(item, current_user))
+
+    return AiLogMealResponse(parsed_items=resolved)
 
 
 @api.get("/")

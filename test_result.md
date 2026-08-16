@@ -854,3 +854,105 @@ test_plan_iter21:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 22 (AI grounding fix + NL meal log + guide retrieval + multilingual stopwords) ----------------
+
+backend_iter22:
+  - task: "P0 BUG FIX: /ai/ask no longer silently ungrounds itself when no food matches"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (AI_SYSTEM_PROMPT_BASE + _build_grounded_food_block)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          System prompt rewritten with an explicit GROUNDING RULE: only classify a
+          food as SAFE/CAUTION/AVOID if it appears in the grounded block.
+          _build_grounded_food_block now returns an explicit '(no matching food
+          found ... do NOT invent a tier)' marker when both DB and guides miss,
+          so the model sees a signal rather than an empty append. This is the
+          reported live bug — MUST be verified end-to-end by the testing_agent
+          before it can be considered fixed.
+  - task: "Extend /ai/ask retrieval to 5+ guide files (option-b: sibling function, no data duplication)"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (_find_relevant_guide_entries + updated _build_grounded_food_block)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Multilingual stopwords + Tamil/Bengali script preserved in tokenizer"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (_AI_STOPWORDS + _tokenize_question)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "New endpoint POST /api/ai/log-meal — retrieval-then-confirm meal parsing"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (/ai/log-meal, ParsedMealItem, AiLogMealResponse)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          LLM only extracts {item_text, quantity_multiplier} pairs — never invents
+          food IDs or nutrient numbers. Each extracted item runs through the
+          existing _find_relevant_foods retrieval. Returns match_single |
+          match_multiple | no_match per item. Endpoint NEVER writes to
+          meal_logs — the frontend must render a confirmation screen and call
+          POST /meal-logs per confirmed item.
+  - task: "quantity_multiplier added to MealLogCreate/MealLogOut and applied at every summation site"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (MealLogCreate, MealLogOut, create_meal_log, list_meal_logs, meal_log_summary, weekly_report, _build_ai_context)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Field: float default 1.0, validators gt=0 le=10. Multiplied into K/P/Na/protein/fluid
+          totals in: meal_log_summary, weekly report avg, _build_ai_context daily intake.
+          MealLogOut carries the value back so the frontend can display it.
+          Legacy logs without the field default to 1.0 via .get(...,1.0).
+
+frontend_iter22:
+  - task: "New /log-meal-nl screen — describe meal in text, parse, confirm, commit"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/log-meal-nl.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "'Log by text' button added to meal-log screen header"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/meal-log.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+
+test_plan_iter22:
+  current_focus:
+    - "PRIMARY (bug): POST /api/ai/ask with a made-up dish name like 'zorplok curry' should NOT return a confident SAFE/CAUTION/AVOID tier. Response should contain a variant of 'I don't have verified data for that food' (or the localized equivalent). The system prompt's grounding rule and the grounded-block no-match marker together must prevent the model from guessing."
+    - "PRIMARY (bug regression): POST /api/ai/ask with a real food from db.foods (e.g. 'is potato safe for me?' with a demo user) should still return a grounded, tier-cited answer as before."
+    - "Guide-only visibility: POST /api/ai/ask with 'is khoa safe?' or 'what about water chestnut?' should now return a grounded answer citing the guide entry — these foods have no linked_food_id in db.foods so they were previously invisible to /ai/ask."
+    - "Tamil-language question: POST /api/ai/ask with lang='ta' and a question containing a known food name in Tamil script should retrieve the food. Verify at minimum that the tokenizer preserves Tamil unicode and that stopwords are stripped (see _tokenize_question)."
+    - "POST /api/ai/log-meal with body {text:'2 rotis, 1 katori dal, small bowl of curd', date:'2026-08-16', meal_type:'lunch', lang:'en'} returns parsed_items array with 3 elements. Each has quantity_multiplier (roti=2 or 2.0, others =1.0), outcome ∈ {match_single,match_multiple,no_match}, and 0+ candidates (never nutrient totals)."
+    - "The endpoint MUST NOT write to db.meal_logs. Verify by counting meal_logs before and after the call for the demo user — count should be identical."
+    - "POST /api/meal-logs accepts quantity_multiplier: 2.0. GET /api/meal-logs echoes it. GET /api/meal-logs/summary shows K totals ~2x the food's stored K when qty=2."
+    - "POST /api/meal-logs rejects quantity_multiplier: 0 (must be >0) and quantity_multiplier: 15 (must be <=10) with 422."
+    - "GET /api/reports/weekly avg_daily nutrient totals scale with quantity_multiplier for aggregated logs."
+    - "Regression: /api/foods/guide-*, /api/foods list, /api/auth still function normally."
+    - "FRONTEND: /log-meal-nl screen accepts text, calls parseMealText, renders parsed items with candidate rows or 'not in database' pills, allows +/- quantity, then commits via addMealLog per confirmed item and navigates back to /meal-log."
+    - "FRONTEND: /meal-log screen shows a 'Log by text' primary button that opens /log-meal-nl."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"

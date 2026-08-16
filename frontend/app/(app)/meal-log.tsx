@@ -88,6 +88,15 @@ export default function MealLogScreen() {
           </TouchableOpacity>
         </View>
 
+        <TouchableOpacity
+          testID="open-log-by-text"
+          style={styles.logByTextBtn}
+          onPress={() => router.push({ pathname: "/log-meal-nl", params: { date, meal_type: "meal" } })}
+        >
+          <Ionicons name="sparkles" size={18} color={COLORS.textInverse} />
+          <Text style={styles.logByTextText}>{t("logByText")}</Text>
+        </TouchableOpacity>
+
         <View style={styles.dateNav}>
           <TouchableOpacity
             testID="prev-day"
@@ -210,6 +219,17 @@ const styles = StyleSheet.create({
     borderColor: COLORS.brand,
   },
   reportBtnText: { color: COLORS.brand, fontWeight: "700", fontSize: FONT.label },
+  logByTextBtn: {
+    marginTop: SIZE.s,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: SIZE.radiusPill,
+    backgroundColor: COLORS.brand,
+  },
+  logByTextText: { color: COLORS.textInverse, fontWeight: "700", fontSize: FONT.body },
   title: { fontSize: FONT.h1, fontWeight: "800", color: COLORS.textPrimary },
   dateNav: {
     flexDirection: "row",

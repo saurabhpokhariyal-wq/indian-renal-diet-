@@ -38,6 +38,29 @@ export const translations: Record<string, Entry> = {
   menuAISub: { en: "Ask diet questions in simple language", hi: "सरल भाषा में डाइट से जुड़े सवाल पूछें" },
   menuSettingsSub: { en: "Language, health profile and limits", hi: "भाषा, हेल्थ प्रोफ़ाइल और सीमाएँ" },
 
+  // Natural-language meal logging (iter 22)
+  logByText: { en: "Log by text", hi: "टेक्स्ट से लॉग करें" },
+  logByTextTitle: { en: "Describe your meal", hi: "अपना भोजन बताइए" },
+  logByTextSub: {
+    en: "Type or paste what you ate, in your own words. Example: '2 rotis, 1 katori dal, small bowl curd'.",
+    hi: "अपने शब्दों में लिखें कि आपने क्या खाया। जैसे: '2 रोटी, 1 कटोरी दाल, छोटी कटोरी दही'।",
+  },
+  parseMeal: { en: "Parse & preview", hi: "पहचानें और देखें" },
+  parsing: { en: "Parsing…", hi: "पहचान रहा है…" },
+  confirmAndLog: { en: "Confirm & log", hi: "पुष्टि कर के लॉग करें" },
+  pickMatch: { en: "Pick the closest match", hi: "सबसे मिलती-जुलती चीज़ चुनें" },
+  noMatch: {
+    en: "Not in the app database yet. Skip or search manually.",
+    hi: "अभी ऐप के डेटाबेस में नहीं है। छोड़ दें या खोजें।",
+  },
+  quantityLabel: { en: "Quantity", hi: "मात्रा" },
+  skipItem: { en: "Skip", hi: "छोड़ें" },
+  emptyMealText: {
+    en: "Please describe your meal first.",
+    hi: "पहले अपना भोजन बताइए।",
+  },
+  loggedCount: { en: "{n} item(s) logged", hi: "{n} चीज़ें लॉग हुईं" },
+
   loginTitle: {
     en: "Welcome back",
     hi: "फिर से स्वागत है",

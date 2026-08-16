@@ -114,8 +114,30 @@ export interface MealLogOut {
   food_id: string;
   date: string;
   meal_type: string;
+  quantity_multiplier?: number;
   food: FoodOut;
   created_at: string;
+}
+
+export interface MealItemCandidate {
+  food_id: string;
+  name: string;
+  hindi_name: string;
+  category: string;
+  safety_tier: SafetyTier;
+  portion_limit_text: string;
+}
+
+export interface ParsedMealItem {
+  item_text: string;
+  quantity_multiplier: number;
+  outcome: "match_single" | "match_multiple" | "no_match";
+  candidates: MealItemCandidate[];
+}
+
+export interface AiLogMealResponse {
+  parsed_items: ParsedMealItem[];
+  notice?: string | null;
 }
 
 export interface WeeklyReportDay {
@@ -258,14 +280,21 @@ export const api = {
     request<MealLogOut[]>(`/meal-logs?date=${encodeURIComponent(date)}`, {}, true),
   getMealSummary: (date: string) =>
     request<MealLogSummary>(`/meal-logs/summary?date=${encodeURIComponent(date)}`, {}, true),
-  addMealLog: (food_id: string, date: string, meal_type: string = "meal") =>
+  addMealLog: (food_id: string, date: string, meal_type: string = "meal", quantity_multiplier: number = 1.0) =>
     request<MealLogOut>(
       "/meal-logs",
-      { method: "POST", body: JSON.stringify({ food_id, date, meal_type }) },
+      { method: "POST", body: JSON.stringify({ food_id, date, meal_type, quantity_multiplier }) },
       true,
     ),
   deleteMealLog: (id: string) =>
     request<{ success: boolean }>(`/meal-logs/${id}`, { method: "DELETE" }, true),
+
+  parseMealText: (text: string, date: string, meal_type: string = "meal", lang: Lang = "en") =>
+    request<AiLogMealResponse>(
+      "/ai/log-meal",
+      { method: "POST", body: JSON.stringify({ text, date, meal_type, lang }) },
+      true,
+    ),
 
   weeklyReport: (endDate?: string) => {
     const s = endDate ? `?end_date=${endDate}` : "";
