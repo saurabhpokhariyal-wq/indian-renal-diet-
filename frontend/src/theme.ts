@@ -58,15 +58,16 @@ export const FONT = {
 };
 
 export type SafetyTier = "GREEN" | "YELLOW" | "RED";
+export type ScanTier = SafetyTier | "UNVERIFIED";
 
-export const TIER_META: Record<SafetyTier, {
+export const TIER_META: Record<ScanTier, {
   label: string;
   labelHi: string;
   bg: string;
   border: string;
   text: string;
   strong: string;
-  icon: "checkmark-circle" | "warning" | "alert-circle";
+  icon: "checkmark-circle" | "warning" | "alert-circle" | "help-circle";
 }> = {
   GREEN: {
     label: "Safe / Recommended",
@@ -94,5 +95,16 @@ export const TIER_META: Record<SafetyTier, {
     text: COLORS.redText,
     strong: COLORS.redStrong,
     icon: "alert-circle",
+  },
+  // Neutral grey — deliberately NOT reusing YELLOW. "Unverified" means the app
+  // doesn't know, which is a different clinical claim than "caution".
+  UNVERIFIED: {
+    label: "Unverified — not in our database",
+    labelHi: "असत्यापित",
+    bg: COLORS.bgAlt,
+    border: COLORS.border,
+    text: COLORS.textSecondary,
+    strong: COLORS.textSecondary,
+    icon: "help-circle",
   },
 };

@@ -19,6 +19,7 @@ export default function SettingsScreen() {
   const [k, setK] = useState<string>("");
   const [p, setP] = useState<string>("");
   const [na, setNa] = useState<string>("");
+  const [fluid, setFluid] = useState<string>("");
   const [savingLimits, setSavingLimits] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -40,6 +41,7 @@ export default function SettingsScreen() {
       const v = mgToUserUnit("Na", dl.sodium_mg, currentUnit);
       setNa(currentUnit === "mg" ? String(Math.round(v)) : v.toFixed(1));
     } else setNa("");
+    setFluid(dl?.fluid_ml ? String(dl.fluid_ml) : "");
   }, [user]);
 
   const doSignOut = async () => {
@@ -87,6 +89,7 @@ export default function SettingsScreen() {
           potassium_mg: k ? Math.round(userUnitToMg("K", Number(k), unit)) : null,
           phosphorus_mg: p ? Number(p) : null,
           sodium_mg: na ? Math.round(userUnitToMg("Na", Number(na), unit)) : null,
+          fluid_ml: fluid ? Number(fluid) : null,
         },
       });
       setSavedFlash(true);
@@ -236,6 +239,18 @@ export default function SettingsScreen() {
                 onChangeText={(v) => setNa(unit === "mEq" ? v.replace(/[^0-9.]/g, "") : v.replace(/[^0-9]/g, ""))}
                 keyboardType={unit === "mEq" ? "decimal-pad" : "number-pad"}
                 placeholder={unit === "mEq" ? "e.g. 87" : "e.g. 2000"}
+                placeholderTextColor="#A8A29E"
+              />
+            </View>
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>{t("nutrientFluid")} (ml)</Text>
+              <TextInput
+                testID="settings-limit-fluid"
+                style={styles.input}
+                value={fluid}
+                onChangeText={(v) => setFluid(v.replace(/[^0-9]/g, ""))}
+                keyboardType="number-pad"
+                placeholder="e.g. 1000 (dialysis) / 2000 (pre-dialysis)"
                 placeholderTextColor="#A8A29E"
               />
             </View>

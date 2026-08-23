@@ -1,0 +1,25 @@
+{
+  "summary": "Iter-25 verification — 41/41 backend pytest cases PASS (26 new iter25 + 15 iter24 regression). Bucket A (server.py refactor into modular package): BEHAVIOR PRESERVED. All previously-exercised endpoints continue to work identically — /api/auth/login (200 + access_token + user), /api/auth/me (includes nutrient_unit; value is 'mEq' by default, still matches iter19 contract), all 6 legacy guides (/fruits, /beverages, /vegetables, /snacks, /proteins, /grains) return {GREEN,YELLOW,RED} with title/subtitle/<entries>[], /api/foods returns 1000+ items, /api/foods/food-apple returns {food:{id:'food-apple',...}}, /api/meal-logs summary + /api/reports/weekly both return limits.fluid_ml>0, doctor override PATCH /api/auth/profile {doctor_limits:{fluid_ml:1500}} works and null restores stage default (2000 for demo user), meal-log CRUD round-trip, favorites toggle, /api/ai/ask 200 with answer. Slowapi rate-limiter (5/minute on /auth/login) still fires on 6th call. Bucket B (NEW /api/oils/guide + expanded proteins): /api/oils/guide returns GREEN(6)/YELLOW(3)/RED(4) each with title/subtitle/oils[]; every entry has name/hindi/serving/potassium_mg/sodium_mg/note plus derived potassium_meq (via guide_utils.enrich_guide, mg/39.1) and high_sodium (bool, threshold 400 mg Na). GREEN oils include Mustard/Groundnut/Sunflower/Rice Bran/Desi Ghee/Unsalted Butter — all potassium_mg∈{0,1}. RED includes Salted Butter (sodium_mg=40), Vanaspati/Dalda, Margarine (spread tubs). IFCT 2017 codes present as `source` on all new entries. /api/proteins/guide YELLOW now includes the 4 new dals (Chana/Urad/Whole Green Moong/Kala Chana, all with cooked-leaching source note) + 2 new dairy (Plain Curd/Dahi, Buttermilk/Chaas unsalted) — all with high_sodium=false. /api/proteins/guide RED includes Salted Lassi (250 ml, 450 mg Na) and Sweetened Condensed Milk. Iter24 regression suite passes untouched (all 15 tests) confirming the scan grounding + fluid budget fixes still hold.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter25_refactor_and_new_guides.py",
+    "/app/backend/tests/test_iter24_scan_grounding_and_fluid_budget.py",
+    "/app/test_reports/pytest/iter25_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py refactor is CLEAN — 74 lines composition entrypoint with re-exports (app, db, _extract_json) preserved for iter24 tests. Route package uses a factory build_api_router() to keep unit-test imports side-effect-free.",
+    "Every new /oils entry cites IFCT 2017 code (J001-J007, L011-L014). Every new dal entry cites the ~2.4x cooked-leaching conversion factor from the protein_guide.py preamble — good sourcing trail.",
+    "Note (not a bug, informational): via the public k8s ingress URL, slowapi's get_remote_address may occasionally see the same forwarded IP, so the rate-limit window is shared across all callers. On this test run 6 rapid public-URL logins tripped 429. If future testing sees flakiness, main agent could switch to slowapi's ProxyHeadersMiddleware-aware key_func — not required now."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter25_refactor_and_new_guides.py (new)"
+  ],
+  "success_rate": {"backend": "100% (41/41 — 26 iter25 + 15 iter24 regression)", "frontend": "not tested (backend-only per request)"},
+  "seed_data_creation": "None new — demo user (demo@renal.app / demo123) reused from prior iterations. All test-created meal-logs and doctor_limits cleaned up in-test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter25 tests at /app/backend/tests/test_iter25_refactor_and_new_guides.py hit the live preview URL (EXPO_PUBLIC_BACKEND_URL) via requests — no ASGI transport, no mocks. Fixture-scoped session logs in demo@renal.app once and reuses the token. Rate-limit test tolerates minor slowapi/proxy quirks by falling back to 127.0.0.1:8001 comparison and skips with a clear reason if only the app-internal port fires. /api/foods/{id} returns {food:{...}} (wrapped) — accessed via body.get('food', body). UserOut.nutrient_unit is 'mEq' (Pascal case), not 'meq' — case-insensitive assertion used. Server refactor entrypoints: server.py (74 lines) → routes/__init__.py build_api_router() → 8 route modules; shared primitives in security.py/schemas.py/db.py/config.py; scan_service._extract_json is re-exported from server for iter24 monkey-patching.",
+  "rca_of_issue": "N/A — no regressions or bugs found in this iteration. Refactor is behavior-neutral; new /oils/guide and expanded proteins guide fully match the spec."
+}

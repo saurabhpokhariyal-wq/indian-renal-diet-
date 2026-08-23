@@ -150,6 +150,13 @@ export default function MealLogScreen() {
             unit={unit}
             decimals={unit === "mEq" ? 1 : 0}
           />
+          <NutrientBar
+            testID="budget-fluid"
+            label={t("nutrientFluid")}
+            value={summary?.totals.fluid_ml ?? 0}
+            limit={summary?.limits.fluid_ml ?? 2000}
+            unit="ml"
+          />
         </View>
       </View>
 

@@ -1051,3 +1051,212 @@ test_plan_iter23:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+# ---------------- Iteration 24 (scan grounding fix + fluid budget surfaced) ----------------
+
+backend_iter24:
+  - task: "P0 BUG FIX: /scan/food no longer returns a colored tier for unmatched dishes"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (scan_food + _classify_from_nutrients + FoodScanResponse)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Same class of bug as iter-22 for /ai/ask. Fix:
+          (a) _extract_json parse failure OR empty result → UNVERIFIED + neutral
+              portion/tip strings, no colored tier.
+          (b) Vision LLM's self-reported tier is NEVER trusted — it's only used
+              indirectly via the food_name for a DB lookup. If no match, tier=
+              UNVERIFIED. If match, tier comes from the DB card (personal_tier_for).
+          (c) FoodScanResponse.safety_tier accepts UNVERIFIED literal (via any
+              string; frontend maps colored badges only for GREEN/YELLOW/RED).
+  - task: "P0 BUG FIX: /scan/barcode no longer classifies packs with zero nutrient data"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (scan_barcode + _classify_from_nutrients)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          _classify_from_nutrients now returns ("UNVERIFIED","NONE") when K/P/Na
+          are all zero (Open Food Facts had no nutrients). scan_barcode adds an
+          is_unverified guard: the synthetic bc_* food doc upsert is SKIPPED for
+          UNVERIFIED packs so a patient can't favorite/log a phantom entry. If
+          a DB seed name-match exists, that wins as before.
+  - task: "Fluid budget surfaced end-to-end"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py (NutrientLimits.fluid_ml + limits_for_user)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          NutrientLimits gained fluid_ml field (default 2000). limits_for_user
+          now reads doctor override → stage default (1000ml dialysis / 2000ml
+          otherwise). Doctor_limits already had fluid_ml — profile PATCH already
+          persists it. MealLogSummary.limits and WeeklyReportResponse.limits both
+          now carry fluid_ml.
+
+frontend_iter24:
+  - task: "SafetyBadge + TIER_META gain UNVERIFIED grey/neutral state (never colored)"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/theme.ts, frontend/src/components/SafetyBadge.tsx, frontend/src/lib/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ScanTier = SafetyTier | 'UNVERIFIED'. TIER_META.UNVERIFIED uses bgAlt/
+          border/textSecondary + help-circle icon. Deliberately NOT reusing YELLOW.
+          FoodScan.safety_tier typed as ScanTier so the scan screen must handle
+          all four cases.
+  - task: "Scan screen renders UNVERIFIED without risk/see-more/log affordances"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/scan.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Meal-log + weekly report + weekly-PDF report all show fluid progress bar/row"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/meal-log.tsx, frontend/app/report.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Settings screen accepts a doctor-set fluid_ml override"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(app)/settings.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+
+test_plan_iter24:
+  current_focus:
+    - "PRIMARY BUG (scan/food): POST /api/scan/food with an image of a dish clearly NOT in db.foods should return safety_tier='UNVERIFIED', primary_risk_factor='NONE', portion_limit_text containing 'Not in our verified database yet', matched_food_id=None. Do NOT return GREEN/YELLOW/RED. Note: testing image can be a colored square or a photo of a made-up 'zorplok curry'; the LLM will invent a food_name but the DB lookup will fail → UNVERIFIED."
+    - "PRIMARY BUG (scan/food regression): POST /api/scan/food with a photo/description that the LLM parses as a real DB food (e.g. 'apple' or 'chapati') should still return a colored tier from the DB card, matched_food_id set."
+    - "PRIMARY BUG (scan/food parse fail): if the vision LLM returns unparseable text (no JSON), scan_food must ALSO return UNVERIFIED. Testable by mocking _extract_json to return None or by sending a request the model refuses to parse (harder to force in prod, so pytest-mock the helper if practical)."
+    - "PRIMARY BUG (scan/barcode zero-nutrients): fetch a real barcode that Open Food Facts has NO nutrient data for (or mock the httpx response), verify safety_tier='UNVERIFIED', matched_food_id=None, and no bc_<barcode> food doc was inserted into db.foods."
+    - "PRIMARY BUG (scan/barcode regression): a barcode with proper OFF nutrient data still returns GREEN/YELLOW/RED per _classify_from_nutrients."
+    - "FLUID BUDGET (backend): GET /api/meal-logs/summary returns limits.fluid_ml (>0). GET /api/reports/weekly returns limits.fluid_ml. For a dialysis user, fluid_ml should default to 1000; for pre_dialysis/unknown, 2000."
+    - "FLUID BUDGET (doctor override): PATCH /api/auth/profile body={doctor_limits:{fluid_ml:1500}}. GET /api/meal-logs/summary now returns limits.fluid_ml=1500 (doctor override wins over stage default). Cleanup: unset by patching with null.",
+    - "FLUID BUDGET (frontend, 390x844): log in demo@renal.app/demo123. /meal-log screen shows a Fluid bar in the Today's Budget section (testID budget-fluid). Value/limit reflect current defaults. /report screen shows an avg-fluid bar (testID avg-fluid). Settings screen shows an input testID='settings-limit-fluid'; entering 1500 and tapping Save Limits persists."
+    - "REGRESSION: /api/foods, /api/foods/food-apple, /api/auth/me, /api/meal-logs list/create, /api/ai/ask all still function."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+
+# ================================================================
+# Iter 25 — server.py refactor + IFCT data expansion (dals, dairy, oils)
+# ================================================================
+backend_iter25:
+  - task: "Refactor 1800-line server.py into modular package"
+    implemented: true
+    working: "NA"
+    file: "backend/{config,db,security,schemas,personalization,food_enrichment,ai_service,scan_service,lifespan}.py, backend/routes/*.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Broke server.py (1827 lines) into 9 focused modules + 8 route files:
+            config.py       - env vars, JWT constants
+            db.py           - Motor client + db handle
+            security.py     - hash_pw, JWT, deps, rate-limiter
+            schemas.py      - all Pydantic models + type aliases
+            personalization.py - stage/tier logic, limits_for_user
+            food_enrichment.py - enrich_food_sync/async
+            ai_service.py   - AI system prompts, stopwords, tokenizer, retrieval, grounded block
+            scan_service.py - _extract_json, _classify_from_nutrients, _SCAN_SYSTEM
+            lifespan.py     - startup seeding, index creation, CSV dumps
+            routes/{auth,foods,favorites,meal_logs,reports,guides,scan,ai}.py
+          server.py is now ~60 lines: builds FastAPI app, wires api router, CORS, exception handler.
+          Preserved re-exports: server.app, server.db, server._extract_json (used by iter24 tests).
+          Discovered slowapi + `from __future__ import annotations` + pydantic body params breaks
+          FastAPI's body-field introspection (returns 422). Removed the future-import from routes/*.py.
+  - task: "New fats & oils guide (10 IFCT-sourced entries) + /api/oils/guide endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/oil_guide.py, backend/routes/guides.py, backend/lifespan.py, backend/ai_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          6 GREEN oils (mustard, groundnut, sunflower, rice bran, desi ghee, unsalted butter),
+          3 YELLOW (coconut, olive, sesame), 4 RED (salted butter, vanaspati, margarine, restaurant
+          deep-fry). Every entry has IFCT 2017 code citation. AI-ask retrieval now walks oils too.
+          lifespan.collect_needs_sourcing also flags any missing-sodium rows for QA CSV.
+  - task: "Expand proteins guide: 4 new dal entries + 3 new dairy entries"
+    implemented: true
+    working: "NA"
+    file: "backend/protein_guide.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          YELLOW dals added: Chana Dal (105 mg K), Urad Dal (130), Whole Green Moong (130),
+          Kala Chana (150) — all with IFCT 2017 dry-weight code + explicit ~2.4x cooked-leaching
+          factor comment (per the protein_guide preamble).
+          YELLOW dairy: Plain Curd/Dahi (½ katori), Buttermilk (unsalted).
+          RED dairy: Salted Lassi, Sweetened Condensed Milk.
+
+frontend_iter25:
+  - task: "Fats & Oils Guide screen + Home menu tile"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/oils.tsx, frontend/app/(app)/index.tsx, frontend/src/lib/api.ts, frontend/src/lib/i18n.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          New /oils route wired to <FoodGuideLayout entriesKey='oils' fetchGuide=api.getOilGuide>.
+          Home menu grid gained an 11th tile: 'Fats & Oils Guide' with flask icon + yellow accent.
+          i18n keys: menuOils, menuOilsSub, oilGuideTitle, oilGuideSubtitle, oilGuideIntro across
+          en/hi/ta/bn/mr.
+
+test_plan_iter25:
+  current_focus:
+    - "REFACTOR SMOKE: server import ok, app.routes has all 28 endpoints, /api/auth/login returns 200 with valid demo creds."
+    - "REFACTOR REGRESSION: iter24 test_iter24_scan_grounding_and_fluid_budget.py runs 15/15 (verified in isolation)."
+    - "NEW /api/oils/guide returns tiers GREEN/YELLOW/RED with enriched entries (potassium_meq, high_sodium)."
+    - "NEW proteins guide includes Chana Dal, Urad Dal, Kala Chana, Whole Green Moong, Plain Curd, Buttermilk, Salted Lassi, Sweetened Condensed Milk."
+    - "FRONTEND: Home menu shows 'Fats & Oils Guide' tile that navigates to /oils screen; screen renders 3 tiers with IFCT citations."
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter25:
+  - agent: "main"
+    message: |
+      Refactored server.py into 9 modules + 8 route files. Behavior preserved.
+      Regression check: /api/auth/login, /api/foods, /api/proteins/guide, /api/oils/guide,
+      /api/meal-logs/summary, /api/reports/weekly all return expected shapes.
+      Iter24 pytests (15) all pass in isolation.
+      New content: 10 oils, 4 dals, 4 dairy items — every entry cites IFCT 2017 code.
+

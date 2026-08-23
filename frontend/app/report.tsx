@@ -103,6 +103,7 @@ export default function ReportScreen() {
     <tr><td>Potassium</td><td>${formatBoth("K", r.avg_daily.potassium_mg)}</td><td>${formatBoth("K", r.limits.potassium_mg)}</td><td>${Math.round((r.avg_daily.potassium_mg * 100) / r.limits.potassium_mg)}%</td></tr>
     <tr><td>Phosphorus</td><td>${Math.round(r.avg_daily.phosphorus_mg)} mg</td><td>${r.limits.phosphorus_mg} mg</td><td>${Math.round((r.avg_daily.phosphorus_mg * 100) / r.limits.phosphorus_mg)}%</td></tr>
     <tr><td>Sodium</td><td>${formatBoth("Na", r.avg_daily.sodium_mg)}</td><td>${formatBoth("Na", r.limits.sodium_mg)}</td><td>${Math.round((r.avg_daily.sodium_mg * 100) / r.limits.sodium_mg)}%</td></tr>
+    <tr><td>Fluid</td><td>${Math.round(r.avg_daily.fluid_ml)} ml</td><td>${r.limits.fluid_ml} ml</td><td>${r.limits.fluid_ml ? Math.round((r.avg_daily.fluid_ml * 100) / r.limits.fluid_ml) : 0}%</td></tr>
     <tr><td>Protein</td><td>${r.avg_daily.protein_g.toFixed(1)} g</td><td>—</td><td>—</td></tr>
   </table>
 
@@ -238,6 +239,13 @@ export default function ReportScreen() {
                     limit={mgToUserUnit("Na", report.limits.sodium_mg, unit)}
                     unit={unit}
                     decimals={dec}
+                  />
+                  <NutrientBar
+                    testID="avg-fluid"
+                    label={t("nutrientFluid")}
+                    value={report.avg_daily.fluid_ml}
+                    limit={report.limits.fluid_ml}
+                    unit="ml"
                   />
                 </>
               );

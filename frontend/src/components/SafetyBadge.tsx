@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { COLORS, FONT, SIZE, TIER_META, type SafetyTier } from "@/src/theme";
+import { COLORS, FONT, SIZE, TIER_META, type ScanTier } from "@/src/theme";
 
 interface Props {
-  tier: SafetyTier;
+  tier: ScanTier;
   labelOverride?: string;
   compact?: boolean;
 }

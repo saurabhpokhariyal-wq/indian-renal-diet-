@@ -82,6 +82,15 @@ const MENU: MenuItem[] = [
     accentBg: COLORS.brandLight,
   },
   {
+    key: "oils",
+    icon: "flask",
+    titleKey: "menuOils",
+    subtitleKey: "menuOilsSub",
+    href: "/oils",
+    accent: COLORS.yellowStrong,
+    accentBg: COLORS.yellowBg,
+  },
+  {
     key: "scan",
     icon: "camera",
     titleKey: "menuScan",

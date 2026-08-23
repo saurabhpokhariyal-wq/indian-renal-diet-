@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { NutrientBar } from "@/src/components/NutrientBar";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
-import { api, type FoodScan, type NutrientLimits, type SafetyTier } from "@/src/lib/api";
+import { api, type FoodScan, type NutrientLimits, type ScanTier } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
 import { useLang } from "@/src/lib/language-context";
 import { mgToUserUnit } from "@/src/lib/units";
@@ -417,8 +417,10 @@ function ScanResultCard({
   tSeeMore: string;
   tBrand: string;
 }) {
-  const tier = (result.safety_tier || "YELLOW") as SafetyTier;
+  const rawTier = (result.safety_tier || "UNVERIFIED") as ScanTier;
+  const tier: ScanTier = ["GREEN", "YELLOW", "RED", "UNVERIFIED"].includes(rawTier) ? rawTier : "UNVERIFIED";
   const meta = TIER_META[tier];
+  const isUnverified = tier === "UNVERIFIED";
   return (
     <View testID="scan-result" style={[styles.resultCard, { borderColor: meta.border, backgroundColor: meta.bg }]}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
@@ -429,10 +431,12 @@ function ScanResultCard({
         </View>
         <SafetyBadge tier={tier} compact />
       </View>
-      <Text style={styles.resultLine}><Text style={styles.bold}>Risk: </Text>{result.primary_risk_factor}</Text>
+      {isUnverified ? null : (
+        <Text style={styles.resultLine}><Text style={styles.bold}>Risk: </Text>{result.primary_risk_factor}</Text>
+      )}
       <Text style={styles.resultLine}><Text style={styles.bold}>Portion: </Text>{result.portion_limit_text}</Text>
       <Text style={styles.resultLine}>{result.clinical_tip}</Text>
-      {result.matched_food_id ? (
+      {result.matched_food_id && !isUnverified ? (
         <TouchableOpacity testID="scan-see-details" style={styles.linkBtn} onPress={onSeeMore}>
           <Text style={styles.linkText}>{tSeeMore}</Text>
           <Ionicons name="arrow-forward" size={16} color={COLORS.brand} />

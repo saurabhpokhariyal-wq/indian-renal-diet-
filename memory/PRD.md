@@ -111,3 +111,30 @@ See `/app/memory/test_credentials.md`.
     whenever the identified name matches a seeded food.
   - Placeholder `/app/README.md` replaced with a real README covering the
     app, stack, layout, setup steps, env vars, and medical disclaimer.
+- Iteration 25 (server.py refactor + IFCT data expansion): 41/41 backend ✅
+  - Split `server.py` (1827 lines) into 9 focused modules + 8 route files:
+    * `config.py`, `db.py`, `security.py`, `schemas.py`,
+      `personalization.py`, `food_enrichment.py`, `ai_service.py`,
+      `scan_service.py`, `lifespan.py`
+    * `routes/{auth,foods,favorites,meal_logs,reports,guides,scan,ai}.py`
+    * `server.py` is now a ~60-line composition entrypoint (re-exports
+      `app`, `db`, `_extract_json` for iter24 test compatibility).
+    * Behavior-neutral — 26 legacy endpoints + all iter24 regression
+      tests (15/15) still pass unchanged.
+    * Caveat noted: `from __future__ import annotations` breaks
+      slowapi + FastAPI body-param introspection (422 on Pydantic body
+      models). Route modules must NOT use that pragma.
+  - New **Fats & Oils Guide** (7th curated guide): `GET /api/oils/guide`
+    with 13 entries (6 GREEN, 3 YELLOW, 4 RED). Every entry cites the
+    IFCT 2017 code as `source`. New `oil_guide.py` mirrors the other
+    guides' structure so `guide_utils.enrich_guide` derives
+    `potassium_meq` + `high_sodium` automatically. AI-ask retrieval now
+    walks oils too (via `_GUIDE_SOURCES` in `ai_service.py`).
+  - Expanded proteins guide: 4 new dals (Chana Dal, Urad Dal, Whole
+    Green Moong, Kala Chana — cooked-leaching factor applied per the
+    guide's preamble) + 2 new dairy items in YELLOW (Plain Curd,
+    Buttermilk/Chaas) + 2 new dairy in RED (Salted Lassi, Sweetened
+    Condensed Milk).
+  - Frontend: new `/oils` route + `<FoodGuideLayout entriesKey="oils">`,
+    Home menu grid gains an 11th "Fats & Oils Guide" tile (flask icon,
+    yellow accent), i18n keys added for en/hi/ta/bn/mr.

@@ -44,6 +44,7 @@ async function request<T>(
 
 // ---------------- Types ----------------
 export type SafetyTier = "GREEN" | "YELLOW" | "RED";
+export type ScanTier = SafetyTier | "UNVERIFIED";
 export type Stage = "pre_dialysis" | "dialysis" | "unknown";
 
 export interface FoodOut {
@@ -159,6 +160,7 @@ export interface NutrientLimits {
   potassium_mg: number;
   phosphorus_mg: number;
   sodium_mg: number;
+  fluid_ml: number;
 }
 
 export interface MealLogSummary {
@@ -185,7 +187,7 @@ export interface WeeklyReport {
 export interface FoodScan {
   food_name: string;
   hindi_name: string | null;
-  safety_tier: SafetyTier;
+  safety_tier: ScanTier;
   primary_risk_factor: string;
   portion_limit_text: string;
   clinical_tip: string;
@@ -314,6 +316,7 @@ export const api = {
   getSnackGuide: () => request<Record<string, { title: string; subtitle: string; snacks: FruitEntry[] }>>("/snacks/guide", {}, true),
   getProteinGuide: () => request<Record<string, { title: string; subtitle: string; proteins: FruitEntry[] }>>("/proteins/guide", {}, true),
   getGrainGuide: () => request<Record<string, { title: string; subtitle: string; grains: FruitEntry[] }>>("/grains/guide", {}, true),
+  getOilGuide: () => request<Record<string, { title: string; subtitle: string; oils: FruitEntry[] }>>("/oils/guide", {}, true),
 
   askAi: (question: string, lang: Lang = "en") =>
     request<{ answer: string }>("/ai/ask", { method: "POST", body: JSON.stringify({ question, lang }) }, true),
