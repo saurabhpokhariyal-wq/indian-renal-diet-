@@ -33,6 +33,6 @@
   "seed_data_creation": "Registered a throwaway test user (test_<uuid>@renal.app) during register test — one-off, no cleanup needed. Demo user (demo@renal.app) already present and reused. Meal-log create test cleans up after itself via DELETE.",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Backend base URL: https://kidney-safe-swap.preview.emergentagent.com/api. Demo user demo@renal.app / demo123. Tab labels are 'Search', 'Meals', 'Ask AI', 'Settings' (NOT 'Meal Log'). All 35 seeded foods have IDs like food-<slug>. Smart-swap only returned for RED tier foods.",
+  "context_for_next_testing_agent": "Backend base URL: https://safe-food-guide-1.preview.emergentagent.com/api. Demo user demo@renal.app / demo123. Tab labels are 'Search', 'Meals', 'Ask AI', 'Settings' (NOT 'Meal Log'). All 35 seeded foods have IDs like food-<slug>. Smart-swap only returned for RED tier foods.",
   "rca_of_issue": "No app bugs found. Only two Playwright script issues on first run were self-inflicted: (a) matched Meal Log tab by wrong text ('Meal Log' vs actual 'Meals'), (b) counted AI response messages before the 30s Claude latency completed. Both were fixed and re-verified in a second run; app itself worked correctly the entire time."
 }

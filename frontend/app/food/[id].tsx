@@ -102,6 +102,23 @@ export default function FoodDetailScreen() {
       ? "Tightened for your stage"
       : "Personalized for your stage";
 
+  // Phosphorus:Protein ratio — a compact clinical stat that helps CKD patients
+  // pick lower-phosphorus protein sources (egg white has ~1 mg P/g protein,
+  // paneer has ~7, cheese ~20, processed cheese >30). Only show when the food
+  // actually has meaningful protein — skip fruits/vegetables where the ratio
+  // is meaningless due to near-zero protein.
+  const proteinG = detail.food.protein_g || 0;
+  const phosMg = detail.food.phosphorus_mg || 0;
+  const showRatio = proteinG >= 1.0;
+  const ratio = showRatio ? phosMg / proteinG : 0;
+  const ratioBand: "excellent" | "acceptable" | "high" =
+    ratio < 15 ? "excellent" : ratio < 25 ? "acceptable" : "high";
+  const ratioColors = {
+    excellent: { bg: COLORS.greenBg, border: COLORS.greenBorder, text: COLORS.greenText, dot: COLORS.greenStrong, label: t("phosProteinExcellent") },
+    acceptable: { bg: COLORS.yellowBg, border: COLORS.yellowBorder, text: COLORS.yellowText, dot: COLORS.yellowStrong, label: t("phosProteinAcceptable") },
+    high: { bg: COLORS.redBg, border: COLORS.redBorder, text: COLORS.redText, dot: COLORS.redStrong, label: t("phosProteinHigh") },
+  }[ratioBand];
+
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.topBar}>
@@ -137,6 +154,24 @@ export default function FoodDetailScreen() {
               <Text style={[styles.riskText, { color: meta.text }]}>
                 {t("riskFactor")}: {detail.food.primary_risk_factor}
               </Text>
+            </View>
+          ) : null}
+
+          {showRatio ? (
+            <View
+              testID="phos-protein-ratio"
+              style={[styles.ratioChip, { backgroundColor: ratioColors.bg, borderColor: ratioColors.border }]}
+            >
+              <View style={[styles.ratioDot, { backgroundColor: ratioColors.dot }]} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.ratioValue, { color: ratioColors.text }]}>
+                  <Text style={styles.ratioBig}>{ratio.toFixed(1)}</Text>
+                  <Text style={styles.ratioUnit}> {t("phosProteinBadge")}</Text>
+                </Text>
+                <Text style={[styles.ratioLabel, { color: ratioColors.text }]} numberOfLines={2}>
+                  {t("phosProteinRatio")} · {ratioColors.label}
+                </Text>
+              </View>
             </View>
           ) : null}
         </View>
@@ -258,6 +293,20 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.75)",
   },
   riskText: { fontSize: FONT.label, fontWeight: "700" },
+  ratioChip: {
+    marginTop: SIZE.s,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: SIZE.radiusMd,
+  },
+  ratioDot: { width: 10, height: 10, borderRadius: 5 },
+  ratioValue: { fontSize: FONT.body },
+  ratioBig: { fontSize: FONT.h3, fontWeight: "800" },
+  ratioUnit: { fontSize: FONT.label, fontWeight: "600" },
+  ratioLabel: { fontSize: FONT.label, fontWeight: "600", lineHeight: 18, marginTop: 2 },
   section: {
     backgroundColor: COLORS.bgSurface,
     borderRadius: SIZE.radiusLg,

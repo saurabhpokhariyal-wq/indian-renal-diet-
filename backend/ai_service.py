@@ -30,6 +30,7 @@ from protein_guide import get_protein_guide
 from schemas import Stage
 from snack_guide import get_snack_guide
 from vegetable_guide import get_vegetable_guide
+from vitamin_myth_guide import get_vitamin_myth_context
 
 
 AI_SYSTEM_PROMPT_BASE = (
@@ -54,6 +55,13 @@ AI_SYSTEM_PROMPT_BASE = (
     "\n"
     "When a food IS in the grounded block and its tier is RED, ALWAYS suggest a "
     "kidney-friendly Indian swap using the 'recommended swap' line if provided."
+    "\n\n"
+    "VITAMIN, SUPPLEMENT AND MYTH QUESTIONS:\n"
+    "For questions about vitamins, supplements, herbal products, protein "
+    "powders, salt substitutes, coconut water, or common CKD nutrition myths, "
+    "quote from the VITAMIN, SUPPLEMENT & MYTH REFERENCE block below. Do not "
+    "invent new supplement advice — that block is the source of truth. Still "
+    "close with the 'check with your nephrologist' reminder."
 )
 
 
@@ -282,7 +290,8 @@ async def _build_ai_context(user: dict, lang: str) -> str:
         f"- Daily limits: potassium {int(limits.potassium_mg)} mg "
         f"({limits.potassium_mg/39.1:.1f} mEq), "
         f"phosphorus {int(limits.phosphorus_mg)} mg, "
-        f"sodium {int(limits.sodium_mg)} mg ({limits.sodium_mg/23:.1f} mEq)\n"
+        f"sodium {int(limits.sodium_mg)} mg ({limits.sodium_mg/23:.1f} mEq), "
+        f"protein {int(limits.protein_g)} g\n"
         f"- Today's intake so far: potassium {int(totals['potassium_mg'])} mg "
         f"({totals['potassium_mg']/39.1:.1f} mEq), "
         f"phosphorus {int(totals['phosphorus_mg'])} mg, "
@@ -291,6 +300,10 @@ async def _build_ai_context(user: dict, lang: str) -> str:
     )
     if user.get("diabetic"):
         ctx += "\n- Because the patient is diabetic, also flag foods with high glycemic load."
+
+    # Vitamin + myths reference — folded into Ask AI grounded context per
+    # iter-26 nav consolidation rule (no separate 'Learn' tab).
+    ctx += get_vitamin_myth_context(stage)
 
     if lang == "hi":
         ctx += _lang_instruction("Hindi", "Devanagari", "लौकी (Lauki)")

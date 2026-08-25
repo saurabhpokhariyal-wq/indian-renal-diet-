@@ -11,7 +11,7 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL",
-    "https://kidney-safe-swap.preview.emergentagent.com").rstrip("/")
+    "https://safe-food-guide-1.preview.emergentagent.com").rstrip("/")
 EMAIL = "demo@renal.app"
 PASSWORD = "demo123"
 

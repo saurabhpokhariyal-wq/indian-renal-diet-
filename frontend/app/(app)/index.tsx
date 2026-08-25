@@ -135,6 +135,14 @@ export default function HomeScreen() {
             limit={summary?.limits.phosphorus_mg ?? 1000}
           />
           <NutrientBar
+            testID="home-budget-protein"
+            label={t("nutrientProtein")}
+            value={summary?.totals.protein_g ?? 0}
+            limit={summary?.limits.protein_g ?? 60}
+            unit="g"
+            decimals={1}
+          />
+          <NutrientBar
             testID="home-budget-sodium"
             label={t("nutrientSodium")}
             value={naVal}

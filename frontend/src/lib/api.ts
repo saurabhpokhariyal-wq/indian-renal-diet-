@@ -92,6 +92,7 @@ export interface DoctorLimits {
   phosphorus_mg?: number | null;
   sodium_mg?: number | null;
   fluid_ml?: number | null;
+  protein_g?: number | null;
 }
 
 export interface UserOut {
@@ -161,6 +162,7 @@ export interface NutrientLimits {
   phosphorus_mg: number;
   sodium_mg: number;
   fluid_ml: number;
+  protein_g: number;
 }
 
 export interface MealLogSummary {

@@ -16,7 +16,7 @@ import requests
 BASE_URL = (
     os.environ.get("EXPO_PUBLIC_BACKEND_URL")
     or os.environ.get("EXPO_BACKEND_URL")
-    or "https://kidney-safe-swap.preview.emergentagent.com"
+    or "https://safe-food-guide-1.preview.emergentagent.com"
 ).rstrip("/")
 
 DEMO_EMAIL = "demo@renal.app"

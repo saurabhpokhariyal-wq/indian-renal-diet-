@@ -18,7 +18,7 @@ import httpx
 sys.path.insert(0, "/app/backend")
 
 BASE_URL = (os.environ.get("EXPO_PUBLIC_BACKEND_URL", "").rstrip("/")
-            or "https://kidney-safe-swap.preview.emergentagent.com")
+            or "https://safe-food-guide-1.preview.emergentagent.com")
 DEMO_EMAIL = "demo@renal.app"
 DEMO_PASSWORD = "demo123"
 

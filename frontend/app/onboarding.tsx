@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -19,10 +19,23 @@ export default function Onboarding() {
   const [step, setStep] = useState<Step>("stage");
   const [stage, setStageValue] = useState<Stage | null>(null);
   const [diabetic, setDiabetic] = useState<boolean | null>(null);
+  const [weight, setWeight] = useState("");
   const [k, setK] = useState("");
   const [p, setP] = useState("");
   const [na, setNa] = useState("");
+  const [protein, setProtein] = useState("");
+  const [proteinTouched, setProteinTouched] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Protein suggestion: KDOQI 2020 — 1.2 g/kg on dialysis, 0.8 g/kg otherwise.
+  // We only auto-fill if the user hasn't manually typed a protein value.
+  const proteinFactor = stage === "dialysis" ? 1.2 : 0.8;
+  const suggestedProtein = weight ? Math.round(Number(weight) * proteinFactor) : 0;
+  useEffect(() => {
+    if (!proteinTouched && suggestedProtein > 0) {
+      setProtein(String(suggestedProtein));
+    }
+  }, [suggestedProtein, proteinTouched]);
 
   const stepIdx = STEPS.indexOf(step);
   const goNext = () => setStep(STEPS[Math.min(stepIdx + 1, STEPS.length - 1)]);
@@ -38,6 +51,7 @@ export default function Onboarding() {
             potassium_mg: k ? Number(k) : null,
             phosphorus_mg: p ? Number(p) : null,
             sodium_mg: na ? Number(na) : null,
+            protein_g: protein ? Number(protein) : null,
           }
         : null;
       await updateProfile({ diabetic, doctor_limits: limits });
@@ -151,6 +165,40 @@ export default function Onboarding() {
               <LimitInput testID="limit-phosphorus" label={`${t("nutrientPhosphorus")} (mg)`} value={p} onChange={setP} placeholder="e.g. 1000" />
               <LimitInput testID="limit-sodium" label={`${t("nutrientSodium")} (mg)`} value={na} onChange={setNa} placeholder="e.g. 2000" />
 
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>{t("weightLabel")}</Text>
+                <Text style={styles.helperText}>{t("weightHelper")}</Text>
+                <TextInput
+                  testID="onboarding-weight"
+                  style={styles.input}
+                  value={weight}
+                  onChangeText={(v) => setWeight(v.replace(/[^0-9]/g, ""))}
+                  keyboardType="number-pad"
+                  placeholder={t("weightPlaceholder")}
+                  placeholderTextColor="#A8A29E"
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>{t("nutrientProtein")} (g)</Text>
+                {suggestedProtein > 0 && !proteinTouched ? (
+                  <Text style={styles.helperText}>
+                    {t("proteinSuggested")}: {suggestedProtein}g ({proteinFactor}g/kg {stage === "dialysis" ? t("stageDialysis") : t("stagePreDialysis")})
+                  </Text>
+                ) : (
+                  <Text style={styles.helperText}>{t("proteinHelper")}</Text>
+                )}
+                <TextInput
+                  testID="onboarding-protein"
+                  style={styles.input}
+                  value={protein}
+                  onChangeText={(v) => { setProteinTouched(true); setProtein(v.replace(/[^0-9]/g, "")); }}
+                  keyboardType="number-pad"
+                  placeholder="e.g. 60"
+                  placeholderTextColor="#A8A29E"
+                />
+              </View>
+
               <View style={styles.buttonRow}>
                 <TouchableOpacity testID="limits-back" style={styles.secondaryBtn} onPress={goBack}>
                   <Ionicons name="chevron-back" size={20} color={COLORS.brand} />
@@ -224,6 +272,7 @@ const styles = StyleSheet.create({
   pillTextActive: { color: COLORS.brand },
   field: { gap: 4 },
   fieldLabel: { fontSize: FONT.body, color: COLORS.textPrimary, fontWeight: "600" },
+  helperText: { fontSize: FONT.label, color: COLORS.textSecondary, lineHeight: 18 },
   input: {
     height: SIZE.touchPrimary, borderRadius: SIZE.radiusMd, borderWidth: 2,
     borderColor: COLORS.border, backgroundColor: COLORS.bgSurface,

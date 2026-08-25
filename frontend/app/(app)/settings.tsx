@@ -20,6 +20,7 @@ export default function SettingsScreen() {
   const [p, setP] = useState<string>("");
   const [na, setNa] = useState<string>("");
   const [fluid, setFluid] = useState<string>("");
+  const [protein, setProtein] = useState<string>("");
   const [savingLimits, setSavingLimits] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -42,6 +43,7 @@ export default function SettingsScreen() {
       setNa(currentUnit === "mg" ? String(Math.round(v)) : v.toFixed(1));
     } else setNa("");
     setFluid(dl?.fluid_ml ? String(dl.fluid_ml) : "");
+    setProtein(dl?.protein_g ? String(dl.protein_g) : "");
   }, [user]);
 
   const doSignOut = async () => {
@@ -90,6 +92,7 @@ export default function SettingsScreen() {
           phosphorus_mg: p ? Number(p) : null,
           sodium_mg: na ? Math.round(userUnitToMg("Na", Number(na), unit)) : null,
           fluid_ml: fluid ? Number(fluid) : null,
+          protein_g: protein ? Number(protein) : null,
         },
       });
       setSavedFlash(true);
@@ -100,7 +103,7 @@ export default function SettingsScreen() {
   };
 
   const clearLimits = async () => {
-    setK(""); setP(""); setNa("");
+    setK(""); setP(""); setNa(""); setFluid(""); setProtein("");
     try { await updateProfile({ doctor_limits: null }); } catch { /* ignore */ }
   };
 
@@ -251,6 +254,18 @@ export default function SettingsScreen() {
                 onChangeText={(v) => setFluid(v.replace(/[^0-9]/g, ""))}
                 keyboardType="number-pad"
                 placeholder="e.g. 1000 (dialysis) / 2000 (pre-dialysis)"
+                placeholderTextColor="#A8A29E"
+              />
+            </View>
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>{t("nutrientProtein")} (g)</Text>
+              <TextInput
+                testID="settings-limit-protein"
+                style={styles.input}
+                value={protein}
+                onChangeText={(v) => setProtein(v.replace(/[^0-9]/g, ""))}
+                keyboardType="number-pad"
+                placeholder="e.g. 50 (pre-dialysis) / 75 (dialysis)"
                 placeholderTextColor="#A8A29E"
               />
             </View>

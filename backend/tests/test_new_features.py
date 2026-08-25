@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 import requests
 
-BASE_URL = (os.environ.get("EXPO_PUBLIC_BACKEND_URL") or "https://kidney-safe-swap.preview.emergentagent.com").rstrip("/")
+BASE_URL = (os.environ.get("EXPO_PUBLIC_BACKEND_URL") or "https://safe-food-guide-1.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 
 # Real Indian-food JPEG downloaded to /tmp/food.jpg (unsplash Indian food, 600x800)

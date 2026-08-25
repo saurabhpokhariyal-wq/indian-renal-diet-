@@ -1,0 +1,34 @@
+{
+  "summary": "iter-27 backend-only testing complete. 15/15 pytest tests passed on first run. Verified: (1) six new salt-substitute seed foods appear in /api/foods?q=salt with correct tiers/risk factors — Lo-Salt, NoSalt & Tata Salt Lite = RED-POTASSIUM (KCl-based), Himalayan pink & kala namak = SODIUM-flagged, lemon-herb seasoning = GREEN; (2) protein_g present in NutrientLimits on both /api/meal-logs/summary and /api/reports/weekly with dialysis stage default of 75g; (3) PATCH /api/auth/profile with doctor_limits.protein_g=90 persists and returns via /auth/me, and summary honors override; (4) PATCH /api/auth/profile with doctor_limits: null clears overrides and summary falls back to stage default (75g); (5) /api/ai/ask handles all 3 target questions (Lo-Salt, whey protein, coconut water) with non-empty grounded answers hitting expected keywords (avoid/potassium/false/egg white etc.); (6) regression clean — foods catalog still returns >1000 entries, FoodDetail/MealLogSummary/WeeklyReport schemas retain all expected fields including new protein_g in limits. Frontend features (P:Protein ratio chip, Home budget protein bar, Settings protein input, onboarding weight-based suggestion) were NOT tested per E1's instructions.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter27_salt_protein_vitamin.py",
+    "/app/test_reports/pytest/pytest_iter27.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "personalization.suggest_protein_g(weight_kg, stage) is defined but never called from any backend route. If E1 intended onboarding to POST weight and receive a server-side suggested protein target, no such endpoint currently exists — the calculation must be done client-side. If that's intentional (frontend computes locally with the same formula), fine; otherwise consider exposing a helper endpoint like POST /api/auth/onboarding-suggest-protein.",
+    "personalization.limits_for_user uses `doc.get('protein_g') or defaults['protein_g']` — this correctly falls back for None, but ALSO falls back for a legitimate value of 0. Unlikely a doctor would prescribe 0g protein, but strictly speaking `is None` would be safer. Same pattern applies to potassium/phosphorus/sodium/fluid overrides — pre-existing behavior, worth noting."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter27_salt_protein_vitamin.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "not tested (per E1 instructions)"
+  },
+  "seed_data_creation": "No new seed data created for testing. Used existing demo@renal.app account. Tests mutate the demo user's doctor_limits then restore to null.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend iter-27 features (salt substitutes, protein_g budget, vitamin/myth AI grounding) all verified. Test file at /app/backend/tests/test_iter27_salt_protein_vitamin.py is reusable for regression. AI ask tests use loose keyword matching (avoid/potassium/false/etc.) — occasional LLM variance may cause flakes but 3/3 passed on first run. Frontend iter-27 features (P:Protein chip on food detail, Home protein NutrientBar, Settings protein input, onboarding weight→protein suggestion) still need UI verification if E1 requests it.",
+  "rca_of_issue": "N/A — no failures."
+}

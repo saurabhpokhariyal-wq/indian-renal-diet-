@@ -33,6 +33,7 @@ class DoctorLimits(BaseModel):
     phosphorus_mg: Optional[float] = Field(default=None, ge=0)
     sodium_mg: Optional[float] = Field(default=None, ge=0)
     fluid_ml: Optional[float] = Field(default=None, ge=0)
+    protein_g: Optional[float] = Field(default=None, ge=0)
 
 
 class UserOut(BaseModel):
@@ -235,6 +236,7 @@ class NutrientLimits(BaseModel):
     phosphorus_mg: float = 1000
     sodium_mg: float = 2000
     fluid_ml: float = 2000
+    protein_g: float = 60
 
 
 class MealLogSummary(BaseModel):

@@ -21,7 +21,7 @@ import requests
 BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL")
 if not BASE_URL:
     # Fall back to the value known from /app/frontend/.env at test-authoring time.
-    BASE_URL = "https://kidney-safe-swap.preview.emergentagent.com"
+    BASE_URL = "https://safe-food-guide-1.preview.emergentagent.com"
 BASE_URL = BASE_URL.rstrip("/")
 API = f"{BASE_URL}/api"
 

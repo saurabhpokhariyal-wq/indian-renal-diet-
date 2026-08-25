@@ -138,3 +138,33 @@ See `/app/memory/test_credentials.md`.
   - Frontend: new `/oils` route + `<FoodGuideLayout entriesKey="oils">`,
     Home menu grid gains an 11th "Fats & Oils Guide" tile (flask icon,
     yellow accent), i18n keys added for en/hi/ta/bn/mr.
+
+## Iter 27 — Salt substitutes + Protein target + P:Pro ratio + Vitamin/myth in AI
+
+- 6 salt substitutes added to seed data (Lo-Salt, NoSalt, Tata Salt
+  Lite, pink/Himalayan salt, kala namak, lemon-herb salt-free
+  seasoning). KCl-based substitutes classified RED-POTASSIUM with the
+  clinical note that 1g of Lo-Salt = 660mg K. Discoverable via unified
+  Search — no separate "salt substitutes" screen.
+- **Protein target** added end-to-end:
+  - Backend: `NutrientLimits.protein_g`, `DoctorLimits.protein_g`,
+    stage defaults 75g (dialysis) / 50g (pre-dialysis) / 60g (unknown),
+    plus a `suggest_protein_g(weight_kg, stage)` helper following
+    KDOQI 2020 (1.2 g/kg dialysis, 0.8 g/kg otherwise).
+  - Onboarding: new optional weight (kg) input auto-fills a suggested
+    protein target on the limits step. User can override; skip button
+    still valid.
+  - Settings > Doctor limits: new protein_g input, cleared alongside
+    the others.
+  - Home: new NutrientBar for protein between Phosphorus and Sodium
+    on the today's-budget card.
+- **Phosphorus-to-protein ratio chip** on food detail — small green/
+  yellow/red banded stat under the tier badge ("X.X mg P per g
+  protein" + one-line interpretation). Hidden when protein_g<1.0 to
+  keep the ratio meaningful. Bands: <15 excellent, 15-25 acceptable,
+  >25 high.
+- **Vitamin & dietary-myth reference** — new `vitamin_myth_guide.py`
+  feeds a stage-aware supplement + top-10-CKD-myths block into the
+  Ask AI context, so questions like "Can I take whey protein?", "Is
+  Lo-Salt safe?", "Is coconut water healthy?" get grounded answers
+  without a separate Learn tab (per iter-26 nav consolidation rule).

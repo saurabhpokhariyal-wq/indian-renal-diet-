@@ -22,11 +22,29 @@ PRE_DIALYSIS_K_NOTE = (
 )
 
 # Default daily limits by stage — used when the doctor hasn't set custom targets.
+# Protein defaults follow KDOQI 2020 targets:
+#  - dialysis: 1.2 g/kg/day (65kg reference → ~78g/day). We use 75g as a
+#    conservative round number when body weight isn't known.
+#  - pre_dialysis (non-dialysis CKD 3-5): 0.6-0.8 g/kg/day (65kg → ~45-52g).
+#    We default to 50g to nudge patients away from over-loading dals/paneer.
 DEFAULT_LIMITS_BY_STAGE: dict = {
-    "dialysis": {"potassium_mg": 2000, "phosphorus_mg": 1000, "sodium_mg": 2000, "fluid_ml": 1000},
-    "pre_dialysis": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000},
-    "unknown": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000},
+    "dialysis": {"potassium_mg": 2000, "phosphorus_mg": 1000, "sodium_mg": 2000, "fluid_ml": 1000, "protein_g": 75},
+    "pre_dialysis": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000, "protein_g": 50},
+    "unknown": {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300, "fluid_ml": 2000, "protein_g": 60},
 }
+
+
+def suggest_protein_g(weight_kg: float, stage: Stage) -> float:
+    """Return the suggested daily protein target for a given weight × stage.
+
+    Multipliers follow KDOQI 2020 clinical practice guidelines:
+      - dialysis: 1.2 g/kg (increased catabolism + dialysate losses)
+      - pre-dialysis / unknown: 0.8 g/kg (conservative renal-sparing target)
+    """
+    if weight_kg <= 0:
+        return 0.0
+    factor = 1.2 if stage == "dialysis" else 0.8
+    return round(weight_kg * factor)
 
 
 def personal_tier_for(food: dict, stage: Stage) -> str:
@@ -73,4 +91,5 @@ def limits_for_user(user: dict) -> NutrientLimits:
         phosphorus_mg=float(doc.get("phosphorus_mg") or defaults["phosphorus_mg"]),
         sodium_mg=float(doc.get("sodium_mg") or defaults["sodium_mg"]),
         fluid_ml=float(doc.get("fluid_ml") or defaults["fluid_ml"]),
+        protein_g=float(doc.get("protein_g") or defaults["protein_g"]),
     )

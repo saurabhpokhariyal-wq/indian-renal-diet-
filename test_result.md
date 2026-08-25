@@ -1337,3 +1337,117 @@ agent_communication_iter26:
       category chips inside Search (Fruits, Vegetables, Grains, Snacks,
       Proteins, Beverages) mapped to backend CATEGORY_MAP.
       Tab bar untouched (5 items). Net screen count reduced by 7.
+
+
+# Iter 27 — Salt substitutes + Protein target + P:Pro ratio + Vitamin/myth guide
+
+backend_iter27:
+  - task: "Salt substitutes in food DB (Lo-Salt, NoSalt, Tata Salt Lite, pink salt, kala namak, herb seasoning)"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_data.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added 6 salt-substitute entries to SEED_FOODS. KCl-based Lo-Salt/NoSalt/Tata Salt Lite are RED with POTASSIUM primary risk (660/530/350 mg K per gram). Rock/pink and black salt classified per SODIUM. One GREEN entry for actual salt-free lemon-herb seasoning. Verified via /api/foods?q=salt search."
+  - task: "Protein target — NutrientLimits.protein_g + DoctorLimits.protein_g + stage defaults"
+    implemented: true
+    working: true
+    file: "/app/backend/schemas.py, /app/backend/personalization.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added protein_g to both NutrientLimits (default 60g) and DoctorLimits. Stage defaults: dialysis=75g, pre-dialysis=50g, unknown=60g. suggest_protein_g(weight_kg, stage) helper added for onboarding (1.2 g/kg on dialysis per KDOQI, 0.8 g/kg otherwise). limits_for_user() respects doctor override. Verified via curl PATCH /auth/profile + GET /meal-logs/summary — protein_g now appears in the limits payload."
+  - task: "Vitamin, supplement and dietary-myth reference block in AI ask context"
+    implemented: true
+    working: true
+    file: "/app/backend/vitamin_myth_guide.py, /app/backend/ai_service.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Created vitamin_myth_guide.py with stage-filtered VITAMIN_GUIDANCE (B-complex on dialysis, vitamin C, D, A/E/K, iron, calcium, herbs, protein powders) plus 10 DIETARY_MYTHS (coconut water, banana, ORS, milk, brown rice, salt substitutes, pink salt, apple cider). Injected via get_vitamin_myth_context(stage) into _build_ai_context. System prompt updated with a new rule teaching the model to quote from this block. Verified live: 'Can I take whey protein?' returns egg-white/chicken alternatives; 'Is Lo-Salt safe?' returns strict AVOID with grounded 660mg K figure."
+
+frontend_iter27:
+  - task: "Protein bar on Home budget card"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(app)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added a new NutrientBar for protein between Phosphorus and Sodium — testID home-budget-protein, uses `g` unit with 1 decimal. Reads summary.totals.protein_g and summary.limits.protein_g. Verified visually on Home."
+  - task: "Weight input + protein-target field on onboarding (auto-suggest from body weight)"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/onboarding.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added optional weight (kg) input + protein-target (g) input on the limits step. When user types weight, protein is auto-populated using KDOQI factor (1.2 g/kg dialysis, 0.8 g/kg otherwise). Once user manually edits the protein field, we stop overwriting (proteinTouched flag). Both fields propagate into doctor_limits on save. Skip button still respected — sends null doctor_limits."
+  - task: "Protein target row + weight suggestion in Settings > Doctor limits"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(app)/settings.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added a testID=settings-limit-protein input under fluid_ml. Included in saveLimits() and clearLimits() flows. Pre-fills from user.doctor_limits.protein_g on mount."
+  - task: "Phosphorus-to-protein ratio as secondary stat on food detail"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/food/[id].tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added a green/yellow/red banded ratio chip under the tier badge showing 'X.X mg P per g protein' + short interpretation. Bands: <15 excellent (green), 15-25 acceptable (yellow), >25 high (red). Hidden when protein_g < 1.0 to avoid meaningless ratios on fruits/vegetables. Verified: Paneer 7.2 → excellent, Cow Milk 28.2 → high."
+
+test_plan_iter27:
+  current_focus:
+    - "Salt substitutes search + tier classification"
+    - "Doctor limits PATCH with protein_g + summary/reports response shape"
+    - "Onboarding weight auto-suggests protein and can be overridden"
+    - "AI /ai/ask about vitamins, salt substitutes and myths quotes grounded data"
+    - "P:Pro ratio chip on food detail (paneer/milk/rajma)"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter27:
+  - agent: "main"
+    message: |
+      Four new features shipped in one pass (per user's YES to all):
+      1. Salt substitutes (6 new foods) — searchable via unified /search;
+         all KCl-based ones RED-POTASSIUM, real salt-free lemon-herb GREEN.
+      2. Protein target — added to schemas (DoctorLimits + NutrientLimits),
+         personalization defaults (75g dialysis / 50g pre-dialysis / 60g
+         unknown), onboarding (with body-weight auto-suggest 1.2 or 0.8
+         g/kg per KDOQI 2020), Settings, and Home budget card (new bar).
+      3. Phos:Protein ratio — secondary green/yellow/red banded chip on
+         food detail under the tier badge. Hidden for protein_g<1.
+      4. Vitamin/dietary-myth guide — new backend module fed into Ask AI
+         grounded context so /ai/ask can answer supplement + myth
+         questions without a separate Learn tab (per nav-consolidation
+         rule: no new top-level screens).
+      Backed by curl smoke tests + visual screenshots. No standalone
+      screens added. Frontend lint clean. Ready for testing_agent.

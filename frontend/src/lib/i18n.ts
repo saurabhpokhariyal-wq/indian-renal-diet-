@@ -264,6 +264,56 @@ export const translations: Record<string, Entry> = {
   doctorLimitsSave: { en: "Save targets", hi: "लक्ष्य सहेजें" },
   personalisedForYou: { en: "Personalized for you", hi: "आपके लिए वैयक्तिकृत" },
 
+  // Protein target + body weight (iter-27)
+  weightLabel: { en: "Your body weight (optional)", hi: "आपका वज़न (वैकल्पिक)" },
+  weightHelper: {
+    en: "We use this to suggest a protein target — 1.2 g/kg on dialysis, 0.8 g/kg otherwise.",
+    hi: "इसका उपयोग हम प्रोटीन लक्ष्य सुझाने के लिए करते हैं — डायलिसिस पर 1.2 ग्राम/किग्रा, अन्यथा 0.8 ग्राम/किग्रा।",
+    ta: "இதைப் பயன்படுத்தி புரதத் தேவையை பரிந்துரைக்கிறோம் — டயாலிசிஸில் 1.2 கி/கிலோ, மற்றபடி 0.8 கி/கிலோ.",
+    bn: "এটি ব্যবহার করে আমরা প্রোটিন লক্ষ্য সুঝাই — ডায়ালিসিসে 1.2 গ্রাম/কেজি, অন্যথায় 0.8 গ্রাম/কেজি.",
+    mr: "याचा वापर करून आम्ही प्रोटीन उद्दिष्ट सुचवतो — डायलिसिसवर 1.2 ग्रॅ/किलो, अन्यथा 0.8 ग्रॅ/किलो.",
+  },
+  weightPlaceholder: { en: "e.g. 65 (kg)", hi: "जैसे 65 (किग्रा)" },
+  proteinSuggested: { en: "Suggested", hi: "सुझाव", ta: "பரிந்துரை", bn: "সুঝাব", mr: "सुचवलेले" },
+  proteinHelper: {
+    en: "Daily protein target — usually 45-75g depending on stage & weight.",
+    hi: "दैनिक प्रोटीन लक्ष्य — स्टेज व वज़न के अनुसार आमतौर पर 45-75 ग्राम।",
+    ta: "தினசரி புரதத் தேவை — நிலை மற்றும் எடையின்படி பொதுவாக 45-75 கி.",
+    bn: "দৈনিক প্রোটিন লক্ষ্য — স্তর ও ওজন অনুসারে সাধারণত 45-75 গ্রাম.",
+    mr: "दैनिक प्रोटीन लक्ष्य — स्टेज व वजनानुसार साधारणतः 45-75 ग्रॅम.",
+  },
+
+  // Phosphorus:Protein ratio (iter-27 — food detail secondary stat)
+  phosProteinRatio: { en: "P:Protein ratio", hi: "फ़ॉस्फ़ोरस : प्रोटीन अनुपात" },
+  phosProteinExcellent: {
+    en: "Excellent — low P per gram of protein",
+    hi: "उत्कृष्ट — प्रति ग्राम प्रोटीन कम फ़ॉस्फ़ोरस",
+    ta: "சிறந்தது — புரதத்திற்கு குறைந்த பாஸ்பரஸ்",
+    bn: "চমৎকার — প্রতি গ্রাম প্রোটিনে কম ফসফরাস",
+    mr: "उत्तम — प्रति ग्रॅम प्रोटिनमध्ये कमी फॉस्फरस",
+  },
+  phosProteinAcceptable: {
+    en: "Acceptable — moderate P per gram of protein",
+    hi: "स्वीकार्य — प्रति ग्राम प्रोटीन मध्यम फ़ॉस्फ़ोरस",
+    ta: "ஏற்றுக்கொள்ளக்கூடியது — புரதத்திற்கு மிதமான பாஸ்பரஸ்",
+    bn: "গ্রহণযোগ্য — প্রতি গ্রাম প্রোটিনে মাঝারি ফসফরাস",
+    mr: "स्वीकार्य — प्रति ग्रॅम प्रोटिनमध्ये मध्यम फॉस्फरस",
+  },
+  phosProteinHigh: {
+    en: "High — a lot of phosphorus for the protein you get",
+    hi: "अधिक — आपको मिलने वाले प्रोटीन के लिए बहुत फ़ॉस्फ़ोरस",
+    ta: "அதிகம் — பெறும் புரதத்திற்கு அதிக பாஸ்பரஸ்",
+    bn: "বেশি — যে প্রোটিন পাচ্ছেন তার তুলনায় বেশি ফসফরাস",
+    mr: "जास्त — मिळणाऱ्या प्रोटिनसाठी खूप फॉस्फरस",
+  },
+  phosProteinBadge: {
+    en: "mg P per g protein",
+    hi: "मिग्रा फ़ॉस्फ़ोरस प्रति ग्राम प्रोटीन",
+    ta: "கிராம் புரதத்திற்கு மி.கி பாஸ்பரஸ்",
+    bn: "প্রতি গ্রাম প্রোটিনে মিগ্রা ফসফরাস",
+    mr: "प्रति ग्रॅम प्रोटिन मिग्रॅ फॉस्फरस",
+  },
+
   // Health profile section on settings
   healthProfile: { en: "Health profile", hi: "स्वास्थ्य प्रोफ़ाइल" },
   stage: { en: "CKD stage", hi: "CKD स्तर" },

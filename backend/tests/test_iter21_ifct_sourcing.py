@@ -6,7 +6,7 @@ import os
 import requests
 import pytest
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://kidney-safe-swap.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://safe-food-guide-1.preview.emergentagent.com").rstrip("/")
 
 
 @pytest.fixture(scope="module")
