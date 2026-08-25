@@ -265,10 +265,11 @@ export const api = {
   updateProfile: (patch: { diabetic?: boolean; doctor_limits?: DoctorLimits | null; nutrient_unit?: "mg" | "mEq" }) =>
     request<UserOut>("/auth/profile", { method: "PATCH", body: JSON.stringify(patch) }, true),
 
-  listFoods: (q?: string, tier?: string, favoritesOnly = false) => {
+  listFoods: (q?: string, tier?: string, favoritesOnly = false, category?: string) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (tier) params.set("tier", tier);
+    if (category) params.set("category", category);
     if (favoritesOnly) params.set("favorites_only", "true");
     const suffix = params.toString() ? `?${params.toString()}` : "";
     return request<FoodOut[]>(`/foods${suffix}`, {}, true);

@@ -11,11 +11,30 @@ from security import get_optional_user
 
 router = APIRouter()
 
+# Frontend-facing category chips → the underlying db.foods.category values they
+# fold in. Keep this dict in sync with the chips in app/(app)/search.tsx.
+CATEGORY_MAP: dict = {
+    "fruit":     ["fruit"],
+    "vegetable": ["vegetable", "sabzi"],
+    "grain":     ["grain"],
+    "snack":     ["snack"],
+    "protein":   ["protein", "dal", "dairy"],
+    "beverage":  ["beverage"],
+}
+
 
 @router.get("/foods", response_model=List[FoodOut])
 async def list_foods(
     q: Optional[str] = Query(None, description="Search text"),
     tier: Optional[str] = Query(None, description="Comma-separated: GREEN,YELLOW,RED"),
+    category: Optional[str] = Query(
+        None,
+        description=(
+            "Comma-separated high-level category filter, e.g. 'fruit' or "
+            "'protein,dal,dairy'. Matches db.foods.category case-insensitively "
+            "against any of the given tokens. See routes/foods.py::CATEGORY_MAP."
+        ),
+    ),
     favorites_only: bool = Query(False),
     limit: int = Query(2000, ge=1, le=5000),
     current_user=Depends(get_optional_user),
@@ -31,6 +50,20 @@ async def list_foods(
     if tier:
         tiers = [t.strip().upper() for t in tier.split(",") if t.strip()]
         query["safety_tier"] = {"$in": tiers}
+    if category:
+        # Expand each user-facing category to the underlying DB categories.
+        # This mirrors the six guide screens the frontend previously had —
+        # e.g. "protein" folds in the dal + dairy DB rows because the protein
+        # guide already lists dals and dairy together (see protein_guide.py).
+        cats: list[str] = []
+        for tok in category.split(","):
+            key = tok.strip().lower()
+            if not key:
+                continue
+            cats.extend(CATEGORY_MAP.get(key, [key]))
+        if cats:
+            cats_pattern = "|".join(re.escape(c) for c in set(cats))
+            query["category"] = {"$regex": f"^({cats_pattern})$", "$options": "i"}
 
     fav_ids = await get_user_favorite_ids(current_user) if current_user else set()
 

@@ -7,6 +7,7 @@ import { ActivityIndicator, Image, Linking, Platform, StyleSheet, Text, Touchabl
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { NutrientBar } from "@/src/components/NutrientBar";
+import { CheckFoodModeSwitcher } from "@/src/components/CheckFoodModeSwitcher";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { api, type FoodScan, type NutrientLimits, type ScanTier } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
@@ -196,6 +197,7 @@ export default function ScanScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <CheckFoodModeSwitcher current="photo" />
       <View style={styles.header}>
         <View style={styles.headerIcon}>
           <Ionicons name={mode === "vision" ? "camera" : "barcode"} size={22} color={COLORS.textInverse} />

@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { SafetyBadge } from "@/src/components/SafetyBadge";
+import { CheckFoodModeSwitcher } from "@/src/components/CheckFoodModeSwitcher";
 import { api, type MealItemCandidate, type ParsedMealItem } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
@@ -130,6 +131,7 @@ export default function LogMealByTextScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
+        <CheckFoodModeSwitcher current="voice" />
         <View style={s.header}>
           <TouchableOpacity testID="logmeal-back" style={s.backBtn} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color={COLORS.textPrimary} />

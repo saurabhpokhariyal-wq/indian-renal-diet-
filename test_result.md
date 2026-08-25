@@ -1260,3 +1260,80 @@ agent_communication_iter25:
       Iter24 pytests (15) all pass in isolation.
       New content: 10 oils, 4 dals, 4 dairy items — every entry cites IFCT 2017 code.
 
+
+# ================================================================
+# Iter 26 — Navigation consolidation
+# ================================================================
+backend_iter26:
+  - task: "GET /api/foods gains ?category= filter with folk-mapping"
+    implemented: true
+    working: true
+    file: "backend/routes/foods.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          New CATEGORY_MAP dict expands frontend-facing chip keys to underlying
+          db.foods.category values — "protein" → [protein, dal, dairy],
+          "vegetable" → [vegetable, sabzi], others 1:1. Verified: ?category=fruit
+          returns only fruit rows (200), ?category=protein returns 200 rows
+          across protein/dal/dairy, ?category=vegetable returns 260 across
+          vegetable/sabzi.
+
+frontend_iter26:
+  - task: "Home reduced to one hero action + budget bars + small More section"
+    implemented: true
+    working: true
+    file: "frontend/app/(app)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "CheckFoodModeSwitcher shared component (Type/Photo/Voice)"
+    implemented: true
+    working: true
+    file: "frontend/src/components/CheckFoodModeSwitcher.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Search screen: mode switcher + 6 category chips + tier chips"
+    implemented: true
+    working: true
+    file: "frontend/app/(app)/search.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Scan + log-meal-nl screens carry the mode switcher too"
+    implemented: true
+    working: true
+    file: "frontend/app/(app)/scan.tsx, frontend/app/log-meal-nl.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Delete 7 guide screens (fruits/vegetables/grains/snacks/proteins/beverages/oils)"
+    implemented: true
+    working: true
+    file: "frontend/app/{fruits,vegetables,grains,snacks,proteins,beverages,oils}.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+
+test_plan_iter26:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter26:
+  - agent: "main"
+    message: |
+      Nav consolidation complete. Home has ONE dominant "Check a food" hero,
+      today's K/P/Na/Fluid budget bars, and a small More section (Report,
+      Settings). Search/Scan/Voice are three modes of the same flow reached
+      via a persistent top-of-screen switcher. Six standalone guide screens
+      (+ the just-added Oils) deleted; their content is reachable via new
+      category chips inside Search (Fruits, Vegetables, Grains, Snacks,
+      Proteins, Beverages) mapped to backend CATEGORY_MAP.
+      Tab bar untouched (5 items). Net screen count reduced by 7.
