@@ -217,3 +217,29 @@ See `/app/memory/test_credentials.md`.
   safety card.
 - **Deferred by user**: Voice Dictation (holds for native speech
   library + Hindi support); Common Meal Presets (skipped this round).
+
+## Iter 30 — Regex tighten + Tata tier_override + reconciliation backstop
+
+- **Salt-substitute regex tightened**: `low`/`reduced` sodium now
+  requires an immediate `salt` token to fire; `no salt` carries a
+  negative lookahead `(?![\s-]+added)` so "No Salt Added Canned
+  Tomatoes" and "No-salt-added chickpeas" don't trigger the warning.
+  All 15 prior positives still match.
+- **Tata Salt Lite tier_override**: Formula lands YELLOW at K=184 but
+  portion_limit_text says "Avoid" and composition is unverified —
+  added to `CURATED_TIER_OVERRIDES` to hold RED. Now the sole
+  intentional case where both tier_override AND data_quality_flag
+  apply (each drives independent user-visible behavior: RED tier +
+  "Pending re-sourcing" badge).
+- **Missing CONCENTRATED_BASE_IDS entries + Step 7b backstop**:
+  `food-curried-cauliflower-soup` and `food-classic-seasoned-black
+  -beans` explicitly added. A new Step 7b in reconciliation now
+  auto-flags any post-reconciliation sanity-ceiling breach that isn't
+  already `tier_override`'d or flagged — so future oddly-bucketed
+  entries can't slip through. Stats counter recomputed from the final
+  deduped list so audit totals match Mongo (data_quality_flagged
+  39→42). tier_override count 7→8.
+- **iter-13d invariants updated** — 4 assertions bumped in
+  `test_iter13d_pending_resourcing.py`: flagged 39→42, tier_override
+  7→8, no_overlap 0→1 (Tata's intentional exception), audit_seed
+  data_quality_flagged 39→42.

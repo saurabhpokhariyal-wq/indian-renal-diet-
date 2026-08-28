@@ -272,15 +272,31 @@ class TestT1MongoInvariants:
 
     def test_flagged_count_39(self, mongo_counts):
         flagged, _, _ = mongo_counts
-        assert flagged == 39, f"concentrated_base flagged={flagged} (expected 39)"
+        # iter-30: 39 → 42
+        # +2 from adding food-curried-cauliflower-soup and
+        #    food-classic-seasoned-black-beans to CONCENTRATED_BASE_IDS.
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in
+        #    seed_data.py (its %KCl split is unverified) — that flag is
+        #    preserved through reconciliation and lives in Mongo alongside
+        #    tier_override=True (test_no_overlap below).
+        assert flagged == 42, f"concentrated_base flagged={flagged} (expected 42)"
 
     def test_tier_override_count_7(self, mongo_counts):
         _, overrides, _ = mongo_counts
-        assert overrides == 7, f"tier_override count={overrides} (expected 7)"
+        # iter-30: 7 → 8 after adding food-tata-saltlite to
+        # CURATED_TIER_OVERRIDES (hold RED until physical pack sourced).
+        assert overrides == 8, f"tier_override count={overrides} (expected 8)"
 
     def test_no_overlap(self, mongo_counts):
         _, _, overlap = mongo_counts
-        assert overlap == 0, f"overlap={overlap} (expected 0)"
+        # iter-30: 0 → 1. Tata Salt Lite is the intentional exception where
+        # BOTH mechanisms legitimately apply: tier_override=RED (clinical
+        # judgement to hold above the formula) AND data_quality_flag
+        # (composition is unverified until a real pack is photographed).
+        # Both mechanisms carry independent user-visible consequences —
+        # the RED tier and the "Pending re-sourcing" badge respectively —
+        # so we keep both rather than collapsing them.
+        assert overlap == 1, f"overlap={overlap} (expected 1 — Tata Salt Lite is the one intentional exception)"
 
 
 # ---------------- T2: audit_seed.py --json ----------------
@@ -302,7 +318,12 @@ class TestT2AuditScript:
 
     def test_flagged_39(self, audit_json):
         data = json.loads(audit_json.stdout)
-        assert data.get("data_quality_flagged") == 39, (
+        # iter-30: 39 → 42
+        # +2 from CONCENTRATED_BASE_IDS additions (cauliflower soup + black beans)
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in seed;
+        #    the final-count recomputation in reconciliation (Step 7b tail)
+        #    now includes pre-existing flags so the counter matches Mongo.
+        assert data.get("data_quality_flagged") == 42, (
             f"data_quality_flagged={data.get('data_quality_flagged')}"
         )
 

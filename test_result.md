@@ -1573,3 +1573,83 @@ agent_communication_iter29:
          (Open Food Facts) barcode 5011544070034 → warning True; Nutella
          3017620422003 → False.
       Both fixes confirmed by testing_agent (20/20 backend + frontend).
+
+
+# Iter 30 — Regex tighten + Tata tier_override + reconciliation backstop
+
+backend_iter30:
+  - task: "Salt-substitute regex — require 'salt' after low/reduced-sodium; exclude 'no salt added' via negative lookahead"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/scan.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Removed bare 'low-sodium' / 'reduced-sodium' matches — now require 'salt' after. Added lookahead (?![\\s-]+added) on 'no salt' so 'No Salt Added Canned Tomatoes' and 'No-salt-added chickpeas' don't fire. All 15 original positives still match; 4 new negatives don't. Verified via _looks_like_salt_substitute unit calls."
+        - working: true
+          agent: "testing"
+          comment: "16/16 iter-30 tests pass (see test_iter30_salt_regex_and_reconciliation.py). All negatives return False; all 15 positives + bare 'no salt' return True."
+
+  - task: "Tata Salt Lite tier_override=RED for tier/text consistency"
+    implemented: true
+    working: true
+    file: "/app/backend/reconciliation.py, /app/backend/seed_data.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added food-tata-saltlite to CURATED_TIER_OVERRIDES with reason 'Composition unverified; portion_limit says Avoid — hold RED until physical pack sourced.' Seed's safety_tier now declares RED too. curated_overrides goes 7→8. The entry remains the ONE intentional case where both tier_override AND data_quality_flag apply — the flag drives the 'Pending re-sourcing' user badge while tier_override holds the tier at RED. test_no_overlap assertion updated 0→1 to codify this exception."
+        - working: true
+          agent: "testing"
+          comment: "Endpoint returns safety_tier=RED, tier_override=True, data_quality_flag preserved, portion_limit contains 'Avoid'."
+
+  - task: "CONCENTRATED_BASE_IDS additions + Step 7b sanity-violation backstop + stats counter recomputation"
+    implemented: true
+    working: true
+    file: "/app/backend/reconciliation.py, /app/backend/tests/test_iter13d_pending_resourcing.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added food-curried-cauliflower-soup and food-classic-seasoned-black-beans to CONCENTRATED_BASE_IDS (both were failing sanity_check post-reconciliation but weren't flagged). Added Step 7b backstop: any entry still failing sanity_check() after reconciliation that doesn't have tier_override AND doesn't already carry data_quality_flag gets 'concentrated_base_pending_resourcing' set automatically. Also added tail line that recomputes stats['data_quality_flagged'] from the final deduped list so it matches Mongo when a seed entry declares data_quality_flag directly (e.g. Tata Salt Lite). Bumped 4 assertions in test_iter13d — flagged_count 39→42, tier_override 7→8, no_overlap 0→1 (Tata's intentional exception), audit_seed data_quality_flagged 39→42."
+        - working: true
+          agent: "testing"
+          comment: "Final verification 5/5 checkpoints pass. Reconciliation log: sanity_violations=41, curated_overrides=8, data_quality_flagged=42. audit_seed --json: data_quality_flagged=42, sanity_violations_count=41, curated_overrides=8. iter-13d 4/4 assertions PASS at new values."
+
+test_plan_iter30:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter30:
+  - agent: "main"
+    message: |
+      Reviewer flagged three issues from iter-29:
+      1. Regex too broad — false-positive clinical claim on 'Low Sodium
+         Bread' / 'Reduced Sodium Namkeen' / 'No Salt Added Canned
+         Tomatoes'. Tightened pattern to require 'salt' after
+         low/reduced-sodium and added lookahead excluding
+         '(no|no-)salt(?![\\s-]+added)'.
+      2. Tata Salt Lite tier/text mismatch — formula lands YELLOW at
+         K=184 but portion_limit says 'Avoid'. Added tier_override=RED
+         via CURATED_TIER_OVERRIDES. The entry is now the sole
+         intentional exception with BOTH tier_override AND
+         data_quality_flag (each drives independent user-visible
+         behavior: RED tier + 'Pending re-sourcing' badge respectively).
+      3. Missing CONCENTRATED_BASE_IDS entries + no backstop — added
+         two missing IDs and a Step 7b auto-flag for any post-reconcile
+         sanity-ceiling breach not already flagged/tier_overridden.
+         Also aligned the stats counter with the Mongo count so audit
+         reports match.
+      Four iter-13d assertions bumped (three the reviewer flagged, plus
+      the audit_seed counterpart). Testing agent confirmed 5/5 final
+      checkpoints + all iter-13d + all iter-30 pass. Sajina assertion
+      failures reported are pre-existing and outside iter-30 scope.

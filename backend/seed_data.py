@@ -641,10 +641,13 @@ SEED_FOODS = [
         "name": "Tata Salt Lite (Low-Sodium Salt)",
         "hindi_name": "टाटा साल्ट लाइट (कम-सोडियम नमक)",
         "category": "salt_substitute",
-        # Per classify_from_nutrients: K=184 (>=150 → YELLOW), Na=256
-        # (>=200 → YELLOW). Both YELLOW; K is the primary flag by the
-        # classifier's ordering. Formula-driven, NOT hand-set.
-        "safety_tier": "YELLOW",
+        # Iter-30: tier_override=RED via CURATED_TIER_OVERRIDES because the
+        # composition is explicitly unverified (see data_quality_flag) and
+        # the portion_limit_text says "Avoid". If we trusted the estimate,
+        # classify_from_nutrients would land YELLOW at K=184 — but we don't,
+        # and the tier text should agree with the tier. Hold RED until a
+        # physical pack's cation panel is sourced.
+        "safety_tier": "RED",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
         # UNVERIFIED %KCl split. Tata Consumer Products publicly declares only

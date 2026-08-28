@@ -43,8 +43,11 @@ _SALT_SUBSTITUTE_PATTERN = re.compile(
     r"\b("
     r"potassium\s*chloride"
     r"|kcl"
-    r"|low[\s-]?sodium(?:\s+salt)?"
-    r"|reduced[\s-]?sodium(?:\s+salt)?"
+    # low/reduced-sodium ONLY when immediately followed by "salt" — bare
+    # "low sodium bread" / "reduced sodium namkeen" don't imply a KCl swap
+    # and would produce a false clinical claim ("this is a potassium
+    # substitute") on the warning bar. Iter-30 fix.
+    r"|(?:low|reduced)[\s-]?sodium\s+salt"
     r"|lite\s+salt"
     r"|salt\s+substitute"
     r"|salt\s+alternative"
@@ -53,7 +56,12 @@ _SALT_SUBSTITUTE_PATTERN = re.compile(
     r"|himalayan\s+(?:pink\s+)?salt"
     r"|pink\s+salt"
     r"|lo[\s-]?salt"
-    r"|no[\s-]?salt"
+    # "no salt" catches "NoSalt" the product, but must NOT match the very
+    # common "no salt added" / "no-salt-added" produce/canned-goods
+    # labelling (that means sodium was reduced without a substitute, not
+    # that KCl was added). Lookahead permits both space and hyphen since
+    # the phrase appears in both hyphenated and space-separated forms.
+    r"|no[\s-]?salt(?![\s-]+added)"
     r"|kala\s+namak"
     r"|black\s+salt"
     r"|tata\s+salt\s+lite"

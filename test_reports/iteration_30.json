@@ -1,0 +1,37 @@
+{
+  "summary": "Backend-only iter-30 testing PASSED for all 3 target fixes. New test file /app/backend/tests/test_iter30_salt_regex_and_reconciliation.py: 16/16 pass. Fix 1 (tightened salt-substitute regex): confirmed 4 new negatives ('Low Sodium Bread', 'Reduced Sodium Namkeen', 'No Salt Added Canned Tomatoes', 'No-salt-added chickpeas') return False; all 15 original positives still match; bare 'no salt'/'NoSalt' still matches (product case preserved). Fix 2 (Tata Salt Lite tier_override RED): CURATED_TIER_OVERRIDES contains 'food-tata-saltlite'; GET /api/foods/food-tata-saltlite returns safety_tier=RED, tier_override=True, data_quality_flag=concentrated_base_pending_resourcing, portion_limit contains 'Avoid', K=184/Na=256 unchanged; curated_overrides stat = 8 (verified via reconcile_seed + backend startup log). Fix 3 (backstop + missing IDs): CONCENTRATED_BASE_IDS contains both 'food-curried-cauliflower-soup' and 'food-classic-seasoned-black-beans'; both endpoints return the flag; Step 7b backstop synthetically verified to flag an entry with K=5000 that has no tier_override AND exempts tier_override entries; audit_seed.py --json reports data_quality_flagged=41 and sanity_violations_count=41; backend startup log confirms 'curated_overrides=8, data_quality_flagged=41, sanity_violations=41'. Regression: Lo-Salt barcode (5011544070034) still returns salt_substitute_warning=True; Nutella (3017620422003) returns False. ISSUE: test_iter13d_pending_resourcing.py::TestT1MongoInvariants has 3 STALE assertions overlooked by main agent — the class was NOT fully updated for iter-30. See rca_of_issue.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39", "issue": "Asserts Mongo flagged==41 but actual DB count is 42. Tata Salt Lite has data_quality_flag pre-set in seed_data.py AND is now in CURATED_TIER_OVERRIDES, so it shows up in the Mongo count while the audit_seed.py stat counter (which only counts flags set by the reconcile pipeline, not pre-existing seed flags) reports 41. The assertion should be 42, OR the seed's pre-set data_quality_flag on Tata should be removed (since curated_overrides handles the tier and the backstop would flag it anyway)."},
+      {"endpoint": "tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_tier_override_count_7", "issue": "Asserts tier_override count==7 but actual is now 8 after Fix 2 added food-tata-saltlite to CURATED_TIER_OVERRIDES. Update assertion to 8."},
+      {"endpoint": "tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_no_overlap", "issue": "Asserts overlap of tier_override+data_quality_flag == 0. Actual is 1 (food-tata-saltlite carries BOTH by design per Fix 2 — tier_override says 'trust clinical judgement RED' and data_quality_flag says 'composition unverified'). Either update to 1 with a comment that Tata is a deliberate exception, or remove the pre-set data_quality_flag from the Tata seed entry (Step 7b backstop would flag it automatically if desired, though Tata's ceilings don't currently trip sanity_check at K=184/Na=256, so keeping the flag on the seed is the intended path)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter30_salt_regex_and_reconciliation.py",
+    "/app/test_reports/pytest/pytest_iter30.xml"
+  ],
+  "action_items": [
+    "Update /app/backend/tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants: test_flagged_count_39 assertion 41 -> 42 (Tata Salt Lite pre-set flag adds one to Mongo count vs audit's 41), test_tier_override_count_7 assertion 7 -> 8, test_no_overlap assertion 0 -> 1 (Tata Salt Lite has both by design). Alternatively, remove the pre-set 'data_quality_flag' key from the food-tata-saltlite entry in seed_data.py — the CURATED_TIER_OVERRIDES entry already documents that composition is unverified, so keeping only tier_override there would eliminate both the DB count mismatch and the overlap while still surfacing the correct clinical outcome (RED, portion_limit='Avoid')."
+  ],
+  "critical_code_review_comments": [
+    "reconciliation.py:387 — stats['data_quality_flagged'] = apply_data_quality_flags(all_foods) counts entries newly flagged by IDs, but food-tata-saltlite already carries the flag from seed_data.py and is NOT re-counted. This creates a divergence between the audit stat (41) and Mongo count (42). Either count via `sum(1 for f in all_foods if f.get('data_quality_flag'))` after Steps 7/7b, or remove the pre-set flag from the seed entry.",
+    "Fix 2's design intentionally has an entry with BOTH tier_override and data_quality_flag. This breaks the iter-13d 'no_overlap' invariant. Recommend documenting Tata Salt Lite as the sole permitted overlap OR removing the seed's pre-set flag."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter30_salt_regex_and_reconciliation.py (new — 16 tests)"
+  ],
+  "success_rate": {"backend": "100% (16/16 iter-30 tests pass)", "frontend": "N/A (backend-only iteration)"},
+  "seed_data_creation": "None; synthetic dicts created in-memory only for backstop tests via reconcile_seed(); no DB writes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter-30 fixes are backend-only and validated end-to-end. The three legacy iter-13d T1 Mongo-invariant assertions (test_flagged_count_39==41, test_tier_override_count_7==7, test_no_overlap==0) are the ONLY known stale tests post-iter-30. Main agent must either (a) update them to 42/8/1 respectively, or (b) drop the pre-set data_quality_flag from seed_data.py's Tata Salt Lite entry (recommended cleaner path — keeps invariants intact). Not fixing here because the choice is a policy call, not a mechanical fix.",
+  "rca_of_issue": "iter-30 Fix 2 (Tata Salt Lite -> CURATED_TIER_OVERRIDES) creates a NEW state that older iter-13d T1 invariants weren't written for: (1) tier_override count moves 7->8, (2) an entry with BOTH tier_override AND data_quality_flag now exists (Tata Salt Lite has both — clinical judgement RED via override + composition-unverified flag from seed_data.py), and (3) Mongo's data_quality_flag count is 42 while the audit_seed.py stat is 41 because apply_data_quality_flags() only counts IDs in CONCENTRATED_BASE_IDS (Tata isn't there — its flag is set directly in seed_data.py). Main agent updated the audit-based '==41' assertion in test_iter13d and the '==39' Mongo assertion to 41 but missed that Mongo actually shows 42, and missed the tier_override count + overlap tests entirely. Mitigation: either bump the 3 assertions or, cleaner, delete the 'data_quality_flag' line from seed_data.py's Tata entry (line ~667) — the tier_override reason already documents the unverified-composition rationale, and the endpoint would still show RED via tier_override. The salt-substitute-warning + portion_limit_text='Avoid' outcomes remain identical either way."
+}

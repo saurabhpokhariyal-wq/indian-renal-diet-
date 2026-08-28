@@ -56,6 +56,12 @@ CURATED_TIER_OVERRIDES: dict[str, str] = {
     "food-onion": "Kept YELLOW as a portion-vigilance signal — cooked onion is used in nearly every Indian dish.",
     "food-brown-rice": "Whole grains carry higher phosphorus bioavailability than white rice — YELLOW keeps daily caution.",
     "food-orange": "Citrus fruit is a canonical high-K item in renal-diet counselling; kept RED regardless of raw potassium.",
+    # Iter-30: composition is explicitly unverified (data_quality_flag set),
+    # portion_limit_text says "Avoid" — the tier text and the tier must
+    # agree, so hold at RED until a real pack is photographed. The
+    # formula's YELLOW at K=184 assumes we trust the estimate, which we
+    # explicitly don't.
+    "food-tata-saltlite": "Composition unverified (see data_quality_flag); portion_limit says 'Avoid' — hold RED until a physical pack's cation panel is sourced.",
 }
 
 
@@ -95,6 +101,11 @@ CONCENTRATED_BASE_IDS: set[str] = {
     # 1 grain/porridge whose values look like dry pearl-millet flour, not
     # prepared porridge — awaiting real cooked-portion source.
     "food-pearl-millet-infant-food",
+    # Iter-30: surfaced by audit_seed.py post-reconciliation as still
+    # violating sanity_check() ceilings but not previously flagged.
+    "food-curried-cauliflower-soup",   # 2193mg Na after /5 rescale
+    "food-classic-seasoned-black-beans",  # 11984mg Na, never rescaled
+    # (dal-like bean category isn't bucketed for the soup rescale rule)
 }
 DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
 
@@ -447,6 +458,33 @@ def reconcile_seed(
             stats["portion_disclaimer_conflicts"].append(
                 (food.get("id"), food.get("name"))
             )
+
+    # Step 7b (iter-30): any entry that STILL fails a sanity ceiling after
+    # reconciliation and isn't already tier_override'd gets the
+    # concentrated-base-pending-resourcing flag automatically. This is a
+    # backstop so future entries in odd categories (dal-like beans, etc.)
+    # don't slip past CONCENTRATED_BASE_IDS unnoticed the way
+    # food-classic-seasoned-black-beans did. tier_override entries are
+    # exempt because that's the deliberate clinical-judgement lane.
+    for food in deduped:
+        if food.get("tier_override"):
+            continue
+        if food.get("data_quality_flag"):
+            continue
+        if sanity_check(food):
+            food["data_quality_flag"] = DATA_QUALITY_FLAG_CONCENTRATED
+            stats["data_quality_flagged"] += 1
+
+    # Recompute data_quality_flagged as the FINAL count of every entry
+    # in `deduped` carrying the flag (not just entries this reconciliation
+    # step added the flag to). This matters when a seed entry declares
+    # data_quality_flag directly (e.g. Tata Salt Lite, whose composition
+    # is unverified independent of any sanity-ceiling breach) — that flag
+    # is preserved through every step above but would otherwise never get
+    # counted, causing the audit total to drift below the true Mongo count.
+    stats["data_quality_flagged"] = sum(
+        1 for f in deduped if f.get("data_quality_flag")
+    )
 
     if logger:
         logger.info(

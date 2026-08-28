@@ -1,0 +1,38 @@
+{
+  "summary": "iter-30 FINAL verification PASSED. All 5 review checkpoints (A-E) validated end-to-end. The 3 previously-stale iter-13d T1 Mongo-invariant assertions (test_flagged_count_39==42, test_tier_override_count_7==8, test_no_overlap==1) plus test_flagged_39==42 (audit script) all PASS after the main agent bumped them per option B. Reconciliation.py Step 7b tail now recomputes data_quality_flagged from the final deduped list, so Tata Salt Lite's pre-set seed flag is included in the counter, aligning stats with the Mongo count. Backend startup log confirms: 'reclassified=417, rescaled=430, duplicates_dropped=9, sanity_violations=41, portion/disclaimer_conflicts=0, curated_overrides=8, data_quality_flagged=42'. audit_seed.py --json returns {data_quality_flagged: 42, sanity_violations_count: 41, curated_overrides: 8, total_input: 1033}. GET /api/foods/food-tata-saltlite returns safety_tier=RED, tier_override=True, data_quality_flag=concentrated_base_pending_resourcing, portion_limit_text='Avoid — composition unverified, treat as high-K'. iter-30 file test_iter30_salt_regex_and_reconciliation.py had one leftover 41 assertion (TestAuditSeedJson::test_data_quality_flagged_41) as pre-flagged in review request point C — bumped to 42 with a docstring, now 16/16 pass. UNRELATED pre-existing failure: TestB5Sajina::test_portion_unchanged (portion_g=40.0 vs 150 expected) and TestB5Sajina::test_tier_red (YELLOW vs RED) — these are OUTSIDE the iter-30 scope and were not introduced by the counter recompute; food-sajina appears to be rescaled by an earlier iter-13d step. Reported below as informational, not blocking closure of iter-30.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_portion_unchanged", "issue": "food-sajina returns portion_g=40.0 but test asserts 150. OUTSIDE iter-30 scope — pre-existing rescale from earlier iterations. Not blocking iter-30 closure. Main agent should decide whether Sajina's portion should be pinned at 150 or if the assertion should be updated."},
+      {"endpoint": "tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_tier_red", "issue": "food-sajina returns safety_tier=YELLOW but test asserts RED. OUTSIDE iter-30 scope — pre-existing. Not blocking iter-30 closure."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/pytest/pytest_iter30.xml",
+    "/app/test_reports/pytest/pytest_iter30_retest_13d.xml",
+    "/app/backend/tests/test_iter13d_pending_resourcing.py",
+    "/app/backend/tests/test_iter30_salt_regex_and_reconciliation.py"
+  ],
+  "action_items": [
+    "iter-30 can be CLOSED — all A/B/C/D/E checkpoints verified.",
+    "OPTIONAL (out of scope for iter-30): investigate TestB5Sajina failures — food-sajina rescaled to portion_g=40 and tier=YELLOW. Either restore original portion/tier or bump the two assertions. Not related to iter-30 changes."
+  ],
+  "critical_code_review_comments": [
+    "reconciliation.py final-count recompute at Step 7b tail: `stats['data_quality_flagged'] = sum(1 for f in deduped if f.get('data_quality_flag'))` correctly aligns the counter with the DB. Clean fix that also removes the previously-observed audit vs Mongo divergence."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter30_salt_regex_and_reconciliation.py (bumped TestAuditSeedJson::test_data_quality_flagged_41 assertion 41 -> 42 per review request point C; added docstring noting the finalize step)"
+  ],
+  "success_rate": {"backend": "100% for iter-30 scope (iter30 file 16/16 pass; iter-13d 4/4 target assertions pass; 36/38 total iter-13d pass with 2 unrelated Sajina failures)", "frontend": "N/A (backend-only iteration)"},
+  "seed_data_creation": "None; no DB writes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter-30 is fully verified and can be closed. reconciliation.py Step 7b tail final-count recompute is the correct source of truth for data_quality_flagged (currently 42, including Tata Salt Lite's seed-declared flag). Any future audit assertions should use 42 (not 41). Tata Salt Lite is the sole documented entry with BOTH tier_override AND data_quality_flag; iter-13d test_no_overlap now expects overlap==1 as intended. The only remaining unrelated failures in iter-13d are TestB5Sajina — food-sajina portion/tier changes appear pre-existing from an earlier iteration and are unrelated to iter-30 changes.",
+  "rca_of_issue": "N/A — iter-30 verification complete. Only observation: TestB5Sajina failures pre-date iter-30; food-sajina now returns portion_g=40.0 (not 150) and safety_tier=YELLOW (not RED). Likely rescaled by the reconciliation pipeline's rescale/reclassify step. Not caused by the iter-30 counter recompute (which only touches stats['data_quality_flagged'])."
+}
