@@ -220,6 +220,13 @@ class FoodScanResponse(BaseModel):
     sodium_mg: Optional[float] = None
     protein_g: Optional[float] = None
     raw: Optional[str] = None
+    # True when the scanned product name/brand/ingredient text contains any
+    # salt-substitute red-flag pattern (KCl, "low sodium salt", "lite salt",
+    # "sendha", etc.). Independent of whether the barcode/photo matched a DB
+    # entry — an UNVERIFIED unknown low-sodium salt is exactly when this
+    # warning matters most. Frontend renders a red "never for CKD" bar
+    # ABOVE the safety card in both matched and UNVERIFIED cases.
+    salt_substitute_warning: bool = False
 
 
 # ---- Reports / summaries ----

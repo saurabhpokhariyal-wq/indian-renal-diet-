@@ -24,7 +24,8 @@ CSV_PATH = "/app/backend/guide_needs_sourcing.csv"
 # expected values after chemistry correction
 EXPECTED = {
     "food-lo-salt-substitute": {
-        "potassium_mg": 350, "sodium_mg": 131,
+        # iter-29: recomputed 660 × 0.525 = 346 (was 350 rounding)
+        "potassium_mg": 346, "sodium_mg": 131,
         "safety_tier": "RED", "primary_risk_factor": "POTASSIUM",
     },
     "food-nosalt-substitute": {
@@ -92,11 +93,13 @@ class TestSaltSources:
             assert isinstance(src, str) and src.strip(), f"{fid} source empty: {src!r}"
 
     def test_conversion_factors_cited(self, auth_headers):
-        # These entries should reference either K = KCl × 0.525 or Na = NaCl × 0.394
+        # These entries should reference either K = KCl × 0.525 or Na = NaCl × 0.394.
+        # iter-29: Tata Salt Lite source was rewritten to "COMPOSITION NOT YET SOURCED"
+        # (data_quality_flag=concentrated_base_pending_resourcing) — it intentionally
+        # no longer carries the chemistry factor. Only 4 entries must cite now.
         chem_expected = {
             "food-lo-salt-substitute",
             "food-nosalt-substitute",
-            "food-tata-saltlite",
             "food-himalayan-pink-salt",
             "food-kala-namak",
         }
@@ -107,7 +110,7 @@ class TestSaltSources:
             src = (r.json()["food"].get("source") or "").lower()
             if "0.525" in src or "0.394" in src:
                 hits += 1
-        assert hits >= 5, f"expected chemistry conversion factor in >=5 sources, got {hits}"
+        assert hits >= 4, f"expected chemistry conversion factor in >=4 sources, got {hits}"
 
 
 # --------------------------------------------------------------------

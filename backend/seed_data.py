@@ -581,23 +581,29 @@ SEED_FOODS = [
         "safety_tier": "RED",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
-        # 66.6% KCl × 0.525 = 350mg K per 1g product; 33.3% NaCl × 0.394 =
-        # 131mg Na per 1g product.
-        "potassium_mg": 350,
+        # Verified composition: 66.0% KCl (minimum) / 33.3% NaCl (maximum) per
+        # Klinge Foods manufacturer spec + Open Food Facts entry 5011544070034.
+        # Elemental K = 660mg KCl × 0.525 = 346mg per 1g product.
+        # Elemental Na = 333mg NaCl × 0.394 = 131mg per 1g product.
+        "potassium_mg": 346,
         "phosphorus_mg": 0,
         "sodium_mg": 131,
         "protein_g": 0,
         "fluid_ml": 0,
         "portion_limit_text": "Avoid — banned for CKD patients",
         "actionable_clinical_tip": (
-            "66.6% potassium chloride blend. Just 1g gives ~350 mg elemental "
-            "potassium (KCl × 0.525) — one teaspoon (~5g) crosses a dialysis "
-            "patient's entire daily potassium budget. Never use."
+            "66% potassium chloride / 33% sodium chloride (verified from "
+            "Klinge Foods manufacturer spec). 1g gives ~346 mg elemental K "
+            "(KCl × 0.525) — one teaspoon (~5g) crosses a dialysis patient's "
+            "entire daily potassium budget. Manufacturer's own label warns "
+            "against use on potassium-sparing diets. Never use in CKD."
         ),
         "source": (
-            "Klinge Foods Ltd Lo-Salt ingredient declaration — 66.6% "
-            "potassium chloride / 33.3% sodium chloride by mass. Elemental "
-            "K = KCl × 0.525; elemental Na = NaCl × 0.394."
+            "Klinge Foods Ltd LoSalt product spec (klinge-foods.com/losalt.html) — "
+            "66.0% potassium chloride minimum / 33.3% sodium chloride "
+            "maximum + magnesium carbonate anti-caking. Cross-referenced "
+            "with Open Food Facts entry 5011544070034. Elemental K = "
+            "KCl × 0.525; elemental Na = NaCl × 0.394."
         ),
     },
     {
@@ -641,28 +647,40 @@ SEED_FOODS = [
         "safety_tier": "YELLOW",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
-        # 35% KCl × 0.525 = 184mg elemental K per 1g; 65% NaCl × 0.394 =
-        # 256mg elemental Na per 1g.
+        # UNVERIFIED %KCl split. Tata Consumer Products publicly declares only
+        # "up to 15% less sodium than ordinary table salt" and no KCl fraction.
+        # FSSAI does require per-100g Na and K cation declaration on the
+        # physical pack, but that spec sheet is not available in any web
+        # source we could cite. Values below are BEST ESTIMATES pending the
+        # actual pack — flagged via data_quality_flag so the UI shows a
+        # "Pending re-sourcing" badge, and separately logged to
+        # guide_needs_sourcing.csv. Do not treat these numbers as
+        # authoritative; a patient must never rely on them for daily use.
         "potassium_mg": 184,
         "phosphorus_mg": 0,
         "sodium_mg": 256,
         "protein_g": 0,
         "fluid_ml": 0,
-        "portion_limit_text": "Not renal-safe — 1g adds ~184mg K + ~256mg Na",
+        "data_quality_flag": "concentrated_base_pending_resourcing",
+        "portion_limit_text": "Avoid — composition unverified, treat as high-K",
         "actionable_clinical_tip": (
-            "~35% potassium chloride, ~65% sodium chloride. 1g gives ~184 mg "
-            "elemental K (KCl × 0.525) and ~256 mg Na (NaCl × 0.394). A "
-            "typical daily 3-5g use pushes K past 550-900 mg and Na past "
-            "750-1300 mg — RED territory in daily practice. Use herbs and "
-            "lemon instead."
+            "UNVERIFIED composition — Tata publicly declares only '15% less "
+            "sodium than table salt' and does not publish the KCl fraction. "
+            "Any Indian 'lite salt' contains potassium chloride to make up "
+            "for reduced sodium — for a CKD patient that's the wrong "
+            "trade-off. Until we source the actual per-100g cation panel "
+            "off a physical pack, treat this as a high-potassium product "
+            "and avoid. Use herbs and lemon instead."
         ),
         "source": (
-            "Tata Consumer Products 'Tata Salt Lite' ingredient panel — "
-            "sodium chloride + iodised potassium chloride. Percentage split "
-            "(~35% KCl) taken from product marketing 'up to 15% less sodium' "
-            "claim; PENDING verification against manufacturer spec sheet "
-            "(guide_needs_sourcing.csv). Elemental K = KCl × 0.525; Na = "
-            "NaCl × 0.394."
+            "COMPOSITION NOT YET SOURCED. Tata Consumer Products marketing "
+            "materials (tatachemicals.com press release, product retail "
+            "listings) describe 'edible common salt + potassium chloride + "
+            "anti-caking agents + potassium iodate' but do not state the "
+            "%KCl split. FSSAI regulations require per-100g Na and K "
+            "declaration on the physical pack, but we have not verified "
+            "against a real label yet. See guide_needs_sourcing.csv row "
+            "'Tata Salt Lite (%KCl split)'."
         ),
     },
     {

@@ -378,6 +378,24 @@ export const translations: Record<string, Entry> = {
     bn: "বলুন",
     mr: "सांगा",
   },
+  // Salt-substitute red-flag bar shown ABOVE the scan result card whenever
+  // the scanned pack (matched or unverified) contains a KCl/low-sodium-salt
+  // keyword. Independent of the safety card so a patient never sees a
+  // neutral "unknown product" card without also seeing this warning.
+  saltSubstituteWarningTitle: {
+    en: "Never for CKD — this is a potassium substitute",
+    hi: "CKD में कभी नहीं — यह पोटैशियम विकल्प है",
+    ta: "CKD-க்கு ஒருபோதும் அல்ல — இது பொட்டாசியம் மாற்று",
+    bn: "CKD-তে কখনো নয় — এটি পটাশিয়াম প্রতিস্থাপক",
+    mr: "CKD मध्ये कधीच नाही — हे पोटॅशियम पर्याय आहे",
+  },
+  saltSubstituteWarningBody: {
+    en: "'Low-sodium' / 'lite salt' / rock salt / pink salt / KCl blends swap sodium for POTASSIUM. Even a small amount can push a dialysis patient into life-threatening hyperkalemia. Use herbs, lemon, black pepper, and spices instead — never a salt substitute.",
+    hi: "'लो-सोडियम' / 'लाइट सॉल्ट' / सेंधा / पिंक साल्ट / KCl मिश्रण सोडियम की जगह पोटैशियम डालते हैं। थोड़ी मात्रा भी डायलिसिस के मरीज़ में जानलेवा हाइपरकलीमिया कर सकती है। इसकी जगह जड़ी-बूटी, नींबू, काली मिर्च और मसाले प्रयोग करें।",
+    ta: "'குறைந்த சோடியம்' / 'லைட் ஸால்ட்' / ராக் ஸால்ட் / பிங்க் ஸால்ட் / KCl கலவைகள் சோடியத்திற்கு பதிலாக பொட்டாசியத்தை சேர்க்கின்றன. சிறிய அளவும் டயாலிசிஸ் நோயாளியில் உயிரிழக்கச் செய்யக்கூடும். மூலிகைகள், எலுமிச்சை, மிளகு, மசாலாக்களைப் பயன்படுத்துங்கள்.",
+    bn: "'কম-সোডিয়াম' / 'লাইট সল্ট' / সেন্ধা / গোলাপি লবণ / KCl মিশ্রণ সোডিয়ামের বদলে পটাশিয়াম যোগ করে। অল্প পরিমাণও ডায়ালিসিস রোগীর জীবন সংকটাপন্ন হাইপারক্যালেমিয়া করতে পারে। ভেষজ, লেবু, গোলমরিচ, মশলা ব্যবহার করুন।",
+    mr: "'कमी सोडियम' / 'लाइट सॉल्ट' / सेंधा / गुलाबी मीठ / KCl मिश्रण सोडियम ऐवजी पोटॅशियम टाकतात. लहानशी मात्रा देखील डायलिसिस रुग्णाला जीवघेणा हायपरकॅलेमिया करू शकते. औषधी वनस्पती, लिंबू, काळी मिरी, मसाले वापरा.",
+  },
   barcodeIntro: {
     en: "Point the camera at a packaged food's barcode. We'll check kidney safety from Open Food Facts.",
     hi: "पैकेज्ड फूड के बारकोड पर कैमरा रखें। हम Open Food Facts से किडनी सुरक्षा जाँचेंगे।",

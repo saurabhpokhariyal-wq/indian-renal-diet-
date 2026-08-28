@@ -1511,3 +1511,65 @@ agent_communication_iter28:
          hero via CheckFoodModeSwitcher, meal-log's "Log by text" button).
          All three input methods now live in ONE screen.
       Both fixes confirmed by testing_agent (26/26 backend + 4/4 frontend).
+
+
+# Iter 29 — Salt substitute manufacturer-verify + Barcode/Vision salt warning
+
+backend_iter29:
+  - task: "Lo-Salt manufacturer-verified (Klinge Foods 66% KCl / 33% NaCl) + Tata Salt Lite flagged as unverified composition"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_data.py, /app/backend/guide_utils.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Lo-Salt verified from Klinge Foods spec (klinge-foods.com/losalt.html) + Open Food Facts entry 5011544070034 → 66.0% KCl min / 33.3% NaCl max. K=346 (was 350; recomputed 660 × 0.525). Source string now cites both refs explicitly. Tata Salt Lite %KCl split NOT publicly declared by Tata Consumer Products (their marketing states '15% less sodium than table salt' but doesn't state KCl fraction and FSSAI declaration isn't in any web source). Flagged with data_quality_flag='concentrated_base_pending_resourcing' — food detail UI shows 'Pending re-sourcing' badge. Source field starts 'COMPOSITION NOT YET SOURCED'. Tip openly acknowledges unverified. guide_needs_sourcing.csv row remains."
+        - working: true
+          agent: "testing"
+          comment: "3/3 backend checks pass — Lo-Salt K/Na/tier/source correct; Tata Salt Lite data_quality_flag set + source starts 'COMPOSITION NOT YET SOURCED'; guide_needs_sourcing.csv has the Tata row."
+
+  - task: "Salt-substitute warning bar in Scan (barcode + vision) — fires on TEXT PATTERN, not DB match"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/scan.py, /app/backend/schemas.py, /app/frontend/app/(app)/scan.tsx, /app/frontend/src/lib/i18n.ts, /app/frontend/src/lib/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added FoodScanResponse.salt_substitute_warning bool field. Backend helper _looks_like_salt_substitute() runs the compiled _SALT_SUBSTITUTE_PATTERN regex against product_name + brand + ingredients_text + OFF categories (barcode) and against LLM food_name + raw response (vision). Regex covers: potassium chloride, KCl, low(-)sodium(-salt), reduced(-)sodium, lite salt, salt substitute, salt alternative, sendha, rock salt, himalayan (pink) salt, pink salt, lo(-)salt, no(-)salt, kala namak, black salt, tata salt lite. Applied in BOTH return branches of scan_food (parse failure + DB match/no-match) and in scan_barcode. Independent of DB match — the UNVERIFIED case is exactly when this warning matters most (patient scanning an unfamiliar 'healthy' salt). Frontend SaltSubstituteWarning component renders a solid red bar above ScanResultCard in both scan modes."
+        - working: true
+          agent: "testing"
+          comment: "All 20 tests pass — live OFF barcode 5011544070034 returns salt_substitute_warning=True; Nutella (3017620422003) returns False; regex matches all 15 red-flag keywords and rejects 4 negatives. Frontend renders warning above card in both scan branches; testID + red background verified; 5-lang translations present."
+
+test_plan_iter29:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter29:
+  - agent: "main"
+    message: |
+      Two review fixes from iter-28:
+      1. Manufacturer verify — Lo-Salt confirmed 66% KCl / 33% NaCl from
+         Klinge Foods manufacturer spec + Open Food Facts entry. Numbers
+         updated (K 350→346) and source properly cited. Tata Salt Lite's
+         %KCl split isn't publicly declared anywhere we could find, so
+         flagged with data_quality_flag='concentrated_base_pending_resourcing'
+         (existing badge). Source string starts with 'COMPOSITION NOT YET
+         SOURCED'. guide_needs_sourcing.csv row kept from iter-28.
+      2. Barcode/vision Salt-Substitute Warning — trigger is TEXT PATTERN,
+         not DB match. Regex matches product name, brand, OFF ingredient
+         text, categories (barcode) or LLM food_name (vision). Fires in
+         both matched and UNVERIFIED cases — an unknown 'healthy' salt is
+         precisely the danger case. New SaltSubstituteWarning component
+         renders a red bar ABOVE the safety card. 5-language translations
+         with unhedged 'never' wording. Verified live via real Lo-Salt
+         (Open Food Facts) barcode 5011544070034 → warning True; Nutella
+         3017620422003 → False.
+      Both fixes confirmed by testing_agent (20/20 backend + frontend).

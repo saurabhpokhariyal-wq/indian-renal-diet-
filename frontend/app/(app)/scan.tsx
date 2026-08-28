@@ -281,12 +281,17 @@ export default function ScanScreen() {
               </View>
 
               {result ? (
-                <ScanResultCard
-                  result={result}
-                  onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
-                  tSeeMore={t("seeMore")}
-                  tBrand={t("brand")}
-                />
+                <>
+                  {result.salt_substitute_warning ? (
+                    <SaltSubstituteWarning title={t("saltSubstituteWarningTitle")} body={t("saltSubstituteWarningBody")} />
+                  ) : null}
+                  <ScanResultCard
+                    result={result}
+                    onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
+                    tSeeMore={t("seeMore")}
+                    tBrand={t("brand")}
+                  />
+                </>
               ) : null}
 
               {error ? <Text testID="scan-error" style={styles.error}>{error}</Text> : null}
@@ -352,6 +357,9 @@ export default function ScanScreen() {
 
             {result ? (
               <>
+                {result.salt_substitute_warning ? (
+                  <SaltSubstituteWarning title={t("saltSubstituteWarningTitle")} body={t("saltSubstituteWarningBody")} />
+                ) : null}
                 <ScanResultCard
                   result={result}
                   onSeeMore={() => result.matched_food_id && router.push(`/food/${result.matched_food_id}`)}
@@ -472,6 +480,18 @@ function ScanResultCard({
           <Ionicons name="arrow-forward" size={16} color={COLORS.brand} />
         </TouchableOpacity>
       ) : null}
+    </View>
+  );
+}
+
+function SaltSubstituteWarning({ title, body }: { title: string; body: string }) {
+  return (
+    <View testID="salt-substitute-warning" style={styles.saltWarnCard}>
+      <View style={styles.saltWarnHeader}>
+        <Ionicons name="warning" size={22} color={COLORS.textInverse} />
+        <Text style={styles.saltWarnTitle}>{title}</Text>
+      </View>
+      <Text style={styles.saltWarnBody}>{body}</Text>
     </View>
   );
 }
@@ -608,4 +628,26 @@ const styles = StyleSheet.create({
     borderRadius: SIZE.radiusPill, backgroundColor: COLORS.greenBg, borderWidth: 1, borderColor: COLORS.greenBorder,
   },
   loggedFlashText: { color: COLORS.greenText, fontWeight: "700", fontSize: FONT.body },
+
+  saltWarnCard: {
+    backgroundColor: COLORS.redStrong,
+    borderRadius: SIZE.radiusLg,
+    padding: SIZE.m,
+    gap: 6,
+    borderWidth: 2,
+    borderColor: COLORS.redBorder,
+  },
+  saltWarnHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+  saltWarnTitle: {
+    flex: 1,
+    color: COLORS.textInverse,
+    fontWeight: "800",
+    fontSize: FONT.bodyL,
+    lineHeight: 22,
+  },
+  saltWarnBody: {
+    color: COLORS.textInverse,
+    fontSize: FONT.body,
+    lineHeight: 22,
+  },
 });

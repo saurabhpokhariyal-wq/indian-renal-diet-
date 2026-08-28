@@ -1,22 +1,33 @@
 {
-  "summary": "Targeted re-test of iter-28 failure: /(app)/scan default (vision) mode chips visibility on web preview. Fix confirmed working. All 3 mode chips render on load, text chip switches to 'Describe your meal' UI with meal-text-input visible, barcode chip switches to barcode UI with 'Camera preview / mobile device' placeholder text. Vision (default) mode also renders correctly with camera placeholder. iter-28 closed successfully.",
-  "backend_issues": {"critical": [], "minor": []},
+  "summary": "iter-29 targeted verification passed 100%. Backend: 20/20 pytest passing (9 new iter-29 + 11 iter-28 regression, after 1 assertion refresh). Verified Lo-Salt updated to K=346/Na=131 with source citing 'klinge-foods.com' + '5011544070034'. Tata Salt Lite carries data_quality_flag='concentrated_base_pending_resourcing' with source starting 'COMPOSITION NOT YET SOURCED' (K=184/Na=256 unchanged). guide_needs_sourcing.csv still has Tata Salt Lite row. Barcode scan against real Open Food Facts: Lo-Salt (5011544070034) returns salt_substitute_warning=True; Nutella (3017620422003) returns False. Regex helper _looks_like_salt_substitute matches all 15 required positive keywords (potassium chloride, KCl, low sodium salt, lite salt, salt substitute, salt alternative, sendha, rock salt, Himalayan pink salt, pink salt, Lo-Salt, NoSalt, kala namak, black salt, Tata Salt Lite) and correctly rejects Nutella/Ghee/'regular table salt'/empty/None. Frontend code-read: scan.tsx renders <SaltSubstituteWarning> in both vision (line 286) and barcode (line 361) branches; component (line 487) exposes testID 'salt-substitute-warning' with backgroundColor=COLORS.redStrong. i18n keys saltSubstituteWarningTitle and saltSubstituteWarningBody are present in all 5 languages (en, hi, ta, bn, mr) at /app/frontend/src/lib/i18n.ts:385-398. Frontend smoke test: /scan?mode=barcode loads without red-screen after demo login. No mocked APIs — Open Food Facts was live during the run.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
   "frontend_issues": {
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [],
     "react_native_issues": []
   },
-  "test_report_links": [],
+  "test_report_links": [
+    "/app/backend/tests/test_iter29_salt_verification_and_scan_warning.py",
+    "/app/test_reports/pytest/pytest_iter29.xml"
+  ],
   "action_items": [],
   "critical_code_review_comments": [
-    "Fix in /app/frontend/app/(app)/scan.tsx uses `const skipPermCheck = Platform.OS === 'web' || mode === 'text'` at line 74, gating the permission early-return blocks (lines 76 and 82). Clean, minimal, and matches the recommendation from iter-28."
+    "scan.tsx is 654 lines — approaching the 700-line split threshold (informational only, not required).",
+    "salt_substitute_warning flag is correctly applied in BOTH scan_food return branches (early no-data path line 132 and matched/unmatched path line 178) and in scan_barcode against product_name+brand+ingredients_text+categories. Regex is anchored with word boundaries so 'salt' alone doesn't false-positive (confirmed by 'regular table salt' negative test).",
+    "Barcode 5011544070034 (Lo-Salt) resolves in Open Food Facts and correctly triggers the warning even though it does NOT match any seeded DB food — this is the UNVERIFIED-with-KCl case the literature flags as dangerous, and the wiring behaves correctly."
   ],
-  "updated_files": [],
-  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (4/4 checks passed)"},
-  "seed_data_creation": "None",
+  "updated_files": [
+    "/app/backend/tests/test_iter29_salt_verification_and_scan_warning.py (new)",
+    "/app/backend/tests/test_iter28_salt_chemistry_and_scan_merge.py (refreshed: Lo-Salt K expectation 350→346; chemistry-factor citation count 5→4 because Tata Salt Lite source was intentionally rewritten to 'COMPOSITION NOT YET SOURCED')"
+  ],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "100% (code-read + smoke)"},
+  "seed_data_creation": "None. Used demo@renal.app / demo123 (already seeded).",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "iter-28 fix (Platform.OS==='web' short-circuit for camera permission early-return in scan.tsx) verified. On web preview: default vision mode renders all 3 chips (scan-mode-vision/barcode/text). Text mode shows 'Describe your meal' title + meal-text-input testID. Barcode mode shows 'Barcode scanning is available on the mobile device' placeholder. No regressions observed.",
-  "rca_of_issue": "Original issue: on web, useCameraPermissions returned null/ungranted, causing the early-return in scan.tsx to render a permission bubble and short-circuit the mode-chip row + content. Fix: skip the permission gate when Platform.OS==='web' (web already renders a static camera placeholder) or when mode==='text' (no camera needed). Verified via Playwright DOM checks against testIDs and title text."
+  "context_for_next_testing_agent": "Backend tests for iter-29 live at test_iter29_salt_verification_and_scan_warning.py. Key assertions: Lo-Salt K=346/Na=131 RED-POTASSIUM; Tata Salt Lite data_quality_flag=concentrated_base_pending_resourcing and source starts with 'COMPOSITION NOT YET SOURCED'; barcode endpoint hits real Open Food Facts for 5011544070034 (Lo-Salt→warning True) and 3017620422003 (Nutella→warning False). If OFF is offline the two barcode tests self-skip via pytest.skip on 502 rather than failing.",
+  "rca_of_issue": "N/A — feature verification only, no bugs found."
 }

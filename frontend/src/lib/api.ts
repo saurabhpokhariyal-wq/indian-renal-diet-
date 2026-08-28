@@ -202,6 +202,7 @@ export interface FoodScan {
   sodium_mg?: number | null;
   protein_g?: number | null;
   raw: string | null;
+  salt_substitute_warning?: boolean;
 }
 
 export interface FruitEntry {

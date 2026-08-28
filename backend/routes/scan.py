@@ -34,6 +34,43 @@ router = APIRouter()
 logger = logging.getLogger("renal-diet")
 
 
+# Red-flag text patterns that identify a scanned pack as a salt substitute
+# (or a "low sodium" product that swaps NaCl for KCl). Fires the red warning
+# bar in the UI regardless of whether the pack resolved to a DB match — an
+# unknown low-sodium salt is precisely the dangerous case, per the literature
+# on unintentional hyperkalemia from unfamiliar salt swaps.
+_SALT_SUBSTITUTE_PATTERN = re.compile(
+    r"\b("
+    r"potassium\s*chloride"
+    r"|kcl"
+    r"|low[\s-]?sodium(?:\s+salt)?"
+    r"|reduced[\s-]?sodium(?:\s+salt)?"
+    r"|lite\s+salt"
+    r"|salt\s+substitute"
+    r"|salt\s+alternative"
+    r"|sendha"
+    r"|rock\s+salt"
+    r"|himalayan\s+(?:pink\s+)?salt"
+    r"|pink\s+salt"
+    r"|lo[\s-]?salt"
+    r"|no[\s-]?salt"
+    r"|kala\s+namak"
+    r"|black\s+salt"
+    r"|tata\s+salt\s+lite"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _looks_like_salt_substitute(*texts: Optional[str]) -> bool:
+    """True if any of the given text fragments (name / brand / ingredient
+    text / OCR'd label) matches the salt-substitute red-flag pattern."""
+    for t in texts:
+        if t and _SALT_SUBSTITUTE_PATTERN.search(t):
+            return True
+    return False
+
+
 @router.post("/scan/food", response_model=FoodScanResponse)
 @limiter.limit("5/minute", key_func=_rate_key_user)
 async def scan_food(request: Request, body: FoodScanRequest, current_user=Depends(get_current_user)):
@@ -92,6 +129,7 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
             clinical_tip=UNVERIFIED_TIP,
             matched_food_id=None,
             raw=text,
+            salt_substitute_warning=_looks_like_salt_substitute(text),
         )
 
     food_name = str(data.get("food_name") or "").strip() or "Unknown dish"
@@ -137,6 +175,7 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
         clinical_tip=clinical_tip or UNVERIFIED_TIP,
         matched_food_id=matched_id,
         raw=text if not matched_id else None,
+        salt_substitute_warning=_looks_like_salt_substitute(food_name, text),
     )
 
 
@@ -164,6 +203,13 @@ async def scan_barcode(request: Request, body: BarcodeScanRequest, current_user=
     product_name = (product.get("product_name") or product.get("product_name_en") or "").strip() or "Unknown packaged food"
     brand = (product.get("brands") or "").split(",")[0].strip() or None
     nutriments = product.get("nutriments") or {}
+    ingredients_text = (
+        product.get("ingredients_text")
+        or product.get("ingredients_text_en")
+        or product.get("ingredients_text_debug")
+        or ""
+    )
+    categories_text = product.get("categories") or ""
 
     def _val(key: str) -> float:
         v = nutriments.get(key)
@@ -278,4 +324,7 @@ async def scan_barcode(request: Request, body: BarcodeScanRequest, current_user=
         phosphorus_mg=round(p_mg, 1),
         sodium_mg=round(na_mg, 1),
         protein_g=round(protein_g, 1),
+        salt_substitute_warning=_looks_like_salt_substitute(
+            product_name, brand, ingredients_text, categories_text
+        ),
     )

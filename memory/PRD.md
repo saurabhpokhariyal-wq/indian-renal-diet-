@@ -189,3 +189,31 @@ See `/app/memory/test_credentials.md`.
   voice tab, meal-log "Log by text" button). One screen, three
   input methods — the KidneyPal-style unified entry point the
   iter-26 consolidation prompt asked for.
+
+## Iter 29 — Manufacturer verify + Barcode/vision Salt Warning bar
+
+- **Lo-Salt sourced**: Confirmed 66.0% KCl min / 33.3% NaCl max from
+  Klinge Foods manufacturer spec + Open Food Facts entry 5011544070034.
+  Numbers recomputed (K 350→346 per 660 × 0.525) with proper citation.
+- **Tata Salt Lite flagged as unverified**: Tata Consumer Products
+  doesn't publicly declare the KCl fraction anywhere we could source,
+  only marketing "15% less sodium than table salt". Entry now carries
+  `data_quality_flag="concentrated_base_pending_resourcing"` so the
+  food detail UI shows the "Pending re-sourcing" badge, and its source
+  string starts "COMPOSITION NOT YET SOURCED". The guide_needs_sourcing
+  .csv row remains as the audit trail.
+- **Salt-Substitute Warning bar** (scan.tsx + backend): New
+  `salt_substitute_warning` boolean on `FoodScanResponse` fires on TEXT
+  PATTERN against product name / brand / ingredient text / OFF
+  categories (or LLM food_name for vision). Regex catches: potassium
+  chloride, KCl, low/reduced-sodium salt, lite salt, salt substitute,
+  salt alternative, sendha, rock salt, himalayan/pink salt, lo salt,
+  no salt, kala namak, black salt, tata salt lite. Applied to BOTH
+  scan endpoints and BOTH return branches (matched + UNVERIFIED). The
+  UNVERIFIED case — patient scans an unfamiliar "healthy" salt not in
+  our DB — is exactly when the literature says hyperkalemia risk peaks,
+  so the trigger is independent of database match. Red bar with
+  unhedged "never for CKD" wording in 5 languages renders ABOVE the
+  safety card.
+- **Deferred by user**: Voice Dictation (holds for native speech
+  library + Hindi support); Common Meal Presets (skipped this round).
