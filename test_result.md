@@ -1451,3 +1451,63 @@ agent_communication_iter27:
          rule: no new top-level screens).
       Backed by curl smoke tests + visual screenshots. No standalone
       screens added. Frontend lint clean. Ready for testing_agent.
+
+
+# Iter 28 — Salt substitute chemistry correction + Scan/text mode merge
+
+backend_iter28:
+  - task: "Salt substitute K/Na chemistry correction (elemental K = KCl × 0.525, elemental Na = NaCl × 0.394) + source fields on all 6"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_data.py, /app/backend/guide_utils.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Fixed potassium_mg on food-lo-salt-substitute (660→350) and food-tata-saltlite (350→184) — previous values were raw KCl compound mass, now elemental K per KCl × 0.525. Sodium recomputed via NaCl × 0.394 on same two entries (Lo-Salt 30→131, Tata 150→256). Verified pink salt (Na=390 vs NaCl × 0.394 × 980 ≈ 386) and kala namak (Na=380 vs 960 × 0.394 ≈ 378) already used the right conversion — added math comments for future auditability. Added `source` field to all 6 entries citing manufacturer / USDA / IFCT with the specific conversion. Added Tata Salt Lite %KCl split to _FLAGGED_UNSOURCED so guide_needs_sourcing.csv flags it as needing manufacturer spec verification. Tier reclassified per classify_from_nutrients (Tata Salt Lite now YELLOW at K=184; Lo-Salt/NoSalt still RED; pink salt & kala namak YELLOW at Na=380-390 since <400 threshold)."
+        - working: true
+          agent: "testing"
+          comment: "Verified via 11 new pytest checks (test_iter28_salt_chemistry_and_scan_merge.py) — all 6 entries match spec'd K/Na/tier/risk_factor. All 6 have non-empty source. 5/5 KCl/NaCl-based entries cite the conversion factor in the source string. guide_needs_sourcing.csv includes the Tata Salt Lite flag row. Iter-27 tests updated to match new correct values."
+frontend_iter28:
+  - task: "Merge natural-language meal logging (log-meal-nl) into scan.tsx as a third mode (text)"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(app)/scan.tsx, /app/frontend/src/components/MealTextInput.tsx, /app/frontend/src/components/CheckFoodModeSwitcher.tsx, /app/frontend/app/(app)/meal-log.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Extracted /log-meal-nl.tsx logic into a reusable MealTextInput component. scan.tsx now has 3 modes (vision/barcode/text) with a third `scan-mode-text` chip and text-mode body rendering the extracted component. Supports `?mode=text&date=&meal_type=` URL params. CheckFoodModeSwitcher's voice route updated to `/(app)/scan?mode=text`. meal-log.tsx's `open-log-by-text` button now routes to `/(app)/scan?mode=text`. Deleted standalone /app/frontend/app/log-meal-nl.tsx. On web, the camera-permission early-return is now skipped so mode chips remain visible when the browser has no camera."
+        - working: true
+          agent: "testing"
+          comment: "Verified via targeted frontend re-test — all 3 mode chip testIDs present on default /(app)/scan; switching to text mode shows Describe UI; switching to barcode shows barcode overlay; /log-meal-nl now hits Unmatched Route; meal-log button routes correctly."
+
+test_plan_iter28:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter28:
+  - agent: "main"
+    message: |
+      Two review fixes from iter-27:
+      1. Salt substitute chemistry — potassium_mg was storing raw KCl compound
+         mass on Lo-Salt (660) and Tata Salt Lite (350). Corrected to elemental
+         K = KCl × 0.525 (350 and 184 respectively). NaCl → elemental Na
+         correction applied where needed. All 6 entries now have a source
+         field citing the manufacturer/USDA/IFCT reference and, where
+         applicable, the exact conversion arithmetic (K = KCl × 0.525, Na =
+         NaCl × 0.394). Tata Salt Lite's % KCl split flagged in
+         guide_needs_sourcing.csv pending manufacturer spec.
+      2. Nav consolidation completion — log-meal-nl was still a standalone
+         route. Extracted its screen logic to MealTextInput.tsx, embedded
+         inside scan.tsx as a third mode (vision/barcode/text). Deleted the
+         standalone route, updated the two links that pointed at it (Home
+         hero via CheckFoodModeSwitcher, meal-log's "Log by text" button).
+         All three input methods now live in ONE screen.
+      Both fixes confirmed by testing_agent (26/26 backend + 4/4 frontend).

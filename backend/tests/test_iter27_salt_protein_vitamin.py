@@ -59,17 +59,24 @@ class TestSaltSubstitutes:
         missing = expected - ids
         assert not missing, f"missing salt-substitute seeds: {missing}"
 
-    def test_kcl_salt_substitutes_are_red_potassium(self, auth_headers):
-        # These three are KCl-based → must be RED with POTASSIUM primary risk
-        for fid in ["food-lo-salt-substitute", "food-nosalt-substitute", "food-tata-saltlite"]:
+    def test_kcl_salt_substitutes_are_potassium_flagged(self, auth_headers):
+        # KCl-based salt substitutes — after iter-28 chemistry correction,
+        # potassium is elemental K (KCl × 0.525), not raw KCl mass.
+        # Expected: lo-salt K=350 RED, nosalt K=525 RED, tata-saltlite K=184 YELLOW.
+        expected = {
+            "food-lo-salt-substitute": ("RED", 350),
+            "food-nosalt-substitute": ("RED", 525),
+            "food-tata-saltlite": ("YELLOW", 184),
+        }
+        for fid, (tier, k_val) in expected.items():
             r = requests.get(f"{BASE_URL}/api/foods/{fid}", headers=auth_headers, timeout=15)
             assert r.status_code == 200, f"{fid} lookup failed"
             food = r.json()["food"]
-            assert food["safety_tier"] == "RED", f"{fid} base tier expected RED, got {food['safety_tier']}"
+            assert food["safety_tier"] == tier, f"{fid} tier expected {tier}, got {food['safety_tier']}"
             assert food["primary_risk_factor"] == "POTASSIUM", (
                 f"{fid} risk factor should be POTASSIUM, got {food['primary_risk_factor']}"
             )
-            assert food["potassium_mg"] > 300, f"{fid} K should be very high"
+            assert food["potassium_mg"] == k_val, f"{fid} K expected {k_val}, got {food['potassium_mg']}"
 
     def test_pink_and_kala_namak_are_sodium_flagged(self, auth_headers):
         for fid in ["food-himalayan-pink-salt", "food-kala-namak"]:

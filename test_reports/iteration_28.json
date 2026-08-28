@@ -1,0 +1,45 @@
+{
+  "summary": "iter-28 backend + frontend testing complete. Backend: 26/26 tests passed (11 new iter-28 + 15 iter-27 regression). All 6 salt substitutes return the exact expected chemistry-corrected values (K=350/525/184 for KCl-based Lo-Salt/NoSalt/Tata Salt Lite; K=3/5/25 and Na=390/380/0 for pink/kala namak/lemon-herb). All 6 entries have non-empty `source` fields; 5/5 KCl or NaCl entries cite the elemental conversion factor (0.525 or 0.394). `/app/backend/guide_needs_sourcing.csv` contains a 'Tata Salt Lite (%KCl split)' flagged row. Regression: /api/foods returns 1025 foods (>1000); category=salt_substitute returns exactly 6 expected ids. Also updated the iter-27 test file (test_kcl_salt_substitutes_are_red_potassium) whose assertions expected K>300 for all three KCl-based substitutes — after the chemistry fix Tata Salt Lite is K=184 YELLOW, so the assertions were replaced with exact-value/tier checks and the test now passes.\n\nFrontend: 3/4 tests passed. (a) Direct navigation to /(app)/scan?mode=text renders `meal-text-input`, `logmeal-input` and 'Describe your meal' title correctly. (b) meal-log's `open-log-by-text` button navigates to /scan?mode=text (URL contains 'scan' and 'mode=text') and the text-mode UI renders. (c) /log-meal-nl route is gone — file absent on disk and Expo Router shows 'Unmatched Route / Page could not be found'. (d) FAIL — default /(app)/scan (mode=vision) on web preview hides the 3 mode-chip row behind the camera-permission gate: because useCameraPermissions() reports `granted=false` on the web, scan.tsx's early-return at line 77 short-circuits before rendering the modeRow, so `scan-mode-vision/barcode/text` testIDs are NOT in the DOM on the default entry to /(app)/scan on web. The chips render fine once mode=text is set via URL (permission gate is bypassed with `&& mode !== 'text'`). On native/Expo Go with granted camera this would work — but on web preview the user is stuck on 'Camera permission needed' with only a `scan-switch-to-text` fallback button, no visible chips.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "app/(app)/scan.tsx",
+        "issue": "Default /(app)/scan on web preview never renders the 3 `scan-mode-*` chips because the camera-permission early-return (lines 71-105) fires before the modeRow at line 226. On web useCameraPermissions() reports `granted=false`, so only the 'Camera permission needed' screen shows. Move the modeRow above the permission early-return, OR treat web as if permission-check is not applicable (e.g., `if (Platform.OS !== 'web' && !permission && mode !== 'text')`).",
+        "testID": "scan-mode-vision / scan-mode-barcode / scan-mode-text",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter28_salt_chemistry_and_scan_merge.py",
+    "/app/backend/tests/test_iter27_salt_protein_vitamin.py",
+    "/app/test_reports/pytest/pytest_iter28.xml"
+  ],
+  "action_items": [
+    "In /app/frontend/app/(app)/scan.tsx, ensure the 3-chip mode row renders even when camera permission is not yet granted on web — e.g., render the header + modeRow before the permission early-return, or gate the early-return on Platform.OS !== 'web'. Otherwise the iter-28 promise that '/(app)/scan has 3 mode chips' fails on web preview where most reviewers will look."
+  ],
+  "critical_code_review_comments": [
+    "scan.tsx duplicates a top mode switcher (CheckFoodModeSwitcher — Type/Photo/Voice chips at line 212) AND a lower modeRow (scan-mode-vision/barcode/text at line 226). Both are visible simultaneously in mode=text (see screenshot). Consider consolidating to a single mode selector to reduce visual noise and testID confusion.",
+    "MealTextInput uses testID `meal-text-input` (correct in code); the review request incorrectly cited it as `meta-text-input` — code is right, request had a typo."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter28_salt_chemistry_and_scan_merge.py (new)",
+    "/app/backend/tests/test_iter27_salt_protein_vitamin.py (updated: replaced test_kcl_salt_substitutes_are_red_potassium with exact-value/tier assertions matching post-iter-28 chemistry — Tata Salt Lite is now YELLOW at K=184, not RED at K>300)"
+  ],
+  "success_rate": {
+    "backend": "100% (26/26)",
+    "frontend": "75% (3/4 — scan-mode chips hidden behind camera permission gate on web)"
+  },
+  "seed_data_creation": "None — used existing demo@renal.app account.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend salt chemistry correction is fully verified and stable. Only frontend issue is the camera-permission early-return in scan.tsx hiding the 3-chip modeRow on web preview. Once E1 relocates the mode-chip row above the permission gate (or skips the gate on Platform.OS==='web'), simple retest: navigate to /(app)/scan while unauthenticated for camera and confirm scan-mode-vision/barcode/text testIDs are present. The rest of iter-28 (source fields, CSV flag, mode=text UI, meal-log button routing, /log-meal-nl removal) all pass.",
+  "rca_of_issue": "scan.tsx flow: (1) useCameraPermissions() on web returns permission={granted:false, canAskAgain:true}; (2) at line 77 an early return renders only the CheckFoodModeSwitcher + 'Camera permission needed' bubble; (3) the modeRow with scan-mode-* testIDs at line 226 is never reached. Reproduction: open https://safe-food-guide-1.preview.emergentagent.com/(app)/scan in a browser after login — the 3 chip row is absent from DOM. Mitigation: render modeRow before the permission gate, or gate the return on `Platform.OS !== 'web'`."
+}

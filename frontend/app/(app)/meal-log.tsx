@@ -91,7 +91,7 @@ export default function MealLogScreen() {
         <TouchableOpacity
           testID="open-log-by-text"
           style={styles.logByTextBtn}
-          onPress={() => router.push({ pathname: "/log-meal-nl", params: { date, meal_type: "meal" } })}
+          onPress={() => router.push({ pathname: "/(app)/scan", params: { mode: "text", date, meal_type: "meal" } })}
         >
           <Ionicons name="sparkles" size={18} color={COLORS.textInverse} />
           <Text style={styles.logByTextText}>{t("logByText")}</Text>

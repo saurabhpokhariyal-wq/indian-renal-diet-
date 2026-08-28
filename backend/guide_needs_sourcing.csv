@@ -6,6 +6,7 @@ flagged-not-added,n/a,Sol Kadhi,,recipe-variable — needs an IFCT/USDA figure
 flagged-not-added,n/a,Momos,,filling + dipping sauce push sodium high but no citable per-serving number
 flagged-not-added,n/a,Bhel Puri,,chutneys make sodium recipe-dependent
 flagged-not-added,n/a,Sev Puri,,chutneys make sodium recipe-dependent
+flagged-not-added,n/a,Tata Salt Lite (%KCl split),,seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite.
 fruit,GREEN,Apple,Seb / सेब,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Pear,Nashpati / नाशपाती,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Papaya,Papita / पपीता,sodium_mg not yet sourced — do not guess; flag for real data

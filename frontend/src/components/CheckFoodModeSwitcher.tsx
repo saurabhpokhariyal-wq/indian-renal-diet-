@@ -8,19 +8,22 @@ export type CheckMode = "type" | "photo" | "voice";
 
 /**
  * Three-tab pill shown at the top of every "check a food" input screen —
- * Type (search), Photo (scan), Voice (natural-language logging).
+ * Type (search), Photo (scan camera), Voice (scan natural-language text).
  *
- * The three modes live at three routes (/search, /scan, /log-meal-nl) so
- * deep-links and the bottom-tab bar keep working, but this switcher makes
- * the three feel like one screen with three inputs — which is what
- * consolidation step 2 called for. Tapping a different mode does
- * `router.replace(...)` so we don't stack history entries.
+ * All three modes now live on TWO routes:
+ *   type  → /(app)/search
+ *   photo → /(app)/scan            (defaults to camera vision mode)
+ *   voice → /(app)/scan?mode=text  (natural-language description mode)
+ *
+ * The camera + text modes share scan.tsx after iter-28 nav consolidation
+ * so switching between "snap a photo", "scan a barcode", and "describe
+ * what you ate" feels like one screen with three input methods.
  */
 
 const MODE_ROUTE: Record<CheckMode, string> = {
   type: "/(app)/search",
   photo: "/(app)/scan",
-  voice: "/log-meal-nl",
+  voice: "/(app)/scan?mode=text",
 };
 
 const MODE_ICON: Record<CheckMode, keyof typeof import("@expo/vector-icons").Ionicons.glyphMap> = {

@@ -91,6 +91,7 @@ _FLAGGED_UNSOURCED: List[Dict[str, str]] = [
     {"name": "Momos",            "reason": "filling + dipping sauce push sodium high but no citable per-serving number"},
     {"name": "Bhel Puri",        "reason": "chutneys make sodium recipe-dependent"},
     {"name": "Sev Puri",         "reason": "chutneys make sodium recipe-dependent"},
+    {"name": "Tata Salt Lite (%KCl split)", "reason": "seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite."},
 ]
 
 

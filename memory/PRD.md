@@ -168,3 +168,24 @@ See `/app/memory/test_credentials.md`.
   Ask AI context, so questions like "Can I take whey protein?", "Is
   Lo-Salt safe?", "Is coconut water healthy?" get grounded answers
   without a separate Learn tab (per iter-26 nav consolidation rule).
+
+## Iter 28 — Chemistry correction + Scan/text merge (iter-27 review fixes)
+
+- **Salt substitute chemistry corrected**: `potassium_mg` and `sodium_mg`
+  now always store ELEMENTAL K/Na, not raw KCl/NaCl compound mass.
+  Fixed: Lo-Salt K 660→350, Na 30→131; Tata Salt Lite K 350→184, Na
+  150→256; Tata Salt Lite tier now YELLOW per classify_from_nutrients
+  (formula-driven, not hand-set). All 6 salt-substitute entries have
+  a `source` field citing the manufacturer / USDA / IFCT reference
+  and the conversion arithmetic (K = KCl × 0.525; Na = NaCl × 0.394).
+  Tata Salt Lite's %KCl split logged to `guide_needs_sourcing.csv`
+  pending manufacturer spec.
+- **Natural-language meal logging merged into scan.tsx**: Extracted
+  the log-meal-nl screen into a reusable `MealTextInput` component;
+  scan.tsx now has three mode chips — vision (camera), barcode, text
+  (describe your meal). Supports `?mode=text&date=&meal_type=` URL
+  params. Deleted the standalone `/log-meal-nl` route and updated
+  the two links that used to point at it (CheckFoodModeSwitcher
+  voice tab, meal-log "Log by text" button). One screen, three
+  input methods — the KidneyPal-style unified entry point the
+  iter-26 consolidation prompt asked for.

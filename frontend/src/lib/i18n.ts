@@ -371,6 +371,13 @@ export const translations: Record<string, Entry> = {
     bn: "বারকোড",
     mr: "बारकोड",
   },
+  scanModeText: {
+    en: "Describe",
+    hi: "बताएँ",
+    ta: "விவரி",
+    bn: "বলুন",
+    mr: "सांगा",
+  },
   barcodeIntro: {
     en: "Point the camera at a packaged food's barcode. We'll check kidney safety from Open Food Facts.",
     hi: "पैकेज्ड फूड के बारकोड पर कैमरा रखें। हम Open Food Facts से किडनी सुरक्षा जाँचेंगे।",

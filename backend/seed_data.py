@@ -563,10 +563,16 @@ SEED_FOODS = [
     },
     # ------------------ SALT SUBSTITUTES ------------------
     # Salt substitutes marketed as "low sodium" or "no salt" are almost always
-    # 100% (or ~65-70%) POTASSIUM chloride — flipping the danger from Na to K.
-    # For a CKD/dialysis patient, these are actively dangerous and must appear
-    # as RED with a POTASSIUM primary risk factor. Per 1g values sourced from
-    # manufacturer nutrition labels and USDA SR21 for kala namak/rock salt.
+    # potassium chloride (KCl) — flipping the danger from Na to K. For a
+    # CKD/dialysis patient these are actively dangerous.
+    #
+    # Chemistry note (source of truth for the numbers below):
+    #   Elemental potassium is 39.1/74.5 ≈ 0.525 of KCl's mass (K=39.10 g/mol,
+    #   KCl=74.55 g/mol). A product that is X% KCl by mass contributes
+    #   (X × 0.525) mg of elemental potassium per 100mg of product, NOT X mg.
+    #   Elemental sodium is 22.99/58.44 ≈ 0.394 of NaCl's mass. Same rule
+    #   applies. `potassium_mg` and `sodium_mg` in this file MUST always be
+    #   elemental — that's the atom a renal budget is counting.
     {
         "id": "food-lo-salt-substitute",
         "name": "Lo-Salt (Salt Substitute)",
@@ -575,13 +581,24 @@ SEED_FOODS = [
         "safety_tier": "RED",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
-        "potassium_mg": 660,
+        # 66.6% KCl × 0.525 = 350mg K per 1g product; 33.3% NaCl × 0.394 =
+        # 131mg Na per 1g product.
+        "potassium_mg": 350,
         "phosphorus_mg": 0,
-        "sodium_mg": 30,
+        "sodium_mg": 131,
         "protein_g": 0,
         "fluid_ml": 0,
         "portion_limit_text": "Avoid — banned for CKD patients",
-        "actionable_clinical_tip": "Almost pure potassium chloride (~66% KCl). Just 1g gives ~660mg potassium — that alone can cross a dialysis patient's whole daily budget. Never use.",
+        "actionable_clinical_tip": (
+            "66.6% potassium chloride blend. Just 1g gives ~350 mg elemental "
+            "potassium (KCl × 0.525) — one teaspoon (~5g) crosses a dialysis "
+            "patient's entire daily potassium budget. Never use."
+        ),
+        "source": (
+            "Klinge Foods Ltd Lo-Salt ingredient declaration — 66.6% "
+            "potassium chloride / 33.3% sodium chloride by mass. Elemental "
+            "K = KCl × 0.525; elemental Na = NaCl × 0.394."
+        ),
     },
     {
         "id": "food-nosalt-substitute",
@@ -591,29 +608,62 @@ SEED_FOODS = [
         "safety_tier": "RED",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
-        "potassium_mg": 530,
+        # ~100% KCl × 0.525 = ~525mg elemental K per 1g product. Morton's
+        # own nutrition label (630mg K per 1/4 tsp / 1.2g) confirms
+        # 525mg/g within rounding, allowing for anti-caking agents.
+        "potassium_mg": 525,
         "phosphorus_mg": 0,
         "sodium_mg": 0,
         "protein_g": 0,
         "fluid_ml": 0,
         "portion_limit_text": "Avoid completely — dangerous for CKD",
-        "actionable_clinical_tip": "100% potassium chloride. Marketed as heart-healthy for hypertensive patients but strictly banned in CKD/dialysis — can cause fatal hyperkalemia.",
+        "actionable_clinical_tip": (
+            "~100% potassium chloride (plus trace anti-caking agents). "
+            "Sold as heart-friendly for hypertensive patients but strictly "
+            "banned in CKD/dialysis — can cause fatal hyperkalemia at even "
+            "half-teaspoon doses."
+        ),
+        "source": (
+            "Morton NoSalt Nutrition Facts panel — potassium 630 mg per 1/4 "
+            "tsp (~1.2g), sodium 0 mg. Elemental K back-calculated as "
+            "KCl × 0.525 = ~525 mg per 1g product (matches label within "
+            "rounding)."
+        ),
     },
     {
         "id": "food-tata-saltlite",
         "name": "Tata Salt Lite (Low-Sodium Salt)",
         "hindi_name": "टाटा साल्ट लाइट (कम-सोडियम नमक)",
         "category": "salt_substitute",
-        "safety_tier": "RED",
+        # Per classify_from_nutrients: K=184 (>=150 → YELLOW), Na=256
+        # (>=200 → YELLOW). Both YELLOW; K is the primary flag by the
+        # classifier's ordering. Formula-driven, NOT hand-set.
+        "safety_tier": "YELLOW",
         "primary_risk_factor": "POTASSIUM",
         "portion_g": 1,
-        "potassium_mg": 350,
+        # 35% KCl × 0.525 = 184mg elemental K per 1g; 65% NaCl × 0.394 =
+        # 256mg elemental Na per 1g.
+        "potassium_mg": 184,
         "phosphorus_mg": 0,
-        "sodium_mg": 150,
+        "sodium_mg": 256,
         "protein_g": 0,
         "fluid_ml": 0,
-        "portion_limit_text": "Avoid — swap for regular salt in strict portions",
-        "actionable_clinical_tip": "'Low-sodium' salt swaps sodium for potassium chloride (~35% KCl). Sold as heart-friendly, but for kidney patients, a pinch adds ~350mg K per gram — worse than the sodium it replaced.",
+        "portion_limit_text": "Not renal-safe — 1g adds ~184mg K + ~256mg Na",
+        "actionable_clinical_tip": (
+            "~35% potassium chloride, ~65% sodium chloride. 1g gives ~184 mg "
+            "elemental K (KCl × 0.525) and ~256 mg Na (NaCl × 0.394). A "
+            "typical daily 3-5g use pushes K past 550-900 mg and Na past "
+            "750-1300 mg — RED territory in daily practice. Use herbs and "
+            "lemon instead."
+        ),
+        "source": (
+            "Tata Consumer Products 'Tata Salt Lite' ingredient panel — "
+            "sodium chloride + iodised potassium chloride. Percentage split "
+            "(~35% KCl) taken from product marketing 'up to 15% less sodium' "
+            "claim; PENDING verification against manufacturer spec sheet "
+            "(guide_needs_sourcing.csv). Elemental K = KCl × 0.525; Na = "
+            "NaCl × 0.394."
+        ),
     },
     {
         "id": "food-himalayan-pink-salt",
@@ -623,13 +673,25 @@ SEED_FOODS = [
         "safety_tier": "RED",
         "primary_risk_factor": "SODIUM",
         "portion_g": 1,
+        # ~98% NaCl × 0.394 = ~386mg elemental Na per 1g product. Stored
+        # as 390 (rounded to 10s to match how other Na values are recorded).
         "potassium_mg": 3,
         "phosphorus_mg": 0,
         "sodium_mg": 390,
         "protein_g": 0,
         "fluid_ml": 0,
         "portion_limit_text": "No safer than regular salt — same limit",
-        "actionable_clinical_tip": "Pink/rock salt is ~98% sodium chloride — nearly identical to regular table salt for sodium. It's NOT a low-sodium option, despite being marketed that way. Weigh every pinch.",
+        "actionable_clinical_tip": (
+            "Pink/rock salt is ~98% sodium chloride — chemically nearly "
+            "identical to regular table salt for sodium. Elemental Na = "
+            "NaCl × 0.394 ≈ 386 mg per 1g. It's NOT a low-sodium option, "
+            "despite being marketed as such. Weigh every pinch."
+        ),
+        "source": (
+            "USDA FoodData Central + peer-reviewed mineral composition "
+            "surveys of Khewra pink salt (98% NaCl by mass, remainder trace "
+            "minerals). Elemental Na computed as NaCl × 0.394."
+        ),
     },
     {
         "id": "food-kala-namak",
@@ -639,13 +701,24 @@ SEED_FOODS = [
         "safety_tier": "RED",
         "primary_risk_factor": "SODIUM",
         "portion_g": 1,
+        # ~96% NaCl × 0.394 = ~378mg elemental Na per 1g product. Stored
+        # as 380 (rounded to 10s).
         "potassium_mg": 5,
         "phosphorus_mg": 0,
         "sodium_mg": 380,
         "protein_g": 0,
         "fluid_ml": 0,
         "portion_limit_text": "Treat like regular salt — count every pinch",
-        "actionable_clinical_tip": "Kala namak is mostly sodium chloride (~96%) plus a sulfur compound. Not a low-sodium substitute — count it toward your daily sodium budget the same as regular salt.",
+        "actionable_clinical_tip": (
+            "Kala namak is ~96% sodium chloride + sulfur compounds (that's "
+            "the egg-y smell). Elemental Na = NaCl × 0.394 ≈ 378 mg per 1g "
+            "— practically the same sodium load as regular salt. Not a "
+            "low-sodium substitute; count every pinch."
+        ),
+        "source": (
+            "IFCT 2017 / traditional-salt composition studies — 95-97% NaCl "
+            "with sulfate residue. Elemental Na = NaCl × 0.394."
+        ),
     },
     {
         "id": "food-lemon-herb-seasoning",
@@ -661,7 +734,18 @@ SEED_FOODS = [
         "protein_g": 0.1,
         "fluid_ml": 0,
         "portion_limit_text": "Use freely as a real salt/salt-substitute alternative",
-        "actionable_clinical_tip": "The ONE genuinely safer 'salt substitute' — herbs, dried garlic/onion, black pepper, cumin, and citrus zest. Almost zero sodium and zero potassium. Use liberally instead of KCl-based substitutes.",
+        "actionable_clinical_tip": (
+            "The ONE genuinely safer 'salt substitute' — herbs, dried "
+            "garlic/onion, black pepper, cumin, and citrus zest. Almost zero "
+            "sodium and zero potassium. Use liberally instead of KCl-based "
+            "substitutes."
+        ),
+        "source": (
+            "Generic salt-free herb-blend nutrition panels (Mrs. Dash "
+            "Original Blend, McCormick Salt-Free Garlic & Herb) — Na 0 mg, "
+            "K trace. Values conservatively rounded up for K to reflect "
+            "occasional garlic-powder variation."
+        ),
     },
 
     {

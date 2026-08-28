@@ -1,5 +1,14 @@
+/**
+ * Natural-language meal-logging UI, extracted from the old standalone
+ * /log-meal-nl route so it can be embedded as the "text" mode inside
+ * scan.tsx (iter-28 nav consolidation — one screen, three input methods).
+ *
+ * The component owns nothing about camera/permission — that's scan.tsx's
+ * job. It just renders the "describe your meal → parse → confirm items →
+ * commit as meal-logs" flow.
+ */
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,16 +22,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { SafetyBadge } from "@/src/components/SafetyBadge";
-import { CheckFoodModeSwitcher } from "@/src/components/CheckFoodModeSwitcher";
 import { api, type MealItemCandidate, type ParsedMealItem } from "@/src/lib/api";
 import { useLang } from "@/src/lib/language-context";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
 type ItemState = ParsedMealItem & {
-  selected_food_id: string | null; // null = skip / no-match
+  selected_food_id: string | null;
   quantity: number;
 };
 
@@ -32,11 +39,15 @@ function isoToday(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-export default function LogMealByTextScreen() {
+export function MealTextInput({
+  date,
+  mealType = "meal",
+}: {
+  date?: string;
+  mealType?: string;
+}) {
   const { t, lang } = useLang();
-  const params = useLocalSearchParams<{ date?: string; meal_type?: string }>();
-  const initialDate = params.date || isoToday();
-  const mealType = params.meal_type || "meal";
+  const initialDate = date || isoToday();
 
   const [text, setText] = useState("");
   const [parsing, setParsing] = useState(false);
@@ -58,7 +69,6 @@ export default function LogMealByTextScreen() {
       const res = await api.parseMealText(text, initialDate, mealType, lang);
       const staged: ItemState[] = res.parsed_items.map((p) => ({
         ...p,
-        // Auto-pick the single confident match; leave multiple/no_match blank.
         selected_food_id:
           p.outcome === "match_single" && p.candidates.length === 1
             ? p.candidates[0].food_id
@@ -126,93 +136,85 @@ export default function LogMealByTextScreen() {
   };
 
   return (
-    <SafeAreaView style={s.safe} edges={["top", "bottom"]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
-        <CheckFoodModeSwitcher current="voice" />
-        <View style={s.header}>
-          <TouchableOpacity testID="logmeal-back" style={s.backBtn} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={s.title}>{t("logByTextTitle")}</Text>
-            <Text style={s.subtitle}>{initialDate} · {mealType}</Text>
-          </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+      testID="meal-text-input"
+    >
+      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+        <View style={s.headerRow}>
+          <Text style={s.title}>{t("logByTextTitle")}</Text>
+          <Text style={s.subtitle}>{initialDate} · {mealType}</Text>
         </View>
 
-        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-          <View style={s.introCard}>
-            <Ionicons name="sparkles" size={20} color={COLORS.brand} />
-            <Text style={s.introText}>{t("logByTextSub")}</Text>
+        <View style={s.introCard}>
+          <Ionicons name="sparkles" size={20} color={COLORS.brand} />
+          <Text style={s.introText}>{t("logByTextSub")}</Text>
+        </View>
+
+        <TextInput
+          testID="logmeal-input"
+          style={s.input}
+          multiline
+          value={text}
+          onChangeText={setText}
+          placeholder="2 rotis, 1 katori dal, small bowl of curd"
+          placeholderTextColor="#A8A29E"
+        />
+
+        <TouchableOpacity
+          testID="logmeal-parse"
+          style={[s.primaryBtn, (parsing || !text.trim()) && { opacity: 0.6 }]}
+          onPress={doParse}
+          disabled={parsing || !text.trim()}
+        >
+          {parsing ? (
+            <ActivityIndicator color={COLORS.textInverse} />
+          ) : (
+            <>
+              <Ionicons name="search" size={18} color={COLORS.textInverse} />
+              <Text style={s.primaryText}>{t("parseMeal")}</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
+        {items && items.length > 0 ? (
+          <View style={{ gap: SIZE.m, marginTop: SIZE.s }}>
+            {items.map((it, idx) => (
+              <ItemCard
+                key={idx}
+                idx={idx}
+                item={it}
+                onPick={pickCandidate}
+                onSkip={skipItem}
+                onQtyChange={updateQty}
+                tSkip={t("skipItem")}
+                tPick={t("pickMatch")}
+                tNoMatch={t("noMatch")}
+                tQty={t("quantityLabel")}
+              />
+            ))}
+            <TouchableOpacity
+              testID="logmeal-commit"
+              style={[s.primaryBtn, (!readyToLog || committing) && { opacity: 0.6 }]}
+              onPress={commit}
+              disabled={!readyToLog || committing}
+            >
+              {committing ? (
+                <ActivityIndicator color={COLORS.textInverse} />
+              ) : (
+                <>
+                  <Ionicons name="checkmark-circle" size={20} color={COLORS.textInverse} />
+                  <Text style={s.primaryText}>{t("confirmAndLog")}</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
-
-          <TextInput
-            testID="logmeal-input"
-            style={s.input}
-            multiline
-            value={text}
-            onChangeText={setText}
-            placeholder="2 rotis, 1 katori dal, small bowl of curd"
-            placeholderTextColor="#A8A29E"
-          />
-
-          <TouchableOpacity
-            testID="logmeal-parse"
-            style={[s.primaryBtn, (parsing || !text.trim()) && { opacity: 0.6 }]}
-            onPress={doParse}
-            disabled={parsing || !text.trim()}
-          >
-            {parsing ? (
-              <ActivityIndicator color={COLORS.textInverse} />
-            ) : (
-              <>
-                <Ionicons name="search" size={18} color={COLORS.textInverse} />
-                <Text style={s.primaryText}>{t("parseMeal")}</Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          {items && items.length > 0 ? (
-            <View style={{ gap: SIZE.m, marginTop: SIZE.s }}>
-              {items.map((it, idx) => (
-                <ItemCard
-                  key={idx}
-                  idx={idx}
-                  item={it}
-                  onPick={pickCandidate}
-                  onSkip={skipItem}
-                  onQtyChange={updateQty}
-                  tSkip={t("skipItem")}
-                  tPick={t("pickMatch")}
-                  tNoMatch={t("noMatch")}
-                  tQty={t("quantityLabel")}
-                />
-              ))}
-
-              <TouchableOpacity
-                testID="logmeal-commit"
-                style={[s.primaryBtn, (!readyToLog || committing) && { opacity: 0.6 }]}
-                onPress={commit}
-                disabled={!readyToLog || committing}
-              >
-                {committing ? (
-                  <ActivityIndicator color={COLORS.textInverse} />
-                ) : (
-                  <>
-                    <Ionicons name="checkmark-circle" size={20} color={COLORS.textInverse} />
-                    <Text style={s.primaryText}>{t("confirmAndLog")}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          ) : items && items.length === 0 ? (
-            <Text style={s.emptyText}>{t("noMatch")}</Text>
-          ) : null}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        ) : items && items.length === 0 ? (
+          <Text style={s.emptyText}>{t("noMatch")}</Text>
+        ) : null}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -241,9 +243,7 @@ function ItemCard({
   return (
     <View testID={`logmeal-item-${idx}`} style={s.itemCard}>
       <View style={s.itemHeader}>
-        <Text style={s.itemText} numberOfLines={2}>
-          {`"${item.item_text}"`}
-        </Text>
+        <Text style={s.itemText} numberOfLines={2}>{`"${item.item_text}"`}</Text>
         <View style={s.qtyRow}>
           <Text style={s.qtyLabel}>{tQty}</Text>
           <TouchableOpacity
@@ -253,9 +253,7 @@ function ItemCard({
           >
             <Text style={s.qtyBtnText}>−</Text>
           </TouchableOpacity>
-          <Text testID={`logmeal-qty-${idx}`} style={s.qtyVal}>
-            {item.quantity}
-          </Text>
+          <Text testID={`logmeal-qty-${idx}`} style={s.qtyVal}>{item.quantity}</Text>
           <TouchableOpacity
             testID={`logmeal-qty-plus-${idx}`}
             style={s.qtyBtn}
@@ -318,7 +316,10 @@ function CandidateRow({
       onPress={onPress}
       style={[
         s.cand,
-        { borderColor: selected ? COLORS.brand : COLORS.border, backgroundColor: selected ? COLORS.brandLight : COLORS.bgSurface },
+        {
+          borderColor: selected ? COLORS.brand : COLORS.border,
+          backgroundColor: selected ? COLORS.brandLight : COLORS.bgSurface,
+        },
       ]}
     >
       <View style={{ flex: 1 }}>
@@ -339,12 +340,10 @@ function CandidateRow({
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.bgDefault },
-  header: { flexDirection: "row", alignItems: "center", padding: SIZE.m, gap: SIZE.s },
-  backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.bgAlt },
+  content: { padding: SIZE.m, paddingBottom: SIZE.xxl, gap: SIZE.m },
+  headerRow: { gap: 4 },
   title: { fontSize: FONT.h2, fontWeight: "800", color: COLORS.textPrimary },
   subtitle: { fontSize: FONT.label, color: COLORS.textSecondary },
-  content: { padding: SIZE.m, paddingBottom: SIZE.xxl, gap: SIZE.m },
   introCard: {
     flexDirection: "row",
     gap: 10,

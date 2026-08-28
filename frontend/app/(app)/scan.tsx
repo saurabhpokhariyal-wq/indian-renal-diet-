@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions, type BarcodeScanningResult, type BarcodeType } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { NutrientBar } from "@/src/components/NutrientBar";
 import { CheckFoodModeSwitcher } from "@/src/components/CheckFoodModeSwitcher";
+import { MealTextInput } from "@/src/components/MealTextInput";
 import { SafetyBadge } from "@/src/components/SafetyBadge";
 import { api, type FoodScan, type NutrientLimits, type ScanTier } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
@@ -15,7 +16,7 @@ import { useLang } from "@/src/lib/language-context";
 import { mgToUserUnit } from "@/src/lib/units";
 import { COLORS, FONT, SIZE, TIER_META } from "@/src/theme";
 
-type Mode = "vision" | "barcode";
+type Mode = "vision" | "barcode" | "text";
 
 function isoToday(): string {
   const d = new Date();
@@ -37,9 +38,11 @@ const BARCODE_TYPES: BarcodeType[] = [
 
 export default function ScanScreen() {
   const { t } = useLang();
+  const params = useLocalSearchParams<{ mode?: string; date?: string; meal_type?: string }>();
+  const initialMode: Mode = params.mode === "text" ? "text" : params.mode === "barcode" ? "barcode" : "vision";
   const [permission, requestPermission] = useCameraPermissions();
   const camRef = useRef<CameraView>(null);
-  const [mode, setMode] = useState<Mode>("vision");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null);
   const [result, setResult] = useState<FoodScan | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -65,15 +68,21 @@ export default function ScanScreen() {
     return () => { cancelled = true; };
   }, []);
 
-  if (!permission) {
+  // On web the CameraView is replaced by a static placeholder anyway, so
+  // we skip the permission bubble entirely — otherwise the mode chips are
+  // hidden by the early return and web users can't switch to Text/Barcode.
+  const skipPermCheck = Platform.OS === "web" || mode === "text";
+
+  if (!permission && !skipPermCheck) {
     return (
       <SafeAreaView style={styles.safe}><View style={styles.center}><ActivityIndicator color={COLORS.brand} /></View></SafeAreaView>
     );
   }
 
-  if (!permission.granted) {
+  if (permission && !permission.granted && !skipPermCheck) {
     return (
       <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+        <CheckFoodModeSwitcher current={mode === "text" ? "voice" : "photo"} />
         <View style={styles.center}>
           <View style={styles.permBubble}><Ionicons name="camera" size={40} color={COLORS.textInverse} /></View>
           <Text style={styles.title}>{t("scanPermissionTitle")}</Text>
@@ -87,6 +96,14 @@ export default function ScanScreen() {
               <Text style={styles.primaryText}>{t("openSettings")}</Text>
             </TouchableOpacity>
           )}
+          <TouchableOpacity
+            testID="scan-switch-to-text"
+            style={[styles.secondaryBtn, { marginTop: SIZE.s }]}
+            onPress={() => setMode("text")}
+          >
+            <Ionicons name="mic" size={18} color={COLORS.brand} />
+            <Text style={styles.secondaryText}>{t("checkModeVoice")}</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -197,18 +214,20 @@ export default function ScanScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <CheckFoodModeSwitcher current="photo" />
+      <CheckFoodModeSwitcher current={mode === "text" ? "voice" : "photo"} />
       <View style={styles.header}>
         <View style={styles.headerIcon}>
-          <Ionicons name={mode === "vision" ? "camera" : "barcode"} size={22} color={COLORS.textInverse} />
+          <Ionicons name={mode === "vision" ? "camera" : mode === "barcode" ? "barcode" : "mic"} size={22} color={COLORS.textInverse} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{t("scanTitle")}</Text>
-          <Text style={styles.subtitle}>{mode === "vision" ? t("scanIntro") : t("barcodeIntro")}</Text>
+          <Text style={styles.title}>{mode === "text" ? t("logByTextTitle") : t("scanTitle")}</Text>
+          <Text style={styles.subtitle}>
+            {mode === "vision" ? t("scanIntro") : mode === "barcode" ? t("barcodeIntro") : t("logByTextSub")}
+          </Text>
         </View>
       </View>
 
-      {/* Mode toggle */}
+      {/* Mode toggle — 3 pills: photo / barcode / text (natural-language) */}
       <View style={styles.modeRow}>
         <ModeChip
           testID="scan-mode-vision"
@@ -224,10 +243,19 @@ export default function ScanScreen() {
           active={mode === "barcode"}
           onPress={() => switchMode("barcode")}
         />
+        <ModeChip
+          testID="scan-mode-text"
+          label={t("scanModeText")}
+          icon="mic"
+          active={mode === "text"}
+          onPress={() => switchMode("text")}
+        />
       </View>
 
       <View style={styles.body}>
-        {mode === "vision" ? (
+        {mode === "text" ? (
+          <MealTextInput date={params.date} mealType={params.meal_type || "meal"} />
+        ) : mode === "vision" ? (
           !photo ? (
             <View style={styles.camWrap}>
               {Platform.OS === "web" ? (

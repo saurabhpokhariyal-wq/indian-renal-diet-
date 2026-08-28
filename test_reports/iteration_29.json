@@ -1,0 +1,22 @@
+{
+  "summary": "Targeted re-test of iter-28 failure: /(app)/scan default (vision) mode chips visibility on web preview. Fix confirmed working. All 3 mode chips render on load, text chip switches to 'Describe your meal' UI with meal-text-input visible, barcode chip switches to barcode UI with 'Camera preview / mobile device' placeholder text. Vision (default) mode also renders correctly with camera placeholder. iter-28 closed successfully.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in /app/frontend/app/(app)/scan.tsx uses `const skipPermCheck = Platform.OS === 'web' || mode === 'text'` at line 74, gating the permission early-return blocks (lines 76 and 82). Clean, minimal, and matches the recommendation from iter-28."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (4/4 checks passed)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter-28 fix (Platform.OS==='web' short-circuit for camera permission early-return in scan.tsx) verified. On web preview: default vision mode renders all 3 chips (scan-mode-vision/barcode/text). Text mode shows 'Describe your meal' title + meal-text-input testID. Barcode mode shows 'Barcode scanning is available on the mobile device' placeholder. No regressions observed.",
+  "rca_of_issue": "Original issue: on web, useCameraPermissions returned null/ungranted, causing the early-return in scan.tsx to render a permission bubble and short-circuit the mode-chip row + content. Fix: skip the permission gate when Platform.OS==='web' (web already renders a static camera placeholder) or when mode==='text' (no camera needed). Verified via Playwright DOM checks against testIDs and title text."
+}
