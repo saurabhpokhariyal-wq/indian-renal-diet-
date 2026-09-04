@@ -56,6 +56,13 @@ CURATED_TIER_OVERRIDES: dict[str, str] = {
     "food-onion": "Kept YELLOW as a portion-vigilance signal — cooked onion is used in nearly every Indian dish.",
     "food-brown-rice": "Whole grains carry higher phosphorus bioavailability than white rice — YELLOW keeps daily caution.",
     "food-orange": "Citrus fruit is a canonical high-K item in renal-diet counselling; kept RED regardless of raw potassium.",
+    # Iter-31: mango is the classic Indian seasonal high-K fruit in
+    # renal-diet counselling — even a small portion is aspirationally
+    # YELLOW as a portion-vigilance signal, because patients rarely stop
+    # at 80g cubes. Whole mango stays RED. Matches the fruit_guide.py
+    # tier blocks so the guide screen and food detail don't disagree.
+    "food-mango-small": "Aspirational YELLOW — 80g cube is formula-GREEN but mango is a canonical portion-vigilance case in Indian renal counselling.",
+    "food-mango-whole": "Whole mango is a canonical high-K seasonal fruit in renal counselling — kept RED regardless of per-portion classifier.",
     # Iter-30: composition is explicitly unverified (data_quality_flag set),
     # portion_limit_text says "Avoid" — the tier text and the tier must
     # agree, so hold at RED until a real pack is photographed. The

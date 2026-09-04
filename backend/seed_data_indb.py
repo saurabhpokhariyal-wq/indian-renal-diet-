@@ -1363,7 +1363,7 @@ SEED_FOODS_INDB = [
         "id": "food-mango-malpua",
         "name": "Mango malpua",
         "hindi_name": "मैंगो मालपुआ",
-        "category": "fruit",
+        "category": "snack",
         "safety_tier": "GREEN",
         "primary_risk_factor": "NONE",
         "portion_g": 150,

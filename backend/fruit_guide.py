@@ -60,7 +60,7 @@ FRUIT_GUIDE = {
                 "serving": "1 slice (~100 g)",
                 "potassium_mg": 109,
                 "note": "Naturally low in potassium. Prefer fresh over canned (which is high-sodium).",
-                "linked_food_id": None,
+                "linked_food_id": "food-pineapple",
             },
             {
                 "name": "Watermelon",
@@ -68,7 +68,7 @@ FRUIT_GUIDE = {
                 "serving": "1 medium slice (150 g)",
                 "potassium_mg": 170,
                 "note": "Refreshing but counts toward daily FLUID limit — 100 g of watermelon = ~90 ml water.",
-                "linked_food_id": None,
+                "linked_food_id": "food-watermelon",
             },
             {
                 "name": "Blueberries",
@@ -76,7 +76,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup (75 g)",
                 "potassium_mg": 57,
                 "note": "One of the safest fruits, high in antioxidants. Fresh or frozen (unsweetened).",
-                "linked_food_id": None,
+                "linked_food_id": "food-blueberries",
             },
             {
                 "name": "Strawberries",
@@ -84,7 +84,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup halves (75 g)",
                 "potassium_mg": 115,
                 "note": "Safe and low-K. Rinse well and avoid canned versions with added sugar.",
-                "linked_food_id": None,
+                "linked_food_id": "food-strawberries",
             },
             {
                 "name": "Cranberries",
@@ -92,7 +92,7 @@ FRUIT_GUIDE = {
                 "serving": "¼ cup (30 g)",
                 "potassium_mg": 25,
                 "note": "Very low potassium. Also supports urinary-tract health. Choose unsweetened.",
-                "linked_food_id": None,
+                "linked_food_id": "food-cranberries",
             },
             {
                 "name": "Grapes (small portion)",
@@ -100,7 +100,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup (75 g)",
                 "potassium_mg": 145,
                 "note": "Fine in a small handful. A full cup pushes into YELLOW territory.",
-                "linked_food_id": None,
+                "linked_food_id": "food-grapes",
             },
             {
                 "name": "Lychee",
@@ -108,7 +108,7 @@ FRUIT_GUIDE = {
                 "serving": "5 pcs (75 g)",
                 "potassium_mg": 130,
                 "note": "Low-K when eaten in a modest portion. Skip if diabetic (very sweet).",
-                "linked_food_id": None,
+                "linked_food_id": "food-lychee",
             },
             {
                 "name": "Fig, fresh (Anjeer)",
@@ -117,7 +117,7 @@ FRUIT_GUIDE = {
                 "potassium_mg": 116,
                 "sodium_mg": 1,
                 "note": "Fresh fig is moderate — this is distinct from dried anjeer, which concentrates potassium heavily (see dried fruit section) and is a very different risk profile at the same weight.",
-                "linked_food_id": None,
+                "linked_food_id": "food-fig-fresh",
                 "source": "IFCT 2017, code E020 (scaled to 50 g)",
             },
         ],
@@ -132,7 +132,7 @@ FRUIT_GUIDE = {
                 "serving": "1 small (100 g)",
                 "potassium_mg": 230,
                 "note": "High in fibre and vitamin C. One small fruit per day maximum.",
-                "linked_food_id": None,
+                "linked_food_id": "food-guava",
             },
             {
                 "name": "Peach",
@@ -140,7 +140,7 @@ FRUIT_GUIDE = {
                 "serving": "1 medium (150 g)",
                 "potassium_mg": 285,
                 "note": "Safer than banana. Prefer fresh; avoid canned in heavy syrup.",
-                "linked_food_id": None,
+                "linked_food_id": "food-peach",
             },
             {
                 "name": "Plum",
@@ -148,7 +148,7 @@ FRUIT_GUIDE = {
                 "serving": "2 small (150 g)",
                 "potassium_mg": 250,
                 "note": "Fresh plum only — dried prunes are RED (very high K).",
-                "linked_food_id": None,
+                "linked_food_id": "food-plum",
             },
             {
                 "name": "Cherry",
@@ -156,7 +156,7 @@ FRUIT_GUIDE = {
                 "serving": "1 cup (150 g)",
                 "potassium_mg": 260,
                 "note": "Pit-less fresh cherries. Cherry juice concentrate is much higher — avoid.",
-                "linked_food_id": None,
+                "linked_food_id": "food-cherry",
             },
             {
                 "name": "Mango (small portion)",
@@ -164,7 +164,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup cubes (80 g)",
                 "potassium_mg": 135,
                 "note": "Whole mangoes are RED. A very small portion is OK for the taste. Diabetic patients should skip.",
-                "linked_food_id": None,
+                "linked_food_id": "food-mango-small",
             },
             {
                 "name": "Jackfruit (ripe)",
@@ -180,7 +180,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup arils (75 g)",
                 "potassium_mg": 180,
                 "note": "Whole seeds only. Pomegranate juice is much more concentrated — RED.",
-                "linked_food_id": None,
+                "linked_food_id": "food-pomegranate",
             },
             {
                 "name": "Kiwi",
@@ -188,7 +188,7 @@ FRUIT_GUIDE = {
                 "serving": "1 small (75 g)",
                 "potassium_mg": 215,
                 "note": "Vitamin-C rich. Stick to one small kiwi per day.",
-                "linked_food_id": None,
+                "linked_food_id": "food-kiwi",
             },
             {
                 "name": "Muskmelon (Kharbuja)",
@@ -197,7 +197,7 @@ FRUIT_GUIDE = {
                 "potassium_mg": 294,
                 "sodium_mg": 24,
                 "note": "IFCT-measured value, lower than watermelon per gram but still meaningful at a full katori. High water content also counts toward fluid intake for dialysis patients.",
-                "linked_food_id": None,
+                "linked_food_id": "food-muskmelon",
                 "source": "IFCT 2017, code E046 (scaled to 150 g)",
             },
             {
@@ -207,7 +207,7 @@ FRUIT_GUIDE = {
                 "potassium_mg": 237,
                 "sodium_mg": 2,
                 "note": "Common roadside/seasonal fruit, moderate potassium. Fine in small quantities, not a handful.",
-                "linked_food_id": None,
+                "linked_food_id": "food-ber",
                 "source": "IFCT 2017, code E068",
             },
         ],
@@ -238,7 +238,7 @@ FRUIT_GUIDE = {
                 "serving": "1 medium (165 g)",
                 "potassium_mg": 275,
                 "note": "Whole mangoes push K + sugar too high. Have a small tasting portion only — see YELLOW list.",
-                "linked_food_id": None,
+                "linked_food_id": "food-mango-whole",
             },
             {
                 "name": "Sapota / Chikoo",
@@ -246,7 +246,7 @@ FRUIT_GUIDE = {
                 "serving": "1 medium (100 g)",
                 "potassium_mg": 193,
                 "note": "K is borderline but sugar load is very high. Diabetic patients must avoid.",
-                "linked_food_id": None,
+                "linked_food_id": "food-chikoo",
             },
             {
                 "name": "Custard Apple",
@@ -254,7 +254,7 @@ FRUIT_GUIDE = {
                 "serving": "½ cup (100 g)",
                 "potassium_mg": 250,
                 "note": "Very sugar-heavy despite modest K. Not recommended.",
-                "linked_food_id": None,
+                "linked_food_id": "food-custard-apple",
             },
             {
                 "name": "Dates",
@@ -262,7 +262,7 @@ FRUIT_GUIDE = {
                 "serving": "5 pcs (40 g)",
                 "potassium_mg": 270,
                 "note": "Dried fruit — concentrated K + sugar. Avoid regularly. Fresh dates are slightly less severe.",
-                "linked_food_id": None,
+                "linked_food_id": "food-dates",
             },
             {
                 "name": "Raisins",
@@ -270,7 +270,7 @@ FRUIT_GUIDE = {
                 "serving": "¼ cup (40 g)",
                 "potassium_mg": 300,
                 "note": "All dried fruits (raisins, apricots, prunes, figs) concentrate potassium 4-5×. Avoid.",
-                "linked_food_id": None,
+                "linked_food_id": "food-raisins",
             },
             {
                 "name": "Dried Apricots",
@@ -278,7 +278,7 @@ FRUIT_GUIDE = {
                 "serving": "5 pcs (40 g)",
                 "potassium_mg": 460,
                 "note": "Extremely high-K. Never in advanced CKD or dialysis.",
-                "linked_food_id": None,
+                "linked_food_id": "food-dried-apricots",
             },
             {
                 "name": "Prunes",
@@ -286,7 +286,7 @@ FRUIT_GUIDE = {
                 "serving": "5 pcs (40 g)",
                 "potassium_mg": 290,
                 "note": "Dried plums. Also a laxative — some patients think this makes them 'healthy'. Avoid for kidney reasons.",
-                "linked_food_id": None,
+                "linked_food_id": "food-prunes",
             },
             {
                 "name": "Coconut Water",
@@ -294,7 +294,7 @@ FRUIT_GUIDE = {
                 "serving": "1 glass (200 ml)",
                 "potassium_mg": 500,
                 "note": "Popularly thought of as 'natural and safe' — actually one of the most dangerous drinks for CKD. Avoid.",
-                "linked_food_id": None,
+                "linked_food_id": "food-coconut-water",
             },
             {
                 "name": "Amla / Indian Gooseberry (raw)",
@@ -302,7 +302,7 @@ FRUIT_GUIDE = {
                 "serving": "1 whole (30 g)",
                 "potassium_mg": 60,
                 "note": "K is low, but raw amla is high in oxalates — can worsen kidney-stone risk. Cooked/preserved amla (murabba, achar) is heavily sugared or salted — also avoid.",
-                "linked_food_id": None,
+                "linked_food_id": "food-amla",
             },
             {
                 "name": "Bael Fruit (Wood Apple)",
@@ -311,7 +311,7 @@ FRUIT_GUIDE = {
                 "potassium_mg": 409,
                 "sodium_mg": 2,
                 "note": "Popular as a summer sherbet base in North India — the pulp itself is high-potassium. If made into a drink, treat as a RED beverage, not a minor garnish.",
-                "linked_food_id": None,
+                "linked_food_id": "food-bael",
                 "source": "IFCT 2017, code E008",
             },
             {
@@ -321,7 +321,7 @@ FRUIT_GUIDE = {
                 "potassium_mg": 362,
                 "sodium_mg": 2,
                 "note": "Regional North/West Indian summer berry, easy to overlook since it's seasonal and less discussed than mango or watermelon. High potassium per katori.",
-                "linked_food_id": None,
+                "linked_food_id": "food-phalsa",
                 "source": "IFCT 2017, code E052",
             },
         ],

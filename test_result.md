@@ -1653,3 +1653,56 @@ agent_communication_iter30:
       the audit_seed counterpart). Testing agent confirmed 5/5 final
       checkpoints + all iter-13d + all iter-30 pass. Sajina assertion
       failures reported are pre-existing and outside iter-30 scope.
+
+
+# Iter 31 — Bug fix: mango search only showed Mango Malpua
+
+backend_iter31:
+  - task: "Add 28 missing fruit entries + fix mango-malpua category + link fruit_guide entries"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_data.py, /app/backend/seed_data_indb.py, /app/backend/fruit_guide.py, /app/backend/reconciliation.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "User reported searching 'mango' only surfaced Mango Malpua. Root cause: only 6 fruit entries in seed (apple/papaya/pear/banana×2/orange) — mango and 27 other common Indian fruits existed only in fruit_guide.py with linked_food_id=None. Added 28 fruit entries to seed_data.py with K values from fruit_guide (IFCT 2017 + USDA composite). Fixed food-mango-malpua category mislabel (fruit → snack). Batch-linked all 28 fruit_guide entries via linked_food_id. Added food-mango-small and food-mango-whole to CURATED_TIER_OVERRIDES so their tiers (YELLOW/RED) match the fruit_guide block placement, following the same aspirational-tier pattern as food-orange. Bumped test_iter13d tier_override count 8 → 10."
+        - working: true
+          agent: "testing"
+          comment: "21/21 tests pass in test_iter31_mango_fruits_search.py — mango search returns both new entries, malpua now snack, grapes/watermelon/guava/kiwi/chikoo searchable, category=fruit filter returns 33+, fruit_guide linked_food_ids populated. iter-13d invariants preserved (flagged=42, tier_override=10, overlap=1). No regressions to salt-substitute machinery."
+
+test_plan_iter31:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter31:
+  - agent: "main"
+    message: |
+      User reported: "ON SEARCHING FOR MANGO THE APP IS ONLY SHOWINTG
+      MANGO MALPIA".
+      Root cause: seed_data.py only had 6 fruit entries. The other 27+
+      common fruits existed only in fruit_guide.py (a curated reference
+      screen) with linked_food_id=None, so they never made it into the
+      searchable food catalog. Mango-derived items like mango-malpua
+      were searchable and one of them was miscategorised as fruit,
+      making the gap especially obvious for mango.
+      Fixed by:
+        1. Adding 28 fruit entries to seed_data.py (mango small/whole,
+           pineapple, watermelon, grapes, lychee, fig fresh, straw-
+           berries, blueberries, cranberries, guava, peach, plum,
+           cherry, pomegranate, kiwi, muskmelon, ber, chikoo, custard
+           apple, dates, raisins, dried apricots, prunes, amla, bael,
+           phalsa).
+        2. Fixing food-mango-malpua category fruit → snack.
+        3. Batch-updating fruit_guide.py to populate linked_food_id
+           for all 28 previously-unlinked entries.
+        4. Adding mango-small (YELLOW) and mango-whole (RED) to
+           CURATED_TIER_OVERRIDES so the food-detail tier matches the
+           fruit_guide block placement — same aspirational-tier
+           pattern used for food-orange.
+        5. Bumping test_iter13d tier_override assertion 8 → 10.
+      Verified via testing_agent — 21/21 tests pass, no regressions.

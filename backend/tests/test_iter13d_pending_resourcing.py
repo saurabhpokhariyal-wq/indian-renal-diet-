@@ -283,9 +283,10 @@ class TestT1MongoInvariants:
 
     def test_tier_override_count_7(self, mongo_counts):
         _, overrides, _ = mongo_counts
-        # iter-30: 7 → 8 after adding food-tata-saltlite to
-        # CURATED_TIER_OVERRIDES (hold RED until physical pack sourced).
-        assert overrides == 8, f"tier_override count={overrides} (expected 8)"
+        # iter-30: 7 → 8 (Tata Salt Lite added to CURATED_TIER_OVERRIDES).
+        # iter-31: 8 → 10 (Mango small + whole added — aspirational tier
+        #   holds for canonical Indian seasonal high-K fruit).
+        assert overrides == 10, f"tier_override count={overrides} (expected 10)"
 
     def test_no_overlap(self, mongo_counts):
         _, _, overlap = mongo_counts

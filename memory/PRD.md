@@ -243,3 +243,27 @@ See `/app/memory/test_credentials.md`.
   `test_iter13d_pending_resourcing.py`: flagged 39→42, tier_override
   7→8, no_overlap 0→1 (Tata's intentional exception), audit_seed
   data_quality_flagged 39→42.
+
+## Iter 31 — Bug fix: mango search only showed Mango Malpua
+
+- **Root cause**: seed_data.py contained only 6 fruit entries (apple,
+  papaya, pear, banana × 2, orange). Mango and 27 other common Indian
+  fruits existed only in fruit_guide.py with `linked_food_id=None`, so
+  they were never searchable. Mango-derivative products (malpua, milk-
+  shake, pickle) WERE searchable, and mango-malpua was mislabelled as
+  `category=fruit`, making the gap most visible for mango.
+- **Fix**:
+  1. Added 28 fruit entries to `seed_data.py` — mango (small portion,
+     whole), pineapple, watermelon, grapes, lychee, fig fresh, straw-
+     berries, blueberries, cranberries, guava, peach, plum, cherry,
+     pomegranate, kiwi, muskmelon, ber, chikoo, custard apple, dates,
+     raisins, dried apricots, prunes, amla, bael, phalsa.
+  2. Fixed `food-mango-malpua` category `fruit` → `snack`.
+  3. Batch-populated `linked_food_id` for 28 fruit_guide.py entries.
+  4. Added `food-mango-small` (YELLOW) and `food-mango-whole` (RED) to
+     `CURATED_TIER_OVERRIDES` so the food detail tier matches the
+     fruit_guide block — same aspirational-tier pattern as food-orange
+     (canonical high-K seasonal Indian fruit in renal counselling).
+  5. Bumped `test_iter13d` tier_override assertion 8 → 10.
+- **Verified**: 21/21 tests pass (test_iter31_mango_fruits_search.py).
+  No regressions to iter-27..30 machinery.

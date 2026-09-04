@@ -1,0 +1,33 @@
+{
+  "summary": "Iter-31 backend bug fix VERIFIED. User-reported 'mango' search bug is fixed. 21/21 new tests pass (test_iter31_mango_fruits_search.py) covering: (A) mango search returns 15+ results including food-mango-small (YELLOW/fruit) and food-mango-whole (RED/fruit); food-mango-malpua re-categorised to 'snack'; (B) grapes/watermelon/guava/kiwi/chikoo all searchable; (C) 5 new fruit detail endpoints (pineapple, pomegranate, lychee, strawberries, guava) return 200 with proper tier/potassium/category; (D) /api/foods?category=fruit returns >=30 fruits (all correctly categorised); (E) /api/fruits/guide exposes linked_food_id for mango-small + multiple new entries (grapes/watermelon/guava/kiwi/pineapple/pomegranate); (G) Lo-Salt barcode 5011544070034 fires salt_substitute_warning=True and Tata Salt Lite still has safety_tier=RED, tier_override=True, data_quality_flag='concentrated_base_pending_resourcing'. (F) Reconciliation counts confirmed via backend logs and existing iter-13d tests: input=1060, curated_overrides=10, data_quality_flagged=42, sanity_violations=41, duplicates_dropped=9, overlap=1 (Tata Salt Lite intentional). All 3 T1MongoInvariants in test_iter13d_pending_resourcing.py pass with new values. No new regressions.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter31_mango_fruits_search.py",
+    "/app/test_reports/pytest/iter31_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Bcrypt version-read warning at startup ('module bcrypt has no attribute __about__') is harmless (passlib compat) but continues to appear in backend.err.log — unrelated to this bug fix, still worth pinning bcrypt<4.1 or passlib>=1.7.5 in a future maintenance pass."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter31_mango_fruits_search.py (new file, 21 tests)"
+  ],
+  "success_rate": {
+    "backend": "100% (21/21 new + 3/3 iter-13d invariants)",
+    "frontend": "not tested (backend-only fix per review request)"
+  },
+  "seed_data_creation": "None — used existing demo@renal.app / demo123 credentials for auth-dependent tests (barcode scan).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fruit search coverage now solid. When adding future fruit/food entries, extend NEW_FRUIT_SEARCHES parametrize list and SMOKE_TEST_IDS in test_iter31_mango_fruits_search.py. Note: /api/foods search response is a plain list (not wrapped). /api/fruits/guide returns a nested dict — use the _find_by_linked_id/_sample_linked_ids helpers to traverse. Reconciliation totals live in backend startup log: input=1060, curated_overrides=10, data_quality_flagged=42, sanity_violations=41.",
+  "rca_of_issue": "RCA: seed_data.py contained no whole-fruit entry for mango — only mango-derived snacks (malpua/milkshake/pickle). Since 'food-mango-malpua' was also mis-categorised as category=fruit, a search for 'mango' surfaced ONLY the malpua. Fix (already applied by main agent) added 28 fruit entries + fixed malpua category to 'snack' + linked fruit_guide entries via linked_food_id + added mango small/whole to CURATED_TIER_OVERRIDES. Verified end-to-end: search q=mango now returns 15+ results with food-mango-small (YELLOW) and food-mango-whole (RED) leading; malpua correctly appears under snack category."
+}
