@@ -1,0 +1,48 @@
+{
+  "summary": "iter-32 backend verified: 78/79 targeted tests PASS in test_iter32_guide_backfill_and_search_priority.py. All 5 user-visible checkpoints (A search priority, B backfill searchability, C salt-substitute regression, D guide linked_food_id, F audit_seed counts, G category counts) pass. One NEW regression introduced by iter-32 backfill that the main agent missed bumping: TestT2AuditScript::test_duplicates_dropped_9 in test_iter13d_pending_resourcing.py — actual duplicates_dropped is now 11 (was 9), because 2 new SEED_GUIDE_STAPLES entries collide with pre-existing food IDs. Backend log confirms: 'reclassified=460, rescaled=458, duplicates_dropped=11, sanity_violations=42, curated_overrides=10, data_quality_flagged=43'. The 42→43 bumps for test_flagged_count_39 and test_flagged_39 both PASS. test_tier_override_count_7==10 and test_no_overlap==1 both PASS. Two pre-existing (from iter-23, reported by iter-30/31 as pre-existing) TestB5Sajina failures remain — those are NOT caused by iter-32 (Sajina was already rescaled to 40 g / YELLOW before iter-32 landed). Search priority behaves exactly as specified: q=mango→'Mango (small portion)' first, q=milk→'Milk (full glass)' first, q=water→'Water' first, q=green tea→'Green Tea' first, q=cauliflower→'Cauliflower' first. All 55 backfill-vocabulary searches (11 veg + 11 grain + 11 protein + 12 snack + 16 beverage — 1 renamed) return >=1 result. audit_seed.py --json returns data_quality_flagged=43, sanity_violations_count=42, curated_overrides=10 (exact match to review spec). Category counts: vegetable=25+, beverage=20+, snack=25+ all pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9",
+        "issue": "Assertion still expects duplicates_dropped_count==9 but pipeline now drops 11. Two new SEED_GUIDE_STAPLES entries collide with pre-existing food IDs (food-samosa and food-sweet-lassi appear in the duplicates_dropped list). Bump assertion 9 → 11 with an iter-32 comment. Backend log: 'duplicates_dropped=11'."
+      },
+      {
+        "endpoint": "GET /api/foods?q=sports drink",
+        "issue": "Beverage guide entry is named 'Sports / Energy Drinks' (contains slash) so a literal 'sports drink' substring search returns 0. Either rename to include the phrase 'Sports Drink' or add a search alias. Non-blocking; searching 'sports' or 'energy' returns the entry."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter32_guide_backfill_and_search_priority.py",
+    "/app/test_reports/pytest/iter32_results.xml"
+  ],
+  "action_items": [
+    "Bump test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9 assertion from 9 to 11 (add comment: '+2 from iter-32 SEED_GUIDE_STAPLES colliding with pre-existing food-samosa and food-sweet-lassi').",
+    "OPTIONAL: rename beverage_guide entry 'Sports / Energy Drinks' to include 'Sports Drink' phrase so users searching 'sports drink' as a phrase get a hit.",
+    "OPTIONAL (out of iter-32 scope, first reported in iter-30): Investigate pre-existing TestB5Sajina failures — food-sajina returns portion_g=40 / tier=YELLOW, but assertions still expect 150 / RED. Either update assertions to match iter-23 rescale intent, or restore the 150 g / RED classification."
+  ],
+  "critical_code_review_comments": [
+    "Search relevance sort in routes/foods.py works exactly as spec'd: (0) exact name, (1) name starts_with, (2) hindi starts_with, (3) name substring, (4) alphabetical — verified across 5 targeted queries.",
+    "SEED_GUIDE_STAPLES generation strategy is sound: linked_food_id is preserved for pre-existing rows and new rows are appended. However, the 2 unintended ID collisions (food-samosa, food-sweet-lassi) suggest the seed generator should skip IDs that already exist in SEED_FOODS / SEED_FOODS_INDB, rather than relying on the dedupe step. Consider adding an assertion in seed_guide_staples.py: `assert new_id not in {f['id'] for f in SEED_FOODS + SEED_FOODS_INDB}`.",
+    "Bcrypt version-read warning at backend startup (`module 'bcrypt' has no attribute '__about__'`) continues to appear — harmless passlib compat noise, unchanged from iter-31."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter32_guide_backfill_and_search_priority.py (NEW — 79 targeted tests: A search priority, B backfill vocabulary, C salt-substitute regex, D guide linked_food_id, E iter-13d regression sentinel, F audit_seed JSON, G category counts)"
+  ],
+  "success_rate": {
+    "backend": "98.7% (78/79 in iter-32 file; 1 failure is the delegated iter-13d duplicates_dropped_9 assertion needing 9→11 bump)",
+    "frontend": "N/A (backend-only review)"
+  },
+  "seed_data_creation": "None — reused demo@renal.app / demo123 for barcode-scan auth path.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter-32 backfill (SEED_GUIDE_STAPLES, 121 entries) + search relevance sort are working end-to-end. Only outstanding bump for iter-32 closure is test_iter13d_pending_resourcing.py::test_duplicates_dropped_9 (9→11). Once main agent bumps that single assertion, iter-32 is fully green modulo the 2 pre-existing Sajina failures (unchanged from iter-30). Pipeline snapshot: input=1181, reclassified=460, rescaled=458, duplicates_dropped=11, sanity_violations=42, curated_overrides=10, data_quality_flagged=43.",
+  "rca_of_issue": "test_duplicates_dropped_9 failure RCA: iter-32 added 121 new food entries in seed_guide_staples.py. Two of those entries used food IDs that already exist in SEED_FOODS / SEED_FOODS_INDB (food-samosa and food-sweet-lassi). The reconciliation dedupe step correctly drops the duplicates, but this bumps duplicates_dropped from the pre-iter-32 value of 9 to 11. The main agent bumped test_flagged_count_39 and test_flagged_39 (42→43) but did not bump the duplicates_dropped_9 assertion. Reproduce: run `pytest backend/tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9`. Mitigation: change `assert data.get('duplicates_dropped_count') == 9` to `== 11` in that test method, and add a comment referencing the two colliding IDs. Alternatively (cleaner), fix the root cause by making seed_guide_staples.py skip IDs already present in SEED_FOODS+SEED_FOODS_INDB — that keeps the count at 9 and preserves the existing curated rows."
+}

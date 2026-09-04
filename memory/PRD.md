@@ -267,3 +267,31 @@ See `/app/memory/test_credentials.md`.
   5. Bumped `test_iter13d` tier_override assertion 8 → 10.
 - **Verified**: 21/21 tests pass (test_iter31_mango_fruits_search.py).
   No regressions to iter-27..30 machinery.
+
+## Iter 32 — Guide gap audit + search relevance
+
+- **Guide gap audit — 121 entries backfilled**: The same-shape bug as
+  iter-31's mango bug lived in every remaining category guide.
+  Audit surfaced 121 unlinked entries across vegetable_guide (25),
+  grain_guide (14), protein_guide (25), snack_guide (20+7 auto-link),
+  beverage_guide (25+3 auto-link). Generated 109 new seed entries in
+  `seed_guide_staples.py` (K from IFCT + USDA guide values, P/Na/
+  protein via category defaults + hand-tuned overrides for milk,
+  cheese, tomato/beetroot/pomegranate juice, condensed milk, instant
+  noodles, sports drinks, and other high-signal common items). Loaded
+  via `SEED_FOODS + SEED_GUIDE_STAPLES` in both `lifespan.py` and
+  `scripts/audit_seed.py`. Two entries slugged to pre-existing IDs
+  (`food-samosa`, `food-sweet-lassi`) — dedupe kept the canonical
+  seed_data versions with richer clinical tips. Bumped iter-13d
+  assertions: `data_quality_flagged` 42→43, `duplicates_dropped_count`
+  9→11.
+- **Search relevance sort**: `GET /api/foods?q=...` results are now
+  scored (0 exact-name, 1 name starts-with, 2 hindi starts-with, 3
+  substring, 4 alphabetical) and sorted in Python. Fixes the UX bug
+  where "mango" surfaced "Dry mango chutney" ahead of "Mango (small
+  portion)" purely by alphabetical order. Also added an implicit-AND
+  multi-word clause so "sports drink" matches "Sports / Energy
+  Drinks" where the phrase isn't consecutive in the name.
+- **Verified**: 79/79 iter-32 tests + 5/5 final checkpoints pass. All
+  iter-27..31 machinery still works (salt-substitute warning, Tata
+  Salt Lite pending flag, mango priority, sanity-ceiling backstop).

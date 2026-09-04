@@ -1,4 +1,5 @@
 id,name,violations
+food-instant-noodles-maggi-etc,Instant Noodles (Maggi etc.),sodium_mg=1100>1000
 food-instant-dhokla,Instant dhokla,sodium_mg=1146>1000
 food-chicken-manchurian,Chicken manchurian,sodium_mg=3622>1000
 food-mutton-pulao,Mutton pulao,sodium_mg=4673>1000

@@ -31,7 +31,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 0,
                 "fluid_ml": 200,
                 "note": "The safest choice. Track total daily volume against your fluid budget — even water isn't unlimited in advanced CKD.",
-                "linked_food_id": None,
+                "linked_food_id": "food-water",
             },
             {
                 "name": "Buttermilk (Chaas)",
@@ -40,7 +40,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 150,
                 "fluid_ml": 150,
                 "note": "Fresh, unsalted chaas is a summer-safe drink. Keep to one small glass — added salt and dairy phosphorus become issues at higher volumes.",
-                "linked_food_id": None,
+                "linked_food_id": "food-buttermilk-chaas",
             },
             {
                 "name": "Herbal Tea (unsweetened)",
@@ -49,7 +49,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 20,
                 "fluid_ml": 150,
                 "note": "Peppermint, chamomile, tulsi — minimal potassium. Avoid pre-mixed sachets with added electrolytes or salt.",
-                "linked_food_id": None,
+                "linked_food_id": "food-herbal-tea-unsweetened",
             },
             {
                 "name": "Rice Water (Kanji)",
@@ -58,7 +58,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 40,
                 "fluid_ml": 150,
                 "note": "Traditional cooling drink. Naturally low in potassium if made from leached-and-drained rice water.",
-                "linked_food_id": None,
+                "linked_food_id": "food-rice-water-kanji",
             },
             {
                 "name": "Barley Water",
@@ -67,7 +67,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 30,
                 "fluid_ml": 200,
                 "note": "Safe and hydrating. Skip commercial ready-mixes — they usually add salt and sugar.",
-                "linked_food_id": None,
+                "linked_food_id": "food-barley-water",
             },
             {
                 "name": "Ginger-Lemon Water",
@@ -76,7 +76,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 40,
                 "fluid_ml": 200,
                 "note": "Fresh ginger + a squeeze of lemon in warm water. Unsweetened or lightly sweetened only.",
-                "linked_food_id": None,
+                "linked_food_id": "food-ginger-lemon-water",
             },
             {
                 "name": "Weak Black Tea (no milk)",
@@ -85,7 +85,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 40,
                 "fluid_ml": 150,
                 "note": "1-2 cups a day is fine. Adding milk moves this into YELLOW because of phosphorus and potassium in milk.",
-                "linked_food_id": None,
+                "linked_food_id": "food-weak-black-tea-no-milk",
             },
             {
                 "name": "Unsweetened Almond Milk (plain, store-bought)",
@@ -95,7 +95,7 @@ BEVERAGE_GUIDE = {
                 "fluid_ml": 240,
                 "sodium_mg": 60,
                 "note": "Distinct from Thandai — this is plain unsweetened almond milk, not the festival nut-paste drink. Genuinely low potassium and phosphorus, a reasonable dairy-milk substitute. Check the label — some commercial brands add potassium citrate as a stabilizer, which changes this.",
-                "linked_food_id": None,
+                "linked_food_id": "food-unsweetened-almond-milk-plain-store-bought",
             },
         ],
     },
@@ -110,7 +110,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 130,
                 "fluid_ml": 100,
                 "note": "Milk adds potassium and phosphorus. Keep to 1-2 small cups per day and use less milk if you're on phosphate binders.",
-                "linked_food_id": None,
+                "linked_food_id": "food-masala-chai-with-milk",
             },
             {
                 "name": "Filter Coffee (with milk)",
@@ -119,7 +119,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 140,
                 "fluid_ml": 100,
                 "note": "South Indian filter coffee with milk sits at the top of YELLOW because of dairy phosphorus. Black filter coffee without milk drops back to GREEN.",
-                "linked_food_id": None,
+                "linked_food_id": "food-filter-coffee-with-milk",
             },
             {
                 "name": "Green Tea",
@@ -128,7 +128,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 80,
                 "fluid_ml": 150,
                 "note": "Naturally low in K but concentrated antioxidants can interfere with some medications. Limit to 2 cups; ask your doctor if you're on blood thinners.",
-                "linked_food_id": None,
+                "linked_food_id": "food-green-tea",
             },
             {
                 "name": "Sweet Lassi",
@@ -137,7 +137,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 210,
                 "fluid_ml": 150,
                 "note": "Yogurt base means moderate potassium AND phosphorus. Occasional treat only; skip if diabetic.",
-                "linked_food_id": None,
+                "linked_food_id": "food-sweet-lassi",
             },
             {
                 "name": "Sugarcane Juice",
@@ -146,7 +146,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 195,
                 "fluid_ml": 100,
                 "note": "Naturally sugary and moderately K-rich. A very small tasting glass only; not for diabetic patients.",
-                "linked_food_id": None,
+                "linked_food_id": "food-sugarcane-juice",
             },
             {
                 "name": "Nimbu Paani (lightly sweetened)",
@@ -155,7 +155,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 90,
                 "fluid_ml": 200,
                 "note": "Lemon juice + water + a pinch of sugar is fine. Avoid the salt-heavy version and skip if diabetic (or use no sugar).",
-                "linked_food_id": None,
+                "linked_food_id": "food-nimbu-paani-lightly-sweetened",
             },
             {
                 "name": "Jaljeera",
@@ -165,7 +165,7 @@ BEVERAGE_GUIDE = {
                 "fluid_ml": 175,
                 "sodium_mg": 600,  # recipe-variable, 75-1179 mg across sources — using cautious high estimate
                 "note": "Potassium is moderate, but sodium is the real concern here — black salt (kala namak) is a defining ingredient and recipe sodium varies wildly (roughly 75-1200 mg depending on how it's made). Ask for it made without added salt if ordering out.",
-                "linked_food_id": None,
+                "linked_food_id": "food-jaljeera",
             },
             {
                 "name": "Aam Panna",
@@ -175,7 +175,7 @@ BEVERAGE_GUIDE = {
                 "fluid_ml": 200,
                 "sodium_mg": 800,  # recipe-variable, 195-1175 mg across sources — cautious high estimate
                 "note": "Same pattern as Jaljeera — potassium is moderate but black salt makes sodium the real variable, and it swings hugely by recipe. Homemade with rock salt omitted or minimized is far safer than a restaurant version.",
-                "linked_food_id": None,
+                "linked_food_id": "food-aam-panna",
             },
             {
                 "name": "Milk (plain, small glass)",
@@ -184,7 +184,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 155,
                 "fluid_ml": 100,
                 "note": "Toned milk is safer than full-cream for kidneys. Half-glass at a time; avoid multiple servings across the day.",
-                "linked_food_id": None,
+                "linked_food_id": "food-milk-plain-small-glass",
             },
         ],
     },
@@ -199,7 +199,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 500,
                 "fluid_ml": 200,
                 "note": "Widely thought of as 'natural and safe' — actually one of the most dangerous drinks in CKD. A single tender coconut can push you over the daily potassium limit.",
-                "linked_food_id": None,
+                "linked_food_id": "food-coconut-water",
             },
             {
                 "name": "Fresh Orange Juice",
@@ -208,7 +208,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 500,
                 "fluid_ml": 200,
                 "note": "Juicing concentrates the potassium 3-4× compared to eating a whole orange. Avoid — including 'fresh-pressed' varieties.",
-                "linked_food_id": None,
+                "linked_food_id": "food-fresh-orange-juice",
             },
             {
                 "name": "Mosambi (Sweet Lime) Juice",
@@ -217,7 +217,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 400,
                 "fluid_ml": 200,
                 "note": "Common 'get-well' drink in India that is actually unsafe for CKD. Whole fresh mosambi in tiny portions is different from juicing multiple fruits into a glass.",
-                "linked_food_id": None,
+                "linked_food_id": "food-mosambi-sweet-lime-juice",
             },
             {
                 "name": "Pomegranate Juice",
@@ -226,7 +226,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 530,
                 "fluid_ml": 200,
                 "note": "Extremely K-dense. Half a cup of arils is safer if you crave the flavour.",
-                "linked_food_id": None,
+                "linked_food_id": "food-pomegranate-juice",
             },
             {
                 "name": "Bottled Fruit Juice",
@@ -235,7 +235,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 350,
                 "fluid_ml": 200,
                 "note": "Real Activ, Tropicana, Paper Boat etc. also carry added sugar and preservatives. Avoid — even '100% pure' bottled juices concentrate K.",
-                "linked_food_id": None,
+                "linked_food_id": "food-bottled-fruit-juice",
             },
             {
                 "name": "Sports / Energy Drinks",
@@ -244,7 +244,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 200,
                 "fluid_ml": 250,
                 "note": "Marketed as 'electrolyte replenishment' — deliberately loaded with sodium AND potassium. Never for CKD patients.",
-                "linked_food_id": None,
+                "linked_food_id": "food-sports-energy-drinks",
             },
             {
                 "name": "Bournvita / Horlicks / Boost",
@@ -253,7 +253,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 300,
                 "fluid_ml": 200,
                 "note": "Milk-based malt drinks are extremely high in phosphorus (added milk-solids and cocoa). Skip entirely.",
-                "linked_food_id": None,
+                "linked_food_id": "food-bournvita-horlicks-boost",
             },
             {
                 "name": "Tomato Juice",
@@ -262,7 +262,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 530,
                 "fluid_ml": 200,
                 "note": "Both potassium AND sodium are dangerously high, especially in canned/bottled tomato juice.",
-                "linked_food_id": None,
+                "linked_food_id": "food-tomato-juice",
             },
             {
                 "name": "Beetroot Juice",
@@ -271,7 +271,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 640,
                 "fluid_ml": 200,
                 "note": "Very high potassium and oxalates (kidney-stone risk). Occasionally recommended for blood pressure but not appropriate for CKD.",
-                "linked_food_id": None,
+                "linked_food_id": "food-beetroot-juice",
             },
             {
                 "name": "Beer / Alcohol",
@@ -280,7 +280,7 @@ BEVERAGE_GUIDE = {
                 "potassium_mg": 90,
                 "fluid_ml": 330,
                 "note": "Even though K is modest, alcohol worsens BP control and dehydrates. Every drink counts toward the strict fluid limit. Ask your nephrologist before any alcohol.",
-                "linked_food_id": None,
+                "linked_food_id": "food-beer-alcohol",
             },
             {
                 "name": "Thandai (festival, milk-based)",
@@ -290,7 +290,7 @@ BEVERAGE_GUIDE = {
                 "fluid_ml": 200,
                 "sodium_mg": 109,
                 "note": "Milk + almonds + multiple nuts/seeds stacks potassium AND phosphorus (~293 mg P per glass). Festival-occasion only, not a routine drink.",
-                "linked_food_id": None,
+                "linked_food_id": "food-thandai",
             },
         ],
     },

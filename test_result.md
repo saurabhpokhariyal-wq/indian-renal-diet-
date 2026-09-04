@@ -1706,3 +1706,64 @@ agent_communication_iter31:
            pattern used for food-orange.
         5. Bumping test_iter13d tier_override assertion 8 → 10.
       Verified via testing_agent — 21/21 tests pass, no regressions.
+
+
+# Iter 32 — Guide-gap audit backfill (121 entries) + Search relevance sort
+
+backend_iter32:
+  - task: "Vegetable/Grain/Protein/Snack/Beverage gap audit + backfill via seed_guide_staples.py"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_guide_staples.py (NEW), /app/backend/lifespan.py, /app/backend/scripts/audit_seed.py, /app/backend/vegetable_guide.py, grain_guide.py, protein_guide.py, snack_guide.py, beverage_guide.py, /app/backend/tests/test_iter13d_pending_resourcing.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Same-shape bug as iter-31's mango bug lived in all 5 remaining category guides (121 unlinked entries across vegetable/grain/protein/snack/beverage). Audited each guide, matched 12 against existing DB entries and populated their linked_food_id, then generated 109 new seed entries in seed_guide_staples.py. K from guide (IFCT + USDA), P/Na/protein via category-typical defaults + hand-tuned overrides for high-signal items (milk, cheese, tomato juice, condensed milk, etc.). Loaded via SEED_FOODS + SEED_GUIDE_STAPLES in both lifespan.py and audit_seed.py. New reconciliation totals: input 1060→1181, sanity_violations 41→42, data_quality_flagged 42→43, duplicates_dropped 9→11 (two staple entries slugged to pre-existing IDs food-samosa and food-sweet-lassi; deduplication kept the canonical seed_data versions). Bumped 3 iter-13d assertions accordingly."
+        - working: true
+          agent: "testing"
+          comment: "79/79 iter-32 tests pass; iter-13d bumped assertions pass at new values; multi-word 'sports drink' surfaces Sports / Energy Drinks correctly."
+
+  - task: "Search relevance sort — exact-name matches surface above alphabetical substring matches; multi-word queries match individual words"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/foods.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "When q is provided, results are pulled from Mongo then sorted in Python by priority: (0) exact name match, (1) name starts-with q, (2) hindi_name starts-with q, (3) substring in name, (4) alphabetical fallback. Fixes the UX bug that iter-31 uncovered: 'mango' surfaced 'Dry mango chutney' above 'Mango (small portion)' purely by alphabetical order. Also added a multi-word $and clause so 'sports drink' matches 'Sports / Energy Drinks' where the words don't appear consecutively."
+        - working: true
+          agent: "testing"
+          comment: "All exact-match queries (mango, milk, water, green tea, cauliflower) surface the exact-name entry first. Multi-word 'sports drink' → 'Sports / Energy Drinks' first result."
+
+test_plan_iter32:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter32:
+  - agent: "main"
+    message: |
+      Two follow-up asks from iter-31:
+      1. Guide gap audit — audit_strict.py identified 121 unlinked
+         entries across vegetable_guide, grain_guide, protein_guide,
+         snack_guide and beverage_guide. Auto-linked 12 to existing DB
+         entries and generated 109 new food entries in seed_guide_
+         staples.py (loaded via SEED_FOODS + SEED_GUIDE_STAPLES in
+         lifespan.py). Two guide entries deduplicated against existing
+         seed_data (food-samosa, food-sweet-lassi) — the canonical
+         seed_data entries won and the guides link to those.
+      2. Search relevance sort — exact-name matches now surface first
+         (priority 0), followed by starts-with (name / hindi_name),
+         substring, and alphabetical fallback. Multi-word queries add
+         an implicit AND so 'sports drink' matches 'Sports / Energy
+         Drinks' where the phrase isn't consecutive.
+      Testing agent confirmed 79/79 + 5/5 final checkpoints. iter-13d
+      assertions bumped: duplicates_dropped 9→11, data_quality_flagged
+      42→43. Sajina pre-existing failures remain out of scope.

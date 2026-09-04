@@ -279,7 +279,10 @@ class TestT1MongoInvariants:
         #    seed_data.py (its %KCl split is unverified) — that flag is
         #    preserved through reconciliation and lives in Mongo alongside
         #    tier_override=True (test_no_overlap below).
-        assert flagged == 42, f"concentrated_base flagged={flagged} (expected 42)"
+        # iter-32: 42 → 43 after seed_guide_staples backfill added 121 new
+        # entries and the Step 7b sanity backstop caught 1 more high-K
+        # concentrated-base outlier (auto-flagged "Pending re-sourcing").
+        assert flagged == 43, f"concentrated_base flagged={flagged} (expected 43)"
 
     def test_tier_override_count_7(self, mongo_counts):
         _, overrides, _ = mongo_counts
@@ -324,7 +327,8 @@ class TestT2AuditScript:
         # +1 from Tata Salt Lite carrying data_quality_flag directly in seed;
         #    the final-count recomputation in reconciliation (Step 7b tail)
         #    now includes pre-existing flags so the counter matches Mongo.
-        assert data.get("data_quality_flagged") == 42, (
+        # iter-32: 42 → 43 (see mongo test_flagged_count above).
+        assert data.get("data_quality_flagged") == 43, (
             f"data_quality_flagged={data.get('data_quality_flagged')}"
         )
 
@@ -336,7 +340,14 @@ class TestT2AuditScript:
 
     def test_duplicates_dropped_9(self, audit_json):
         data = json.loads(audit_json.stdout)
-        assert data.get("duplicates_dropped_count") == 9, (
+        # iter-32: 9 → 11 after seed_guide_staples added two entries whose
+        # slugified IDs collide with pre-existing seed entries — food-samosa
+        # (from Samosa in snack_guide RED) and food-sweet-lassi (from Sweet
+        # Lassi in beverage_guide YELLOW). The deduplication step drops the
+        # stapled duplicates and keeps the canonical seed_data entries with
+        # the richer clinical tips; the guide-file linked_food_id already
+        # points at those canonical IDs so no user-visible impact.
+        assert data.get("duplicates_dropped_count") == 11, (
             f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"
         )
 

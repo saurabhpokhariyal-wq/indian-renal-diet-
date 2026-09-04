@@ -1,0 +1,34 @@
+{
+  "summary": "iter-32 FINAL verification: ALL 5 review checkpoints PASS. (A) TestT2AuditScript::test_duplicates_dropped_9 PASSES at new assertion value 11. (B) GET /api/foods?q=sports%20drink returns exactly 1 result: food-sports-energy-drinks 'Sports / Energy Drinks' — multi-word $and clause works. (C) Single-word regression clean: q=mango→'Mango (small portion)' first, q=milk→'Milk (full glass)' first, q=water→'Water' (exact) first. (D) audit_seed.py --json returns exact expected counts: duplicates_dropped_count=11, data_quality_flagged=43, sanity_violations_count=42, curated_overrides=10. (E) q=green%20tea→'Green Tea' first (single result, exact-match scorer prevails). Full-file run of test_iter13d_pending_resourcing.py: 36 passed, 2 failed — the 2 failures are the well-documented pre-existing TestB5Sajina::test_portion_unchanged and TestB5Sajina::test_tier_red (food-sajina rescaled to 40 g / YELLOW back in iter-23; assertions still expect legacy 150 g / RED). These are NOT introduced by iter-32 and were flagged as out-of-scope in iter-30, iter-31, iter-33 reports. iter-32 can be CLOSED.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "N/A (test assertion)", "issue": "TestB5Sajina::test_portion_unchanged & test_tier_red still fail — pre-existing since iter-23 rescale (food-sajina now 40 g / YELLOW; assertions expect 150 g / RED). Out of scope for iter-32; deferred to future iteration."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter13d_pending_resourcing.py",
+    "/app/backend/tests/test_iter32_guide_backfill_and_search_priority.py"
+  ],
+  "action_items": [
+    "iter-32 verification complete — no action required for iter-32 closure.",
+    "(OPTIONAL, deferred) In a future iteration, reconcile TestB5Sajina assertions with iter-23 Sajina rescale (either update the assertions to portion_g=40 / tier=YELLOW, or restore the 150 g / RED classification if that was the original clinical intent)."
+  ],
+  "critical_code_review_comments": [
+    "Multi-word search $and clause in /app/backend/routes/foods.py::list_foods is a clean, minimal fix — only activates when q has ≥2 words each ≥3 chars, preserves single-word behavior, and correctly surfaces 'Sports / Energy Drinks' where the phrase is fragmented by punctuation.",
+    "Comment on test_duplicates_dropped_9 documents the SEED_GUIDE_STAPLES collision rationale (food-samosa, food-sweet-lassi) — good traceability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (5/5 iter-32 checkpoints A/B/C/D/E; 36/38 in test_iter13d file with the 2 pre-existing Sajina failures)", "frontend": "N/A (backend-only verification)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter-32 is fully closed. Backend pipeline snapshot: input=1181, reclassified=460, rescaled=458, duplicates_dropped=11, sanity_violations=42, curated_overrides=10, data_quality_flagged=43. Search relevance sort + multi-word $and matching both working. Only remaining pre-existing debt is 2 TestB5Sajina assertions (portion_g=150 → actual 40; tier=RED → actual YELLOW) from iter-23 rescale — carry forward untouched to future iteration when Sajina is revisited. Env: pytest requires EXPO_PUBLIC_BACKEND_URL to be exported (falls back to KeyError otherwise). Backend at http://localhost:8001; public URL https://safe-food-guide-1.preview.emergentagent.com.",
+  "rca_of_issue": "N/A — verification-only run; no bugs introduced by iter-32 fixes."
+}

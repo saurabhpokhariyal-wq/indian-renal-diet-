@@ -41,12 +41,26 @@ async def list_foods(
 ):
     query: dict = {}
     if q:
+        # Build a flexible query: match the full phrase OR any individual
+        # word from the query. This makes "sports drink" match a food named
+        # "Sports / Energy Drinks" (which contains both "sports" and "drink"
+        # but not the consecutive phrase). Also handles typos like extra
+        # spaces gracefully.
         safe_q = re.escape(q)
-        query["$or"] = [
+        or_clauses: list[dict] = [
             {"name": {"$regex": safe_q, "$options": "i"}},
             {"hindi_name": {"$regex": safe_q, "$options": "i"}},
             {"category": {"$regex": safe_q, "$options": "i"}},
         ]
+        # For multi-word queries, ALSO require each word appears somewhere
+        # in the name (implicit AND across words). One-word queries skip
+        # this since the full-phrase match already covers them.
+        words = [w for w in re.split(r"\s+", q.strip()) if len(w) >= 3]
+        if len(words) > 1:
+            or_clauses.append({
+                "$and": [{"name": {"$regex": re.escape(w), "$options": "i"}} for w in words]
+            })
+        query["$or"] = or_clauses
     if tier:
         tiers = [t.strip().upper() for t in tier.split(",") if t.strip()]
         query["safety_tier"] = {"$in": tiers}
@@ -73,6 +87,36 @@ async def list_foods(
         if not fav_ids:
             return []
         query["id"] = {"$in": list(fav_ids)}
+
+    # When the user typed a search query, sort results by relevance in Python
+    # after the Mongo filter narrows the set. Priority order:
+    #   0. Exact-name match (case-insensitive)  — the "user typed the food"
+    #   1. Name starts with q
+    #   2. hindi_name starts with q
+    #   3. Substring in name
+    #   4. Everything else (alphabetical fallback)
+    # Fixes iter-31 UX complaint that "mango" surfaced "Dry mango chutney"
+    # ahead of "Mango (small portion)" purely because of alphabetical sort.
+    if q:
+        cursor = db.foods.find(query, {"_id": 0}).limit(limit)
+        docs = [doc async for doc in cursor]
+        q_low = q.strip().lower()
+
+        def score(doc: dict) -> int:
+            n = (doc.get("name") or "").lower()
+            h = (doc.get("hindi_name") or "").lower()
+            if n == q_low:
+                return 0
+            if n.startswith(q_low):
+                return 1
+            if h.startswith(q_low):
+                return 2
+            if q_low in n:
+                return 3
+            return 4
+
+        docs.sort(key=lambda d: (score(d), (d.get("name") or "").lower()))
+        return [enrich_food_sync(doc, current_user, fav_ids) for doc in docs]
 
     cursor = db.foods.find(query, {"_id": 0}).sort("name", 1).limit(limit)
     return [enrich_food_sync(doc, current_user, fav_ids) async for doc in cursor]
