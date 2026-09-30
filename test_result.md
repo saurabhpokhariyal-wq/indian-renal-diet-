@@ -1767,3 +1767,77 @@ agent_communication_iter32:
       Testing agent confirmed 79/79 + 5/5 final checkpoints. iter-13d
       assertions bumped: duplicates_dropped 9→11, data_quality_flagged
       42→43. Sajina pre-existing failures remain out of scope.
+
+
+# Iter 33 — Sajina reconcile + P/Na refinement (30) + Hindi search
+
+backend_iter33:
+  - task: "Sajina test-assertion reconcile with iter-23 rescale"
+    implemented: true
+    working: true
+    file: "/app/backend/tests/test_iter13d_pending_resourcing.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "test_portion_unchanged bumped 150→40 with comment explaining iter-23's 150g raw-leaf → 40g cooked-katori rescale. test_tier_red now asserts safety_tier=YELLOW AND personal_tier ∈ {RED, YELLOW} (the personalization layer bumps to RED for dialysis, so the clinical safety net remains). Current state is intentional: portion=40, K=233, formula-YELLOW, personalization-RED-for-dialysis, actionable_clinical_tip warns Best avoided in advanced CKD."
+        - working: true
+          agent: "testing"
+          comment: "4/4 TestB5Sajina tests pass."
+
+  - task: "P/Na guide sourcing — top-30 entries refined from category defaults to IFCT 2017/USDA per-serving values"
+    implemented: true
+    working: true
+    file: "/app/backend/seed_guide_staples.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Refined phosphorus/sodium/protein on 30 highest-signal entries: ridge/ash gourd, cauliflower, green beans, capsicum, carrot, brinjal, green peas, okra, pumpkin, mushroom, karela, radish, sweet potato, yam, colocasia, spinach, suji, maida-roti, oats, bajra roti, jowar roti, ragi, masoor/chana/urad/whole moong, water, herbal tea, green tea. K unchanged (already guide-sourced). Values scaled from IFCT per-100g figures to each entry's stated portion_g."
+        - working: true
+          agent: "testing"
+          comment: "5 spot-checks pass exact values (cauliflower P=44/Na=8/prot=1.9, oats 99/1/4.2, carrot 20/40/0.6, ridge-gourd 35/8/0.6, masoor 115/3/5.4). No tier changes."
+
+  - task: "Hindi/Devanagari search — unified name+hindi_name scoring + strip parenthetical qualifiers"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/foods.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Extended iter-32's score() function to also score by hindi_name (exact and starts-with), and to strip parenthetical qualifiers before compare — so 'आम' matches the base 'आम' inside 'आम (छोटा भाग)' as exact (score 0), not starts-with (score 2). English regressions preserved. Devanagari 'आम' now ranks Mango (small portion) → Mango (whole) → Aam Panna in that order."
+        - working: true
+          agent: "testing"
+          comment: "'आम' returns Mango (small portion) at idx 0; 'दूध' returns milk; all 5 English regressions clean; multi-word 'sports drink' unaffected."
+
+test_plan_iter33:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication_iter33:
+  - agent: "main"
+    message: |
+      Three follow-ups from iter-32 completed:
+      1. Sajina — current 40g/YELLOW/personal-RED state is intentional
+         (iter-23 rescale); updated the two stale iter-13d assertions
+         to match, with comments explaining provenance.
+      2. P/Na guide sourcing (top-30) — 30 highest-signal entries
+         refined from category-typical defaults to real IFCT 2017 /
+         USDA per-serving values. No tier drift.
+      3. Hindi search — extended search score() to also match on
+         hindi_name and to strip parenthetical qualifiers, so
+         Devanagari 'आम' surfaces Mango (small portion) at exact-match
+         score 0. All English regressions preserved.
+      Voice dictation remains deferred per prior guidance.
+      Testing agent: 20/20 pass. Reconciliation counts unchanged
+      (data_quality_flagged=43, sanity_violations=42, curated_overrides=
+      10, duplicates_dropped=11).

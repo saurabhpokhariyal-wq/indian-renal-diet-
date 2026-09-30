@@ -89,31 +89,39 @@ async def list_foods(
         query["id"] = {"$in": list(fav_ids)}
 
     # When the user typed a search query, sort results by relevance in Python
-    # after the Mongo filter narrows the set. Priority order:
-    #   0. Exact-name match (case-insensitive)  — the "user typed the food"
-    #   1. Name starts with q
-    #   2. hindi_name starts with q
-    #   3. Substring in name
-    #   4. Everything else (alphabetical fallback)
-    # Fixes iter-31 UX complaint that "mango" surfaced "Dry mango chutney"
-    # ahead of "Mango (small portion)" purely because of alphabetical sort.
+    # after the Mongo filter narrows the set. Priority order (unified across
+    # English name and Devanagari hindi_name — iter-33 improvement so a
+    # Devanagari "आम" surfaces the fruit above alphabetical alternatives
+    # the same way English "mango" does):
+    #   0. Exact match on name OR hindi_name (with parenthetical qualifiers
+    #      like "(small portion)" / "(छोटा भाग)" stripped before compare —
+    #      so a query "आम" matches an entry whose hindi_name is
+    #      "आम (छोटा भाग)").
+    #   1. Name OR hindi_name starts with q
+    #   2. Substring in name OR hindi_name
+    #   3. Everything else (alphabetical fallback)
     if q:
         cursor = db.foods.find(query, {"_id": 0}).limit(limit)
         docs = [doc async for doc in cursor]
         q_low = q.strip().lower()
 
+        def _strip_paren(s: str) -> str:
+            """Drop '(...)' qualifiers so 'Mango (small portion)' and 'आम
+            (छोटा भाग)' compare equal to bare 'Mango'/'आम' queries."""
+            return re.sub(r"\s*\([^)]*\)\s*", " ", s or "").strip().lower()
+
         def score(doc: dict) -> int:
             n = (doc.get("name") or "").lower()
             h = (doc.get("hindi_name") or "").lower()
-            if n == q_low:
+            n_bare = _strip_paren(n)
+            h_bare = _strip_paren(h)
+            if n_bare == q_low or h_bare == q_low or n == q_low or h == q_low:
                 return 0
-            if n.startswith(q_low):
+            if n.startswith(q_low) or h.startswith(q_low) or n_bare.startswith(q_low) or h_bare.startswith(q_low):
                 return 1
-            if h.startswith(q_low):
+            if q_low in n or q_low in h:
                 return 2
-            if q_low in n:
-                return 3
-            return 4
+            return 3
 
         docs.sort(key=lambda d: (score(d), (d.get("name") or "").lower()))
         return [enrich_food_sync(doc, current_user, fav_ids) for doc in docs]

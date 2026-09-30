@@ -295,3 +295,29 @@ See `/app/memory/test_credentials.md`.
 - **Verified**: 79/79 iter-32 tests + 5/5 final checkpoints pass. All
   iter-27..31 machinery still works (salt-substitute warning, Tata
   Salt Lite pending flag, mango priority, sanity-ceiling backstop).
+
+## Iter 33 — Sajina reconcile + P/Na top-30 refinement + Hindi search
+
+- **Sajina reconciliation**: Current `food-sajina` state (portion=40g,
+  formula-YELLOW at K=233, personal_tier=RED for dialysis via
+  personalization) is the intentional iter-23 rescale. Updated the
+  two stale iter-13d assertions with comments explaining the
+  provenance — `test_portion_unchanged` now expects 40, `test_tier_red`
+  now expects `safety_tier=YELLOW AND personal_tier ∈ {RED, YELLOW}`.
+- **P/Na guide sourcing (top-30)**: Refined 30 highest-signal entries
+  in `seed_guide_staples.py` from category-typical defaults to real
+  IFCT 2017 / USDA per-serving values: ridge/ash gourd, cauliflower,
+  green beans, capsicum, carrot, brinjal, green peas, okra, pumpkin,
+  mushroom, karela, radish, sweet potato, yam, colocasia, spinach,
+  suji, maida roti, oats, bajra/jowar roti, ragi, masoor/chana/urad/
+  whole moong, water, herbal tea, green tea. K unchanged (already
+  guide-sourced). No tier drift.
+- **Hindi/Devanagari search**: Extended the iter-32 score() function
+  in `routes/foods.py` to score by `hindi_name` (exact + starts-with)
+  in addition to `name`, and to strip parenthetical qualifiers
+  before compare. Now a Devanagari `आम` matches the base `आम` inside
+  `आम (छोटा भाग)` as an exact match (score 0), so Mango (small
+  portion) surfaces first instead of losing to Aam Panna alphabetically.
+- **Verified**: 20/20 iter-33 tests pass. Reconciliation counts
+  unchanged (data_quality_flagged=43, sanity_violations=42,
+  curated_overrides=10, duplicates_dropped=11).

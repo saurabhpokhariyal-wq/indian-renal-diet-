@@ -1,0 +1,23 @@
+{
+  "summary": "Iter-33 backend follow-ups verified: (1) TestB5Sajina all 4 assertions PASS with updated portion=40g and tier=YELLOW/personal=RED expectations; (2) 5 spot-checked P/Na refinements return exact IFCT/USDA values (cauliflower P=44/Na=8/prot=1.9, oats P=99/Na=1/prot=4.2, carrot P=20/Na=40/prot=0.6, ridge gourd P=35/Na=8/prot=0.6, masoor dal P=115/Na=3/prot=5.4) with tiers unchanged (cauliflower YELLOW, oats GREEN, carrot YELLOW); (3) Devanagari 'आम' surfaces Mango (small portion) at rank #0 and Mango (whole) at rank #1 with Aam Panna pushed after, 'दूध' returns milk entries; (4) English regressions clean (mango→Mango (small portion), water→Water, milk→Milk (full glass), cauliflower→Cauliflower, sports drink→Sports/Energy Drinks); (5) audit_seed --json reconciliation counts unchanged (data_quality_flagged=43, sanity_violations_count=42, curated_overrides=10, duplicates_dropped_count=11). 20/20 tests pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter33_pna_refinement_and_search.py",
+    "/app/backend/tests/test_iter13d_pending_resourcing.py",
+    "/app/test_reports/pytest/iter33_results.xml"
+  ],
+  "action_items": [
+    "Optional cleanup: remove `tolerated_failures = ['test_portion_unchanged', 'test_tier_red']` list from /app/backend/tests/test_iter32_guide_backfill_and_search_priority.py since both now pass (harmless if left)."
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iter33_pna_refinement_and_search.py (new — 20 test cases covering fixes 1–3 + audit regression)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "N/A (backend-only)"},
+  "seed_data_creation": "None; used existing seeded foods and audit_seed script.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter-33 backend fully green. audit_seed.py is under /app/backend/scripts/audit_seed.py (not /app/backend/audit_seed.py). GET /api/foods/{id} returns nested `{food:{...}, swap:...}` — extract .food for nutrient fields. Devanagari search via URL-encoded UTF-8 query works correctly; parens-strip + hindi_name unification ranks bare-Devanagari-name matches at score 0 correctly.",
+  "rca_of_issue": "N/A — all three fixes validated as intended."
+}
