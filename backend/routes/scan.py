@@ -1,6 +1,6 @@
 """Vision (`/scan/food`) + barcode (`/scan/barcode`) endpoints.
 
-The vision endpoint asks Claude Sonnet 4.5 to identify the dish, then
+The vision endpoint asks Claude (see config.CLAUDE_MODEL) to identify the dish, then
 authoritatively re-classifies from `db.foods` if a match exists. If nothing
 matches we return `safety_tier="UNVERIFIED"` so the UI shows a neutral badge
 instead of guessing a colored tier (iter-24 grounding fix).
@@ -16,7 +16,7 @@ from typing import Optional
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from config import EMERGENT_LLM_KEY
+from config import CLAUDE_MODEL, EMERGENT_LLM_KEY
 from db import db
 from scan_service import (
     _SCAN_SYSTEM,
@@ -112,7 +112,7 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
                 session_id=f"scan-{current_user['id']}-{uuid.uuid4().hex[:8]}",
                 system_message=_SCAN_SYSTEM,
             )
-            .with_model("anthropic", "claude-sonnet-4-5-20250929")
+            .with_model("anthropic", CLAUDE_MODEL)
         )
         image_content = ImageContent(image_base64=raw)
         reply = await chat.send_message(
@@ -120,7 +120,10 @@ async def scan_food(request: Request, body: FoodScanRequest, current_user=Depend
                         file_contents=[image_content])
         )
         text = str(reply).strip()
-    except Exception:
+    except Exception as exc:
+        # Anthropic rejects unreadable/corrupt images — that's a bad upload, not an outage.
+        if "process image" in str(exc).lower():
+            raise HTTPException(status_code=400, detail="Could not read this photo. Please retake it.")
         logger.exception("Vision scan failed")
         raise HTTPException(status_code=502, detail="Vision service temporarily unavailable")
 

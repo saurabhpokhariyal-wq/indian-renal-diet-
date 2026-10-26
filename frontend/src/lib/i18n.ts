@@ -156,7 +156,7 @@ export const translations: Record<string, Entry> = {
   remove: { en: "Remove", hi: "हटाएँ" },
 
   askAiTitle: { en: "Ask your Renal Diet AI", hi: "अपने रीनल डाइट AI से पूछें" },
-  askAiSubtitle: { en: "Powered by Claude Sonnet 4.5", hi: "Claude Sonnet 4.5 द्वारा" },
+  askAiSubtitle: { en: "Powered by Claude Sonnet 5.5", hi: "Claude Sonnet 5.5 द्वारा" },
   askAiPlaceholder: { en: "Type your question, e.g. 'Is bhindi safe for CKD?'", hi: "प्रश्न लिखें, जैसे 'क्या भिंडी CKD में सुरक्षित है?'" },
   askAiSend: { en: "Ask", hi: "पूछें" },
   askAiWelcome: {

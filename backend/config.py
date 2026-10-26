@@ -22,6 +22,8 @@ JWT_SECRET: str = os.environ["JWT_SECRET"]
 
 # --- Optional ---
 EMERGENT_LLM_KEY: str = os.environ.get("EMERGENT_LLM_KEY", "")
+# Single place to pick the Claude model used by AI Chat, photo scan and meal logging.
+CLAUDE_MODEL: str = os.environ.get("CLAUDE_MODEL", "claude-sonnet-5-5")
 
 CORS_ORIGINS: List[str] = [
     o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()

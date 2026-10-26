@@ -13,14 +13,14 @@ Elderly patients and family caregivers — visual, high-contrast, large touch ta
 4. **Visual Safety Cards** — color-coded card with icon, tier badge, portion limit, and clinical tip.
 5. **Smart Swap Card** — for any RED food (base or personalized) shows a green-tier alternative with clinical benefit.
 6. **Favorites** — star toggle on food detail; "My Favorites" horizontal row on Home with one-tap "Log" button.
-7. **Ask AI** — Claude Sonnet 4.5 via Emergent LLM key answering CKD-diet questions in warm, plain language.
-8. **Camera Food Scan** — expo-camera + expo-image-manipulator captures & compresses JPEG; POST to `/api/scan/food` where Claude Sonnet 4.5 **vision** identifies the dish and returns structured safety JSON.
+7. **Ask AI** — Claude Sonnet 5.5 via Emergent LLM key answering CKD-diet questions in warm, plain language.
+8. **Camera Food Scan** — expo-camera + expo-image-manipulator captures & compresses JPEG; POST to `/api/scan/food` where Claude Sonnet 5.5 **vision** identifies the dish and returns structured safety JSON.
 9. **Daily Meal Log** — add foods eaten today; per-day Safe/Caution/Avoid summary; delete entries.
 10. **Weekly PDF Report** — 7-day bar chart, top-safe & top-avoid foods; exportable/shareable as PDF via expo-print + expo-sharing for nephrologist visits.
 11. **English ↔ हिन्दी** toggle across all screens.
 
 ## Tech Stack
-- **Backend**: FastAPI, MongoDB (motor), passlib+bcrypt, python-jose (JWT), emergentintegrations (Claude Sonnet 4.5 text + vision)
+- **Backend**: FastAPI, MongoDB (motor), passlib+bcrypt, python-jose (JWT), emergentintegrations (Claude Sonnet 5.5 text + vision)
 - **Frontend**: Expo SDK 54, expo-router (typed routes), expo-camera, expo-image-manipulator, expo-print, expo-sharing, expo-secure-store, react-native-safe-area-context, react-native-keyboard-controller, @expo/vector-icons
 
 ## Data Model

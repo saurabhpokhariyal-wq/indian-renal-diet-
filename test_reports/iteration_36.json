@@ -1,0 +1,47 @@
+{
+  "summary": "Iter-36: Claude model upgrade to claude-sonnet-5-5 verified end-to-end on the public URL. A probe shows the Emergent LLM proxy accepts 'claude-sonnet-5-5' and rejects a fake model id with 'Invalid model name', so the new id is a real model and there is no silent fallback. New suite test_iter36_claude_model_upgrade.py passes 12/12: config wiring (CLAUDE_MODEL used 2x in routes/ai.py and 1x in routes/scan.py, no old ids left); /ai/ask gives a grounded English answer that mentions potassium and a Devanagari Hindi answer; /ai/log-meal splits '2 rotis, 1 katori dal and half bowl rice' into 3 items (roti qty 2.0, rice qty 0.5) with DB candidates; /scan/food with a real Indian curry+rice JPEG identifies the dish (200, structured JSON, plain base64 and data-URI both work). Error paths 400/401 work. Full regression suite run in 5 rate-limit-spaced batches: about 570 passed. Every failure is a stale hard-coded expectation from earlier iterations (data counts, sodium default 2000 vs 2300, 35 vs 1172 foods, tier changes, UNVERIFIED tier added in iter24, refactor moved code out of server.py) or a 429 from the auth rate limit (5/min). None of them comes from the model change. The git diff confirms only config.py, routes/ai.py, routes/scan.py and i18n.ts changed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/scan/food", "issue": "If Anthropic rejects the image (400 'Could not process image', e.g. a corrupt or non-image payload that is still valid base64), the backend returns 502 'Vision service temporarily unavailable'. That error is caused by the input, so 400/422 with 'Could not read image' would be the right response. The ingress also replaces the app's 502 JSON body with an HTML page, so the frontend cannot read the detail."},
+      {"endpoint": "POST /api/scan/food", "issue": "Pre-existing grounding limitation: on multi-dish photos the model returns compound names (e.g. 'Vegetable and Chicken Tikka Masala Curry with Basmati Rice'). The whole-string regex against db.foods then finds no match, so the result is UNVERIFIED even though rice and curry are in the DB. Optional fix: ask the model for a short primary dish name or a list of items, and match each one."},
+      {"endpoint": "POST /api/ai/ask", "issue": "In about 25% of runs on BOTH sonnet-4.5 and sonnet-5.5 (side-by-side probe, 1/4 each), the invented-dish answer contains SAFE/CAUTION/AVOID words, so test_iter22::test_made_up_dish_not_classified is flaky. The sonnet-5.5 cases were correct refusals ('I can't label it safe, caution, or avoid without verified data'), so this is a false positive in the test regex, not a regression."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter36_claude_model_upgrade.py",
+    "/app/backend/tests/probe_claude_model.py",
+    "/app/backend/tests/probe_grounding_model_compare.py",
+    "/app/backend/tests/fixtures/indian_food.jpg",
+    "/app/test_reports/pytest/iter36_claude.xml"
+  ],
+  "action_items": [
+    "Optional: in routes/scan.py, map emergentintegrations ChatError messages containing 'Could not process image' to HTTP 400 instead of 502.",
+    "Optional: fix stale regression tests so the suite runs green: test_iter12 default limit 100; test_iter13/13c/30 audit counts (now data_quality_flagged=43, curated_overrides=10, duplicates=11); test_iter20 muskmelon/egg-yolk values and 'backend' import path; test_iter27 lo-salt K 346 and protein default; test_iter28 tata-saltlite tier RED; test_new_features/test_security_fixes/test_profile_ai_context tier expectations and UNVERIFIED allowed; test_security_fixes reading server.py for error strings (now in routes/*); test_vegetables_snacks_guide counts 12/11; test_nutrient_budget/test_iter7 sodium default 2000.",
+    "Optional: test_new_features.py uses IMAGE_PATH=/tmp/food.jpg, which is not persistent. Point it at /app/backend/tests/fixtures/indian_food.jpg.",
+    "Optional: relax test_iter22 TIER_WORDS check so negated refusals ('can't label it safe/caution/avoid') do not count as a verdict."
+  ],
+  "critical_code_review_comments": [
+    "Centralising CLAUDE_MODEL in config.py and reading it in all 3 call sites is clean; no stale model ids remain in backend code.",
+    "config.CLAUDE_MODEL has a default value in code (os.environ.get(..., 'claude-sonnet-5-5')). That is acceptable for a model id, but it differs from the 'no defaults' env convention.",
+    "Frontend i18n subtitle 'Powered by Claude Sonnet 5.5' matches the backend model; the frontend was not tested per the request (backend only)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter36_claude_model_upgrade.py (new)",
+    "/app/backend/tests/probe_claude_model.py (new, not collected by pytest)",
+    "/app/backend/tests/probe_grounding_model_compare.py (new, not collected by pytest)",
+    "/app/backend/tests/fixtures/indian_food.jpg (new real food photo fixture)"
+  ],
+  "success_rate": {"backend": "100% for iter-36 scope (12/12). Full regression: all failures are stale or rate-limit related and unrelated to this change.", "frontend": "not tested (backend-only request)"},
+  "seed_data_creation": "None. Used demo@renal.app / demo123.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Auth endpoints are limited to 5/min per IP, so run the full suite in batches with about 60s sleeps or you will see many 429 ERRORs. Do not run pytest in the background: the bash tool kills it. A real food JPEG is at /app/backend/tests/fixtures/indian_food.jpg (copy to /tmp/food.jpg for test_new_features.py). The ingress replaces app 502 bodies with HTML. Many legacy tests carry stale expectations, listed in action_items.",
+  "rca_of_issue": "No bug in this change. The scan 502s seen during the regression run came from /tmp/food.jpg being an HTML file (a failed download during this session): Anthropic returned 'Could not process image' and the app mapped it to 502. After replacing it with a real JPEG, scan returns 200."
+}

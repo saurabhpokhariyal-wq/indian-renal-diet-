@@ -13,7 +13,7 @@ from ai_service import (
     _build_grounded_food_block,
     _find_relevant_foods,
 )
-from config import EMERGENT_LLM_KEY
+from config import CLAUDE_MODEL, EMERGENT_LLM_KEY
 from personalization import personal_tier_for
 from schemas import (
     AiAskRequest,
@@ -46,7 +46,7 @@ async def ai_ask(request: Request, body: AiAskRequest, current_user=Depends(get_
         session_id = f"user-{current_user['id']}-{lang}"
         chat = (
             LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=system_prompt)
-            .with_model("anthropic", "claude-sonnet-4-5-20250929")
+            .with_model("anthropic", CLAUDE_MODEL)
         )
         reply = await chat.send_message(UserMessage(text=question))
         return AiAskResponse(answer=str(reply).strip())
@@ -133,7 +133,7 @@ async def ai_log_meal(
                 session_id=session_id,
                 system_message=LOG_MEAL_EXTRACT_PROMPT,
             )
-            .with_model("anthropic", "claude-sonnet-4-5-20250929")
+            .with_model("anthropic", CLAUDE_MODEL)
         )
         raw = await chat.send_message(UserMessage(text=text))
         raw_str = str(raw).strip()
