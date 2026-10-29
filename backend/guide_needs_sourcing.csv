@@ -7,6 +7,7 @@ flagged-not-added,n/a,Momos,,filling + dipping sauce push sodium high but no cit
 flagged-not-added,n/a,Bhel Puri,,chutneys make sodium recipe-dependent
 flagged-not-added,n/a,Sev Puri,,chutneys make sodium recipe-dependent
 flagged-not-added,n/a,Tata Salt Lite (%KCl split),,seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite.
+flagged-not-added,n/a,"Sev / Ganthiya (Na, P)",,food-sev-ganthiya sodium/phosphorus are category-default estimates (Na 105 per 30 g looks low for a salted besan snack). INDB duplicate food-sev (Omapodi/Karasev) was superseded in iter-37 via reconciliation.SUPERSEDED_IDS — source real per-30 g IFCT/label values; do not guess.
 fruit,GREEN,Apple,Seb / सेब,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Pear,Nashpati / नाशपाती,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Papaya,Papita / पपीता,sodium_mg not yet sourced — do not guess; flag for real data
@@ -17,10 +18,8 @@ fruit,GREEN,Strawberries,Strawberry,sodium_mg not yet sourced — do not guess; 
 fruit,GREEN,Cranberries,Cranberry,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Grapes (small portion),Angoor / अंगूर,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Lychee,Litchi / लीची,sodium_mg not yet sourced — do not guess; flag for real data
-fruit,YELLOW,Guava,Amrood / अमरूद,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,YELLOW,Peach,Aadu / आड़ू,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,YELLOW,Plum,Aloo bukhara / आलू बुखारा,sodium_mg not yet sourced — do not guess; flag for real data
-fruit,YELLOW,Cherry,Cherry,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,YELLOW,Mango (small portion),Aam / आम,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,YELLOW,Jackfruit (ripe),Kathal / कटहल,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,YELLOW,Pomegranate,Anaar / अनार,sodium_mg not yet sourced — do not guess; flag for real data

@@ -110,6 +110,7 @@ def build_report() -> dict:
         "rescaled_by_bucket": dict(bucket_counts),
         "rescaled_total": len(stats["rescaled"]),
         "duplicates_dropped_count": len(stats["duplicates_dropped"]),
+        "superseded": stats.get("superseded", []),
         "duplicates_dropped": stats["duplicates_dropped"],
         "sanity_violations_count": len(stats["sanity_violations"]),
         "sanity_violations": stats["sanity_violations"][:50],
@@ -146,6 +147,9 @@ def _human_report(report: dict) -> str:
     lines.append(f"Total entries inspected:              {report['total_input']}")
     lines.append(f"Curated tier overrides (kept as-is):  {report['curated_overrides']}")
     lines.append(f"Duplicates dropped:                    {report['duplicates_dropped_count']}")
+    lines.append(f"Superseded (explicit removals):        {len(report['superseded'])}")
+    for _id, _why in report['superseded']:
+        lines.append(f"    {_id}: {_why[:90]}...")
     lines.append(f"Auto-rescaled (Step 2):                {report['rescaled_total']}")
     for bucket, n in sorted(report["rescaled_by_bucket"].items()):
         lines.append(f"    {bucket:<10s} {n}")

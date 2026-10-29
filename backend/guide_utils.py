@@ -92,6 +92,7 @@ _FLAGGED_UNSOURCED: List[Dict[str, str]] = [
     {"name": "Bhel Puri",        "reason": "chutneys make sodium recipe-dependent"},
     {"name": "Sev Puri",         "reason": "chutneys make sodium recipe-dependent"},
     {"name": "Tata Salt Lite (%KCl split)", "reason": "seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite."},
+    {"name": "Sev / Ganthiya (Na, P)", "reason": "food-sev-ganthiya sodium/phosphorus are category-default estimates (Na 105 per 30 g looks low for a salted besan snack). INDB duplicate food-sev (Omapodi/Karasev) was superseded in iter-37 via reconciliation.SUPERSEDED_IDS — source real per-30 g IFCT/label values; do not guess."},
 ]
 
 

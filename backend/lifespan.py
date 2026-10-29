@@ -36,7 +36,7 @@ async def lifespan(_app: FastAPI):
     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
-    all_foods, recon_stats = reconcile_seed(SEED_FOODS + SEED_GUIDE_STAPLES, SEED_FOODS_INDB, logger=logger)
+    all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB + SEED_GUIDE_STAPLES, logger=logger)
     reconciled_ids = {food["id"] for food in all_foods}
     for food in all_foods:
         # replace_one (not $set) so fields no longer applicable in the current

@@ -116,6 +116,19 @@ CONCENTRATED_BASE_IDS: set[str] = {
 }
 DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
 
+# Source rows removed from the catalog because another entry already covers the
+# same food and this one is contradictory/implausible. id -> reason (audit trail).
+# This is NOT a clinical judgement (that is CURATED_TIER_OVERRIDES) and NOT
+# unsourced-data debt (that is data_quality_flag).
+SUPERSEDED_IDS: dict[str, str] = {
+    "food-sev": (
+        "INDB 'Sev' is Omapodi/Karasev stored as a per-100g condiment reference "
+        "(Na 80 mg per 150 g, tip says 'Kidney-friendly') — implausible for a salted "
+        "fried snack and contradicts 'Sev / Ganthiya' (food-sev-ganthiya), which the "
+        "snack guide links to. Neither copy is sourced; see guide_needs_sourcing.csv."
+    ),
+}
+
 
 
 SPICE_MIX_PATTERNS = re.compile(
@@ -152,6 +165,13 @@ def classify_bucket(food: dict) -> Optional[str]:
     Priority order matters — first match wins.
     """
     if food.get("tier_override"):
+        return None
+    # Entries authored at their real serving size (e.g. seed_guide_staples.py)
+    # must never be run through the legacy "everything sat at a 150 g
+    # placeholder" rescale buckets. Bucket 6 (beverage) has no at_150 guard, so
+    # without this opt-out every new beverage was silently x1.5'd and forced to
+    # 225 ml (iter-32 regression).
+    if food.get("rescale_exempt"):
         return None
     category = (food.get("category") or "").lower().strip()
     name = food.get("name") or ""
@@ -385,6 +405,15 @@ def reconcile_seed(
 
     all_foods = [dict(f) for f in curated] + [dict(f) for f in indb]
     stats["total_input"] = len(all_foods)
+
+    # Explicit, documented removals of source rows that describe the same food
+    # as another entry but carry a contradictory (or implausible) safety claim.
+    # Kept separate from name-dedupe (Step 6) because these differ in NAME
+    # ("Sev" vs "Sev / Ganthiya") and so are never caught by it.
+    stats["superseded"] = [
+        (f.get("id"), SUPERSEDED_IDS[f["id"]]) for f in all_foods if f.get("id") in SUPERSEDED_IDS
+    ]
+    all_foods = [f for f in all_foods if f.get("id") not in SUPERSEDED_IDS]
 
     # Step 4 (early): curated overrides — so classify_bucket() skips them.
     apply_curated_overrides(all_foods)

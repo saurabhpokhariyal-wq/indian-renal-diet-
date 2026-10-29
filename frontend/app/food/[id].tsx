@@ -184,7 +184,8 @@ export default function FoodDetailScreen() {
           <Text testID="detail-portion" style={styles.sectionBody}>{detail.food.portion_limit_text}</Text>
         </View>
 
-        {detail.food.data_quality_flag === "concentrated_base_pending_resourcing" ? (
+        {detail.food.data_quality_flag === "concentrated_base_pending_resourcing" ||
+        detail.food.data_quality_flag === "estimated_pending_sourcing" ? (
           <View testID="pending-resourcing-badge" style={styles.pendingBadge}>
             <Ionicons name="time-outline" size={18} color={COLORS.textInverse} />
             <Text style={styles.pendingBadgeText}>{t("pendingResourcing")}</Text>

@@ -9,6 +9,19 @@ default would obviously be wrong (milk, cheese, instant noodles, etc).
 Nutrient values that get flagged by sanity_check() will be auto-picked
 up by reconciliation Step 7b and marked with a "Pending re-sourcing"
 badge — that's the safety net for anything the defaults got wrong.
+(NOTE: Step 7b only catches values over the sanity ceiling; it does NOT
+catch plausible-but-estimated numbers. Sourcing flags are tracked separately.)
+
+Every entry here is authored at its REAL serving size, so each carries
+rescale_exempt=True (set by the loop at the bottom of this file). Without it
+the legacy 150 g-placeholder rescale buckets in reconciliation.py re-scale the
+values (the beverage bucket has no at_150 guard and x1.5'd all 28 new drinks).
+
+Removed as duplicates of existing entries (do not re-add):
+  food-papad-fried-or-roasted — duplicate of curated food-papad (Na 600, RED);
+      this copy had Na 35 / GREEN, contradicting its own "~500 mg sodium" tip.
+      snack_guide.py already links "Papad" to food-papad.
+  food-samosa — same id as the curated entry; curated copy already won.
 """
 
 SEED_GUIDE_STAPLES = [
@@ -1341,22 +1354,6 @@ SEED_GUIDE_STAPLES = [
         'actionable_clinical_tip': 'High K (potato base) AND high sodium AND industrial oils. Never.',
     },
     {
-        'id': 'food-papad-fried-or-roasted',
-        'name': 'Papad (fried or roasted)',
-        'hindi_name': 'पापड़',
-        'category': 'snack',
-        'safety_tier': 'RED',
-        'primary_risk_factor': 'NONE',
-        'portion_g': 10,
-        'potassium_mg': 45,
-        'phosphorus_mg': 9,
-        'sodium_mg': 35,
-        'protein_g': 0.6,
-        'fluid_ml': 0,
-        'portion_limit_text': '1 papad (10 g)',
-        'actionable_clinical_tip': 'One papad = ~500 mg sodium. The K is low but the salt load is brutal.',
-    },
-    {
         'id': 'food-pakoras-any-variety',
         'name': 'Pakoras (any variety)',
         'hindi_name': 'पकौड़ा',
@@ -1371,22 +1368,6 @@ SEED_GUIDE_STAPLES = [
         'fluid_ml': 0,
         'portion_limit_text': '4 pieces (60 g)',
         'actionable_clinical_tip': 'Besan (chickpea flour) is high in phosphorus + potassium. Deep-fried in reused oil. Skip.',
-    },
-    {
-        'id': 'food-samosa',
-        'name': 'Samosa',
-        'hindi_name': 'समोसा',
-        'category': 'snack',
-        'safety_tier': 'RED',
-        'primary_risk_factor': 'POTASSIUM',
-        'portion_g': 100,
-        'potassium_mg': 380,
-        'phosphorus_mg': 90,
-        'sodium_mg': 350,
-        'protein_g': 6.0,
-        'fluid_ml': 0,
-        'portion_limit_text': '1 piece (100 g)',
-        'actionable_clinical_tip': 'Potato filling + fried maida + heavy salt. Occasional single piece maximum.',
     },
     {
         'id': 'food-kachori',
@@ -1949,3 +1930,8 @@ SEED_GUIDE_STAPLES = [
         'actionable_clinical_tip': 'Milk + almonds + multiple nuts/seeds stacks potassium AND phosphorus (~293 mg P per glass). Festival-occasion only, not a routine drink.',
     },
 ]
+
+
+# Authored at real serving sizes — opt out of the legacy 150 g rescale buckets.
+for _food in SEED_GUIDE_STAPLES:
+    _food.setdefault("rescale_exempt", True)

@@ -163,4 +163,4 @@ def test_audit_seed_reconciliation_counts():
     assert data.get("data_quality_flagged") == 43, f"data_quality_flagged={data.get('data_quality_flagged')}"
     assert data.get("sanity_violations_count") == 42, f"sanity_violations_count={data.get('sanity_violations_count')}"
     assert data.get("curated_overrides") == 10, f"curated_overrides={data.get('curated_overrides')}"
-    assert data.get("duplicates_dropped_count") == 11, f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"
+    assert data.get("duplicates_dropped_count") == 10, f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"

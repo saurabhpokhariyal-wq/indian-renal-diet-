@@ -1,5 +1,4 @@
 id,name,violations
-food-instant-noodles-maggi-etc,Instant Noodles (Maggi etc.),sodium_mg=1100>1000
 food-instant-dhokla,Instant dhokla,sodium_mg=1146>1000
 food-chicken-manchurian,Chicken manchurian,sodium_mg=3622>1000
 food-mutton-pulao,Mutton pulao,sodium_mg=4673>1000
@@ -41,3 +40,4 @@ food-cream-of-tomato-soup,Cream of tomato soup,sodium_mg=1338.4>1000
 food-classic-seasoned-black-beans,Classic seasoned black beans,sodium_mg=11984>1000
 food-cajun-chicken,Cajun chicken,sodium_mg=2610>1000
 food-savoury-puffs,Savoury puffs,sodium_mg=3411>1000
+food-instant-noodles-maggi-etc,Instant Noodles (Maggi etc.),sodium_mg=1100>1000

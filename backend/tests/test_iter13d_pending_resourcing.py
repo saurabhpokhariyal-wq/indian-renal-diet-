@@ -361,7 +361,8 @@ class TestT2AuditScript:
         # stapled duplicates and keeps the canonical seed_data entries with
         # the richer clinical tips; the guide-file linked_food_id already
         # points at those canonical IDs so no user-visible impact.
-        assert data.get("duplicates_dropped_count") == 11, (
+        # 11 -> 10: iter-37 removed the duplicate staples "food-samosa" (same id as the curated entry).
+        assert data.get("duplicates_dropped_count") == 10, (
             f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"
         )
 

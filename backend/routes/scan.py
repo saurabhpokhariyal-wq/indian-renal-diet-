@@ -56,6 +56,7 @@ _SALT_SUBSTITUTE_PATTERN = re.compile(
     r"|himalayan\s+(?:pink\s+)?salt"
     r"|pink\s+salt"
     r"|lo[\s-]?salt"
+    r"|sub[\s-]?salt"
     # "no salt" catches "NoSalt" the product, but must NOT match the very
     # common "no salt added" / "no-salt-added" produce/canned-goods
     # labelling (that means sodium was reduced without a substitute, not

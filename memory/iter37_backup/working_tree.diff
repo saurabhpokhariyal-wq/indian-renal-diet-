@@ -1,0 +1,994 @@
+diff --git a/backend/fruit_guide.py b/backend/fruit_guide.py
+index e68d3d4..29f4cfb 100644
+--- a/backend/fruit_guide.py
++++ b/backend/fruit_guide.py
+@@ -126,14 +126,6 @@ FRUIT_GUIDE = {
+         "title": "Moderate — small portions only",
+         "subtitle": "Potassium 200-350 mg per serving. Fine occasionally with portion control.",
+         "fruits": [
+-            {
+-                "name": "Guava",
+-                "hindi": "Amrood / अमरूद",
+-                "serving": "1 small (100 g)",
+-                "potassium_mg": 230,
+-                "note": "High in fibre and vitamin C. One small fruit per day maximum.",
+-                "linked_food_id": "food-guava",
+-            },
+             {
+                 "name": "Peach",
+                 "hindi": "Aadu / आड़ू",
+@@ -146,18 +138,10 @@ FRUIT_GUIDE = {
+                 "name": "Plum",
+                 "hindi": "Aloo bukhara / आलू बुखारा",
+                 "serving": "2 small (150 g)",
+-                "potassium_mg": 250,
++                "potassium_mg": 236,
+                 "note": "Fresh plum only — dried prunes are RED (very high K).",
+                 "linked_food_id": "food-plum",
+             },
+-            {
+-                "name": "Cherry",
+-                "hindi": "Cherry",
+-                "serving": "1 cup (150 g)",
+-                "potassium_mg": 260,
+-                "note": "Pit-less fresh cherries. Cherry juice concentrate is much higher — avoid.",
+-                "linked_food_id": "food-cherry",
+-            },
+             {
+                 "name": "Mango (small portion)",
+                 "hindi": "Aam / आम",
+@@ -186,7 +170,7 @@ FRUIT_GUIDE = {
+                 "name": "Kiwi",
+                 "hindi": "Kiwi",
+                 "serving": "1 small (75 g)",
+-                "potassium_mg": 215,
++                "potassium_mg": 234,
+                 "note": "Vitamin-C rich. Stick to one small kiwi per day.",
+                 "linked_food_id": "food-kiwi",
+             },
+@@ -240,6 +224,26 @@ FRUIT_GUIDE = {
+                 "note": "Whole mangoes push K + sugar too high. Have a small tasting portion only — see YELLOW list.",
+                 "linked_food_id": "food-mango-whole",
+             },
++            {
++                "name": "Guava",
++                "hindi": "Amrood / अमरूद",
++                "serving": "1 small (100 g)",
++                "potassium_mg": 417,
++                "sodium_mg": 2,
++                "note": "High in fibre and vitamin C, but one small guava carries a RED-level potassium load. Half a small fruit occasionally at most.",
++                "linked_food_id": "food-guava",
++                "source": "USDA FDC SR Legacy 'Guavas, common, raw' (per 100 g)",
++            },
++            {
++                "name": "Cherry",
++                "hindi": "Cherry",
++                "serving": "1 cup (150 g)",
++                "potassium_mg": 333,
++                "sodium_mg": 0,
++                "note": "A full cup of sweet cherries is RED-level potassium. Cherry juice concentrate is higher still — avoid.",
++                "linked_food_id": "food-cherry",
++                "source": "USDA FDC SR Legacy 'Cherries, sweet, raw' (scaled to 150 g)",
++            },
+             {
+                 "name": "Sapota / Chikoo",
+                 "hindi": "Chikoo / चीकू",
+@@ -252,7 +256,7 @@ FRUIT_GUIDE = {
+                 "name": "Custard Apple",
+                 "hindi": "Sitaphal / सीताफल",
+                 "serving": "½ cup (100 g)",
+-                "potassium_mg": 250,
++                "potassium_mg": 247,
+                 "note": "Very sugar-heavy despite modest K. Not recommended.",
+                 "linked_food_id": "food-custard-apple",
+             },
+@@ -260,7 +264,7 @@ FRUIT_GUIDE = {
+                 "name": "Dates",
+                 "hindi": "Khajoor / खजूर",
+                 "serving": "5 pcs (40 g)",
+-                "potassium_mg": 270,
++                "potassium_mg": 278,
+                 "note": "Dried fruit — concentrated K + sugar. Avoid regularly. Fresh dates are slightly less severe.",
+                 "linked_food_id": "food-dates",
+             },
+diff --git a/backend/guide_needs_sourcing.csv b/backend/guide_needs_sourcing.csv
+index 581f7b6..1ccda63 100644
+--- a/backend/guide_needs_sourcing.csv
++++ b/backend/guide_needs_sourcing.csv
+@@ -6,6 +6,16 @@ flagged-not-added,n/a,Sol Kadhi,,recipe-variable — needs an IFCT/USDA figure
+ flagged-not-added,n/a,Momos,,filling + dipping sauce push sodium high but no citable per-serving number
+ flagged-not-added,n/a,Bhel Puri,,chutneys make sodium recipe-dependent
+ flagged-not-added,n/a,Sev Puri,,chutneys make sodium recipe-dependent
++flagged-not-added,n/a,Rice Water (Kanji) — food-rice-water-kanji,,protein 1.5 g / P 38 mg are category defaults; no IFCT/USDA entry for rice water — needs a real figure
++flagged-not-added,n/a,Roasted Makhana (unsalted) — food-roasted-makhana-unsalted,,Na 105 mg is a salted-snack default on an UNSALTED item; needs IFCT 2017 lotus-seed (dry) figure
++flagged-not-added,n/a,Puffed Rice (unsalted) — food-puffed-rice-unsalted,,Na 105 mg default on an UNSALTED item; commercial murmura may be salted during puffing — needs IFCT figure or label data
++flagged-not-added,n/a,Sev / Ganthiya — food-sev-ganthiya,,P/Na/protein are snack defaults (Na 105 mg per 30 g is far too low for salted besan sev); needs label or IFCT figure
++flagged-not-added,n/a,Sev — food-sev (INDB),,INDB recipe gives Na 80 mg per 150 g — implausible for salted commercial sev; flagged estimated_pending_sourcing
++flagged-not-added,n/a,Amla — food-amla,,"values are a USDA 'Gooseberries, raw' (Ribes) proxy, not amla; needs IFCT 2017 amla figure"
++flagged-not-added,n/a,Instant Noodles (Maggi etc.) — food-instant-noodles-maggi-etc,,named commercial product — needs per-pack label data (Nestlé India nutrition panel)
++flagged-not-added,n/a,Bournvita / Horlicks / Boost — food-bournvita-horlicks-boost,,named commercial products — needs label data per brand (made with milk)
++flagged-not-added,n/a,"Potato Chips (Lays, Kurkure) — food-potato-chips-lays-kurkure",,named commercial products — needs per-pack label data
++flagged-not-added,n/a,"Commercial Biscuits (Marie, cream, cookies) — food-commercial-biscuits-marie-cream-cookies",,named commercial products — needs per-brand label data
+ flagged-not-added,n/a,Tata Salt Lite (%KCl split),,seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite.
+ fruit,GREEN,Apple,Seb / सेब,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,GREEN,Pear,Nashpati / नाशपाती,sodium_mg not yet sourced — do not guess; flag for real data
+@@ -17,10 +27,8 @@ fruit,GREEN,Strawberries,Strawberry,sodium_mg not yet sourced — do not guess;
+ fruit,GREEN,Cranberries,Cranberry,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,GREEN,Grapes (small portion),Angoor / अंगूर,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,GREEN,Lychee,Litchi / लीची,sodium_mg not yet sourced — do not guess; flag for real data
+-fruit,YELLOW,Guava,Amrood / अमरूद,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,YELLOW,Peach,Aadu / आड़ू,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,YELLOW,Plum,Aloo bukhara / आलू बुखारा,sodium_mg not yet sourced — do not guess; flag for real data
+-fruit,YELLOW,Cherry,Cherry,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,YELLOW,Mango (small portion),Aam / आम,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,YELLOW,Jackfruit (ripe),Kathal / कटहल,sodium_mg not yet sourced — do not guess; flag for real data
+ fruit,YELLOW,Pomegranate,Anaar / अनार,sodium_mg not yet sourced — do not guess; flag for real data
+diff --git a/backend/guide_utils.py b/backend/guide_utils.py
+index 80720ac..71db8c9 100644
+--- a/backend/guide_utils.py
++++ b/backend/guide_utils.py
+@@ -91,6 +91,19 @@ _FLAGGED_UNSOURCED: List[Dict[str, str]] = [
+     {"name": "Momos",            "reason": "filling + dipping sauce push sodium high but no citable per-serving number"},
+     {"name": "Bhel Puri",        "reason": "chutneys make sodium recipe-dependent"},
+     {"name": "Sev Puri",         "reason": "chutneys make sodium recipe-dependent"},
++    # Iter-37: catalog entries whose current values are estimates and could
++    # not be corrected from a citable IFCT 2017 / USDA figure. They carry
++    # data_quality_flag=estimated_pending_sourcing until sourced.
++    {"name": "Rice Water (Kanji) — food-rice-water-kanji", "reason": "protein 1.5 g / P 38 mg are category defaults; no IFCT/USDA entry for rice water — needs a real figure"},
++    {"name": "Roasted Makhana (unsalted) — food-roasted-makhana-unsalted", "reason": "Na 105 mg is a salted-snack default on an UNSALTED item; needs IFCT 2017 lotus-seed (dry) figure"},
++    {"name": "Puffed Rice (unsalted) — food-puffed-rice-unsalted", "reason": "Na 105 mg default on an UNSALTED item; commercial murmura may be salted during puffing — needs IFCT figure or label data"},
++    {"name": "Sev / Ganthiya — food-sev-ganthiya", "reason": "P/Na/protein are snack defaults (Na 105 mg per 30 g is far too low for salted besan sev); needs label or IFCT figure"},
++    {"name": "Sev — food-sev (INDB)", "reason": "INDB recipe gives Na 80 mg per 150 g — implausible for salted commercial sev; flagged estimated_pending_sourcing"},
++    {"name": "Amla — food-amla", "reason": "values are a USDA 'Gooseberries, raw' (Ribes) proxy, not amla; needs IFCT 2017 amla figure"},
++    {"name": "Instant Noodles (Maggi etc.) — food-instant-noodles-maggi-etc", "reason": "named commercial product — needs per-pack label data (Nestlé India nutrition panel)"},
++    {"name": "Bournvita / Horlicks / Boost — food-bournvita-horlicks-boost", "reason": "named commercial products — needs label data per brand (made with milk)"},
++    {"name": "Potato Chips (Lays, Kurkure) — food-potato-chips-lays-kurkure", "reason": "named commercial products — needs per-pack label data"},
++    {"name": "Commercial Biscuits (Marie, cream, cookies) — food-commercial-biscuits-marie-cream-cookies", "reason": "named commercial products — needs per-brand label data"},
+     {"name": "Tata Salt Lite (%KCl split)", "reason": "seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite."},
+ ]
+ 
+diff --git a/backend/lifespan.py b/backend/lifespan.py
+index 380be46..adcd567 100644
+--- a/backend/lifespan.py
++++ b/backend/lifespan.py
+@@ -36,7 +36,7 @@ async def lifespan(_app: FastAPI):
+     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
+     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
+ 
+-    all_foods, recon_stats = reconcile_seed(SEED_FOODS + SEED_GUIDE_STAPLES, SEED_FOODS_INDB, logger=logger)
++    all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB + SEED_GUIDE_STAPLES, logger=logger)
+     reconciled_ids = {food["id"] for food in all_foods}
+     for food in all_foods:
+         # replace_one (not $set) so fields no longer applicable in the current
+diff --git a/backend/needs_manual_review.csv b/backend/needs_manual_review.csv
+index 886dcbb..7a0e2a2 100644
+--- a/backend/needs_manual_review.csv
++++ b/backend/needs_manual_review.csv
+@@ -1,5 +1,4 @@
+ id,name,violations
+-food-instant-noodles-maggi-etc,Instant Noodles (Maggi etc.),sodium_mg=1100>1000
+ food-instant-dhokla,Instant dhokla,sodium_mg=1146>1000
+ food-chicken-manchurian,Chicken manchurian,sodium_mg=3622>1000
+ food-mutton-pulao,Mutton pulao,sodium_mg=4673>1000
+@@ -41,3 +40,4 @@ food-cream-of-tomato-soup,Cream of tomato soup,sodium_mg=1338.4>1000
+ food-classic-seasoned-black-beans,Classic seasoned black beans,sodium_mg=11984>1000
+ food-cajun-chicken,Cajun chicken,sodium_mg=2610>1000
+ food-savoury-puffs,Savoury puffs,sodium_mg=3411>1000
++food-instant-noodles-maggi-etc,Instant Noodles (Maggi etc.),sodium_mg=1100>1000
+diff --git a/backend/reconciliation.py b/backend/reconciliation.py
+index 238f53f..a06c126 100644
+--- a/backend/reconciliation.py
++++ b/backend/reconciliation.py
+@@ -115,6 +115,14 @@ CONCENTRATED_BASE_IDS: set[str] = {
+     # (dal-like bean category isn't bucketed for the soup rescale rule)
+ }
+ DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
++# Iter-37: plausible-looking values that are estimates / unverified, NOT a
++# concentrated base. Same patient-facing badge, different root cause.
++DATA_QUALITY_FLAG_ESTIMATED = "estimated_pending_sourcing"
++PENDING_SOURCING_IDS: dict[str, str] = {
++    # INDB recipe value (Na 80 mg per 150 g) is implausibly low for salted
++    # commercial sev (besan + salt, fried) — logged in guide_needs_sourcing.csv.
++    "food-sev": "INDB recipe sodium implausibly low for salted commercial sev",
++}
+ 
+ 
+ 
+@@ -153,6 +161,10 @@ def classify_bucket(food: dict) -> Optional[str]:
+     """
+     if food.get("tier_override"):
+         return None
++    # Hand-authored at a real portion (e.g. seed_guide_staples) — the
++    # 150 g-placeholder rescale buckets must never touch these values.
++    if food.get("rescale_exempt"):
++        return None
+     category = (food.get("category") or "").lower().strip()
+     name = food.get("name") or ""
+     k = float(food.get("potassium_mg") or 0)
+@@ -347,6 +359,9 @@ def apply_data_quality_flags(foods: list[dict]) -> int:
+         if food.get("id") in CONCENTRATED_BASE_IDS:
+             food["data_quality_flag"] = DATA_QUALITY_FLAG_CONCENTRATED
+             count += 1
++        elif food.get("id") in PENDING_SOURCING_IDS:
++            food["data_quality_flag"] = DATA_QUALITY_FLAG_ESTIMATED
++            count += 1
+     return count
+ 
+ 
+@@ -371,6 +386,8 @@ def reconcile_seed(
+     """Run steps 1-7 and return (reconciled_food_list, stats).
+ 
+     curated is placed FIRST so it wins any name-collision dedupe against INDB.
++    Callers append hand-authored estimates (SEED_GUIDE_STAPLES) to the END of
++    `indb` so a sourced entry always wins a collision against an estimate.
+     """
+     stats: dict = {
+         "total_input": 0,
+@@ -479,7 +496,12 @@ def reconcile_seed(
+         if food.get("data_quality_flag"):
+             continue
+         if sanity_check(food):
+-            food["data_quality_flag"] = DATA_QUALITY_FLAG_CONCENTRATED
++            # Only a bucket-rescaled entry is a concentrated base; anything
++            # else (e.g. Maggi) is an unverified value, not a concentrate.
++            food["data_quality_flag"] = (
++                DATA_QUALITY_FLAG_CONCENTRATED if food.get("auto_rescaled")
++                else DATA_QUALITY_FLAG_ESTIMATED
++            )
+             stats["data_quality_flagged"] += 1
+ 
+     # Recompute data_quality_flagged as the FINAL count of every entry
+diff --git a/backend/routes/scan.py b/backend/routes/scan.py
+index dfa155b..8cd3701 100644
+--- a/backend/routes/scan.py
++++ b/backend/routes/scan.py
+@@ -56,6 +56,7 @@ _SALT_SUBSTITUTE_PATTERN = re.compile(
+     r"|himalayan\s+(?:pink\s+)?salt"
+     r"|pink\s+salt"
+     r"|lo[\s-]?salt"
++    r"|sub[\s-]?salt"
+     # "no salt" catches "NoSalt" the product, but must NOT match the very
+     # common "no salt added" / "no-salt-added" produce/canned-goods
+     # labelling (that means sodium was reduced without a substitute, not
+diff --git a/backend/scripts/audit_seed.py b/backend/scripts/audit_seed.py
+index bb287cd..fbffdfa 100644
+--- a/backend/scripts/audit_seed.py
++++ b/backend/scripts/audit_seed.py
+@@ -97,7 +97,7 @@ def _category_plausibility_flags(foods: list[dict]) -> list[tuple[str, str, str,
+ 
+ 
+ def build_report() -> dict:
+-    reconciled, stats = reconcile_seed(SEED_FOODS + SEED_GUIDE_STAPLES, SEED_FOODS_INDB, logger=None)
++    reconciled, stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB + SEED_GUIDE_STAPLES, logger=None)
+     bucket_counts = Counter(bucket for _id, bucket in stats["rescaled"])
+     cat_flags = _category_plausibility_flags(reconciled)
+     return {
+diff --git a/backend/seed_data.py b/backend/seed_data.py
+index 4d61125..2af0b3e 100644
+--- a/backend/seed_data.py
++++ b/backend/seed_data.py
+@@ -124,6 +124,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 small apple per day (~150g)",
+         "actionable_clinical_tip": "Low-potassium fruit. Peel to reduce potassium further.",
++        "source": "USDA FDC SR Legacy 'Apples, raw, with skin' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-papaya",
+@@ -135,11 +136,12 @@ SEED_FOODS = [
+         "portion_g": 100,
+         "potassium_mg": 180,
+         "phosphorus_mg": 10,
+-        "sodium_mg": 3,
++        "sodium_mg": 8,
+         "protein_g": 0.5,
+         "fluid_ml": 0,
+         "portion_limit_text": "1 small bowl (100g)",
+         "actionable_clinical_tip": "Kidney-friendly ripe fruit. Aids digestion.",
++        "source": "USDA FDC SR Legacy 'Papaya, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-pear",
+@@ -156,6 +158,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 medium pear (~170g)",
+         "actionable_clinical_tip": "Low potassium fruit. Great snack option for CKD.",
++        "source": "USDA FDC SR Legacy 'Pears, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-white-rice",
+@@ -350,6 +353,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Half banana occasionally (~60g)",
+         "actionable_clinical_tip": "Very high potassium — limit strictly to half a small banana, not daily.",
++        "source": "USDA FDC SR Legacy 'Bananas, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-brown-rice",
+@@ -496,6 +500,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid",
+         "actionable_clinical_tip": "One full banana can exceed your daily potassium budget on dialysis.",
++        "source": "USDA FDC SR Legacy 'Bananas, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-orange",
+@@ -512,6 +517,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Limit or avoid",
+         "actionable_clinical_tip": "Moderately high potassium (~180–240mg per medium fruit). Best avoided by dialysis patients and portioned carefully in pre-dialysis CKD.",
++        "source": "USDA FDC SR Legacy 'Oranges, raw, all commercial varieties' (per-100 g values scaled to the stated portion)",
+     },
+ 
+     # ------------------ FRUIT EXPANSION (iter-31) ------------------
+@@ -537,6 +543,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "½ cup cubes (~80g) max, occasional",
+         "actionable_clinical_tip": "Whole mango is high-K — keep to ½ cup cubes for the taste of the season. Diabetic patients should skip: mango is glycemic-index heavy.",
++        "source": "USDA FDC SR Legacy 'Mangos, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-mango-whole",
+@@ -553,6 +560,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid whole mango — try ½ cup cubes at most",
+         "actionable_clinical_tip": "One medium mango has ~275mg potassium and a heavy sugar load. If you must, take only a few tasting slices in peak season, never a whole fruit.",
++        "source": "USDA FDC SR Legacy 'Mangos, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-pineapple",
+@@ -569,6 +577,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 slice (~100g) per day",
+         "actionable_clinical_tip": "Naturally low potassium — one of the safer sweet fruits for CKD. Fresh only; canned pineapple in syrup adds sodium + sugar.",
++        "source": "USDA FDC SR Legacy 'Pineapple, raw, all varieties' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-watermelon",
+@@ -585,6 +594,7 @@ SEED_FOODS = [
+         "fluid_ml": 135,
+         "portion_limit_text": "1 medium slice (~150g) — count fluid",
+         "actionable_clinical_tip": "K is fine, but 150g of watermelon = ~135ml water toward your fluid budget. On dialysis with a 1000ml fluid limit, one slice already spends 13%.",
++        "source": "USDA FDC SR Legacy 'Watermelon, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-grapes",
+@@ -601,6 +611,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "½ cup (~75g) — a small handful",
+         "actionable_clinical_tip": "Fine in a small handful. A full cup pushes past 200mg potassium (YELLOW). Rinse grapes well — surface pesticide residue is a common concern.",
++        "source": "USDA FDC SR Legacy 'Grapes, red or green (European type), raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-lychee",
+@@ -617,6 +628,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "5 pieces (~75g) per serving",
+         "actionable_clinical_tip": "Low potassium at a modest portion. Very sweet — diabetic patients should skip. Never eat unripe lychee on an empty stomach (rare hypoglycemia risk).",
++        "source": "USDA FDC SR Legacy 'Litchis, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-fig-fresh",
+@@ -633,6 +645,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 medium fresh fig (~50g)",
+         "actionable_clinical_tip": "Fresh fig is moderate at this portion. Very different from DRIED anjeer, which concentrates potassium 4× and is RED — never confuse the two.",
++        "source": "IFCT 2017, code E020 (scaled to 50 g)",
+     },
+     {
+         "id": "food-strawberries",
+@@ -649,6 +662,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "½ cup halved berries (~75g)",
+         "actionable_clinical_tip": "Very safe fresh berry. Avoid canned or 'strawberry syrup' — added sugar and no benefit.",
++        "source": "USDA FDC SR Legacy 'Strawberries, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-blueberries",
+@@ -665,6 +679,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "½ cup (~75g) fresh or frozen",
+         "actionable_clinical_tip": "One of the safest, lowest-potassium fruits. Antioxidant-rich. Frozen unsweetened works the same as fresh.",
++        "source": "USDA FDC SR Legacy 'Blueberries, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-cranberries",
+@@ -681,22 +696,24 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "¼ cup fresh (~30g)",
+         "actionable_clinical_tip": "Very low potassium. Also supports urinary-tract health. Choose unsweetened — dried cranberries are heavily sugared.",
++        "source": "USDA FDC SR Legacy 'Cranberries, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-guava",
+         "name": "Guava",
+         "hindi_name": "अमरूद",
+         "category": "fruit",
+-        "safety_tier": "YELLOW",
++        "safety_tier": "RED",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 100,
+-        "potassium_mg": 230,
+-        "phosphorus_mg": 25,
++        "potassium_mg": 417,
++        "phosphorus_mg": 40,
+         "sodium_mg": 2,
+         "protein_g": 2.6,
+         "fluid_ml": 0,
+-        "portion_limit_text": "1 small fruit (~100g) per day",
+-        "actionable_clinical_tip": "High vitamin C and fibre. One small guava per day is the max — count it toward your fruit budget for the day.",
++        "portion_limit_text": "Avoid most days — ½ small fruit (~50g) at most",
++        "actionable_clinical_tip": "High vitamin C and fibre, but one small guava (100g) carries ~417mg potassium — a RED-level load. In advanced CKD/dialysis, skip or keep to half a small fruit occasionally.",
++        "source": "USDA FDC SR Legacy 'Guavas, common, raw' (per-100 g values scaled to the stated portion) — re-verified iter-37; previous 230 mg K was unsourced",
+     },
+     {
+         "id": "food-peach",
+@@ -713,6 +730,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 medium peach (~150g)",
+         "actionable_clinical_tip": "Fresh peach is a safer stone-fruit choice than banana. Avoid canned peaches in heavy syrup — the syrup, not the fruit, is the problem.",
++        "source": "USDA FDC SR Legacy 'Peaches, yellow, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-plum",
+@@ -722,29 +740,31 @@ SEED_FOODS = [
+         "safety_tier": "YELLOW",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 150,
+-        "potassium_mg": 250,
+-        "phosphorus_mg": 25,
++        "potassium_mg": 236,
++        "phosphorus_mg": 24,
+         "sodium_mg": 0,
+         "protein_g": 1.1,
+         "fluid_ml": 0,
+         "portion_limit_text": "2 small plums (~150g)",
+         "actionable_clinical_tip": "Fresh plum is moderate. Dried plums (prunes) concentrate potassium and are RED — don't substitute one for the other.",
++        "source": "USDA FDC SR Legacy 'Plums, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-cherry",
+         "name": "Cherry",
+         "hindi_name": "चेरी",
+         "category": "fruit",
+-        "safety_tier": "YELLOW",
++        "safety_tier": "RED",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 150,
+-        "potassium_mg": 260,
++        "potassium_mg": 333,
+         "phosphorus_mg": 32,
+         "sodium_mg": 0,
+         "protein_g": 1.6,
+         "fluid_ml": 0,
+         "portion_limit_text": "1 cup pitted (~150g)",
+         "actionable_clinical_tip": "Fresh pitted cherries only. Cherry juice concentrates are much higher in potassium — avoid.",
++        "source": "USDA FDC SR Legacy 'Cherries, sweet, raw' (per-100 g values scaled to the stated portion) — iter-37 correction; previous K 260 matched sour cherries while P/protein matched sweet",
+     },
+     {
+         "id": "food-pomegranate",
+@@ -761,6 +781,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "½ cup arils (~75g) — whole seeds only",
+         "actionable_clinical_tip": "Whole arils are moderate potassium. Pomegranate juice is much more concentrated (300+ mg K per glass) — avoid the juice.",
++        "source": "USDA FDC SR Legacy 'Pomegranates, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-kiwi",
+@@ -770,13 +791,14 @@ SEED_FOODS = [
+         "safety_tier": "YELLOW",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 75,
+-        "potassium_mg": 215,
+-        "phosphorus_mg": 26,
++        "potassium_mg": 234,
++        "phosphorus_mg": 25,
+         "sodium_mg": 2,
+         "protein_g": 0.9,
+         "fluid_ml": 0,
+         "portion_limit_text": "1 small kiwi (~75g)",
+         "actionable_clinical_tip": "Vitamin-C rich. Stick to one small kiwi per day; don't stack it with orange or guava on the same day.",
++        "source": "USDA FDC SR Legacy 'Kiwifruit, green, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-muskmelon",
+@@ -793,6 +815,7 @@ SEED_FOODS = [
+         "fluid_ml": 135,
+         "portion_limit_text": "1 katori cubed (~150g) — count fluid",
+         "actionable_clinical_tip": "Higher potassium than watermelon per gram. High water content also counts toward fluid intake for dialysis patients — a full katori is a real fluid hit.",
++        "source": "IFCT 2017, code E046 (scaled to 150 g)",
+     },
+     {
+         "id": "food-ber",
+@@ -809,6 +832,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "5-6 small berries (~100g)",
+         "actionable_clinical_tip": "Common seasonal Indian fruit. Moderate potassium — fine in small quantities, not a whole handful of a dozen berries.",
++        "source": "IFCT 2017, code E068",
+     },
+     {
+         "id": "food-chikoo",
+@@ -825,6 +849,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 medium chikoo (~100g)",
+         "actionable_clinical_tip": "K is borderline but sugar load is very high (~14g/100g). Diabetic patients must avoid; non-diabetic CKD patients: one small fruit occasionally.",
++        "source": "USDA FDC SR Legacy 'Sapodilla, raw' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-custard-apple",
+@@ -834,13 +859,14 @@ SEED_FOODS = [
+         "safety_tier": "RED",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 100,
+-        "potassium_mg": 250,
++        "potassium_mg": 247,
+         "phosphorus_mg": 32,
+-        "sodium_mg": 4,
+-        "protein_g": 1.7,
++        "sodium_mg": 9,
++        "protein_g": 2.1,
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — very high sugar",
+         "actionable_clinical_tip": "Sugar-heavy despite modest K. Not recommended for CKD; especially avoid if diabetic. If you must taste, keep to a few pods, not half the fruit.",
++        "source": "USDA FDC SR Legacy 'Sugar-apples, (sweetsop), raw' (per-100 g values scaled to the stated portion) — sitaphal is Annona squamosa",
+     },
+     {
+         "id": "food-dates",
+@@ -850,13 +876,14 @@ SEED_FOODS = [
+         "safety_tier": "RED",
+         "primary_risk_factor": "POTASSIUM",
+         "portion_g": 40,
+-        "potassium_mg": 270,
++        "potassium_mg": 278,
+         "phosphorus_mg": 25,
+-        "sodium_mg": 1,
++        "sodium_mg": 0,
+         "protein_g": 0.7,
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — dried fruit concentrates potassium 4×",
+-        "actionable_clinical_tip": "Dried dates concentrate potassium heavily. Fresh dates are slightly less severe but still avoid regularly. 5 pieces = ~270mg K.",
++        "actionable_clinical_tip": "Dried dates concentrate potassium heavily. Fresh dates are slightly less severe but still avoid regularly. 5 pieces = ~280mg K.",
++        "source": "USDA FDC SR Legacy 'Dates, medjool' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-raisins",
+@@ -873,6 +900,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — dried fruit is heavily concentrated",
+         "actionable_clinical_tip": "All dried fruits (raisins, apricots, prunes, figs) concentrate potassium 4-5×. A ¼ cup of raisins has the same K as an entire banana.",
++        "source": "USDA FDC SR Legacy 'Raisins, seedless' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-dried-apricots",
+@@ -889,6 +917,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Never — highest-K dried fruit",
+         "actionable_clinical_tip": "Extremely high potassium (~460 mg per 5 pieces). Never in advanced CKD or dialysis. Fresh apricot is a much better choice if in season.",
++        "source": "USDA FDC SR Legacy 'Apricots, dried, sulfured, uncooked' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-prunes",
+@@ -905,6 +934,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — dried plums are heavily concentrated",
+         "actionable_clinical_tip": "Also a laxative — some patients treat prunes as 'healthy'. For kidneys the potassium load rules them out; use a stool-softener your doctor recommends instead.",
++        "source": "USDA FDC SR Legacy 'Plums, dried (prunes), uncooked' (per-100 g values scaled to the stated portion)",
+     },
+     {
+         "id": "food-amla",
+@@ -921,6 +951,8 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "1 raw fruit (~30g) — mind oxalates",
+         "actionable_clinical_tip": "K is low, but raw amla is high in oxalates — can worsen kidney-stone risk. Amla murabba adds heavy sugar; amla achar adds heavy sodium. Neither is a safer form.",
++        "data_quality_flag": "estimated_pending_sourcing",
++        "source_note": "Values match USDA 'Gooseberries, raw' (Ribes spp.) — a proxy, not amla (Phyllanthus emblica). Needs IFCT 2017 amla figure.",
+     },
+     {
+         "id": "food-bael",
+@@ -937,6 +969,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — RED as pulp AND as sherbet",
+         "actionable_clinical_tip": "Popular North Indian summer sherbet base — treat the drink as a RED beverage, not a garnish. The pulp itself is very high in potassium.",
++        "source": "IFCT 2017, code E008",
+     },
+     {
+         "id": "food-phalsa",
+@@ -953,6 +986,7 @@ SEED_FOODS = [
+         "fluid_ml": 0,
+         "portion_limit_text": "Avoid — high potassium per katori",
+         "actionable_clinical_tip": "Regional North/West Indian summer berry. Seasonal and easy to overlook — potassium is nearly as high as coconut water per katori.",
++        "source": "IFCT 2017, code E052",
+     },
+     {
+         "id": "food-coconut-water",
+diff --git a/backend/seed_guide_staples.py b/backend/seed_guide_staples.py
+index ab0d463..861e776 100644
+--- a/backend/seed_guide_staples.py
++++ b/backend/seed_guide_staples.py
+@@ -1,14 +1,24 @@
+-"""Auto-generated seed entries for guide items missing from search catalog.
++"""Hand-authored seed entries for guide items missing from search catalog.
+ 
+-Sourced from vegetable_guide, grain_guide, protein_guide, snack_guide,
+-beverage_guide — one-off backfill (iter-32) after mango-search bug
+-surfaced the same gap across all category guides. K per stated serving
+-comes directly from the guide file; P/Na/protein are category-typical
+-estimates + hand-tuned overrides for common-name entries where the
+-default would obviously be wrong (milk, cheese, instant noodles, etc).
+-Nutrient values that get flagged by sanity_check() will be auto-picked
+-up by reconciliation Step 7b and marked with a "Pending re-sourcing"
+-badge — that's the safety net for anything the defaults got wrong.
++Backfilled in iter-32 from vegetable/grain/protein/snack/beverage guides.
++K per stated serving comes from the guide file; P/Na/protein were
++category-typical ESTIMATES. Iter-37 rules (see review of iter-30..36):
++
++  * Every entry here is `rescale_exempt` — values are authored at their
++    own real portion, so reconciliation must never bucket-rescale them
++    (the beverage bucket previously ×1.5'd all 28 beverages).
++  * An entry with a `source` string carries a specific IFCT 2017 / USDA
++    citation. Every entry WITHOUT one gets
++    data_quality_flag = "estimated_pending_sourcing" and shows the
++    "Pending re-sourcing" badge. Sanity ceilings cannot catch
++    plausible-but-wrong estimates, so the flag is applied unconditionally.
++  * `source_note` marks the 29 entries refined in iter-33 (values moved
++    toward IFCT/USDA, but the per-item citation was not recorded) —
++    they stay flagged until a real citation is added.
++  * Entries that collided with a sourced seed_data / INDB entry (papad,
++    sweet lassi, samosa, poha, idli, dhokla, banana chips, coconut water,
++    thandai) were removed in iter-37; reconciliation also places this
++    list LAST so a sourced entry always wins a name collision.
+ """
+ 
+ SEED_GUIDE_STAPLES = [
+@@ -421,12 +431,13 @@ SEED_GUIDE_STAPLES = [
+         'primary_risk_factor': 'NONE',
+         'portion_g': 75,
+         'potassium_mg': 35,
+-        'phosphorus_mg': 82,
+-        'sodium_mg': 4,
+-        'protein_g': 6.0,
++        'phosphorus_mg': 32,
++        'sodium_mg': 1,
++        'protein_g': 2.0,
+         'fluid_ml': 0,
+         'portion_limit_text': '1 katori (75 g cooked)',
+         'actionable_clinical_tip': 'Refined white rice is one of the safest daily grains for CKD. Basmati is fine.',
++        'source': "USDA FDC SR Legacy 'Rice, white, long-grain, regular, enriched, cooked' (per 100 g: protein 2.69 g, P 43 mg, Na 1 mg) scaled to 75 g",
+     },
+     {
+         'id': 'food-semolina-suji-rava',
+@@ -501,12 +512,13 @@ SEED_GUIDE_STAPLES = [
+         'primary_risk_factor': 'NONE',
+         'portion_g': 75,
+         'potassium_mg': 30,
+-        'phosphorus_mg': 82,
+-        'sodium_mg': 4,
+-        'protein_g': 6.0,
++        'phosphorus_mg': 2,
++        'sodium_mg': 0,
++        'protein_g': 0.1,
+         'fluid_ml': 0,
+         'portion_limit_text': '½ katori (75 g)',
+         'actionable_clinical_tip': 'Very low K and phosphorus. Watch the peanuts + salt in most sabudana recipes.',
++        'source': "USDA FDC SR Legacy 'Tapioca, pearl, dry' (per 100 g: protein 0.19 g, P 7 mg, Na 1 mg) scaled to ~25 g dry pearls per 75 g boiled",
+     },
+     {
+         'id': 'food-bajra-roti',
+@@ -556,22 +568,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '¼ cup dry (25 g)',
+         'actionable_clinical_tip': 'Cook with water not milk to keep phosphorus low. Small serving.',
+     },
+-    {
+-        'id': 'food-poha-small-serving',
+-        'name': 'Poha (small serving)',
+-        'hindi_name': 'पोहा',
+-        'category': 'grain',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 75,
+-        'potassium_mg': 175,
+-        'phosphorus_mg': 82,
+-        'sodium_mg': 4,
+-        'protein_g': 6.0,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '½ katori (75 g)',
+-        'actionable_clinical_tip': 'Beaten rice is low-K but garnishes push it up. See Snacks Guide.',
+-    },
+     {
+         'id': 'food-multigrain-roti-bread',
+         'name': 'Multigrain Roti / Bread',
+@@ -1196,38 +1192,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '½ katori (75 g)',
+         'actionable_clinical_tip': 'Sabudana itself is low-K but the recipe uses peanuts + salt. Keep portion small.',
+     },
+-    {
+-        'id': 'food-poha-small-portion',
+-        'name': 'Poha (small portion)',
+-        'hindi_name': 'पोहा',
+-        'category': 'snack',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 75,
+-        'potassium_mg': 175,
+-        'phosphorus_mg': 68,
+-        'sodium_mg': 262,
+-        'protein_g': 4.5,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '½ katori (75 g)',
+-        'actionable_clinical_tip': 'Fine in a half-katori. Avoid heavy garnish with peanuts + onion + potato which push K + sodium up.',
+-    },
+-    {
+-        'id': 'food-idli-1-piece',
+-        'name': 'Idli (1 piece)',
+-        'hindi_name': 'इडली',
+-        'category': 'snack',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 60,
+-        'potassium_mg': 90,
+-        'phosphorus_mg': 54,
+-        'sodium_mg': 210,
+-        'protein_g': 3.6,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '1 piece (60 g)',
+-        'actionable_clinical_tip': 'One idli with mild chutney is fine. Sambar is very high sodium — skip or use a spoonful only.',
+-    },
+     {
+         'id': 'food-upma-small-portion',
+         'name': 'Upma (small portion)',
+@@ -1260,22 +1224,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '1 slice (30 g)',
+         'actionable_clinical_tip': 'One slice with jam OR unsalted butter — not both. Multigrain bread is HIGHER phosphorus.',
+     },
+-    {
+-        'id': 'food-dhokla-steamed-plain',
+-        'name': 'Dhokla (steamed, plain)',
+-        'hindi_name': 'ढोकला',
+-        'category': 'snack',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 58,
+-        'potassium_mg': 240,
+-        'phosphorus_mg': 52,
+-        'sodium_mg': 203,
+-        'protein_g': 3.5,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '1 piece (58 g)',
+-        'actionable_clinical_tip': 'One piece alone already carries meaningful sodium from the batter salt and tempering. Stick to a single piece, and skip the usual green chutney which adds more.',
+-    },
+     {
+         'id': 'food-pani-puri-golgappa',
+         'name': 'Pani Puri / Golgappa',
+@@ -1292,22 +1240,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '6 pieces with pani',
+         'actionable_clinical_tip': "The 'pani' itself is the unpredictable part — street-vendor spiced water sodium content varies a lot and can't be controlled the way a home recipe can. Treat as an occasional indulgence, not a routine snack.",
+     },
+-    {
+-        'id': 'food-banana-chips-kerala-coconut-oil-fried',
+-        'name': 'Banana Chips (Kerala, coconut-oil fried)',
+-        'hindi_name': 'केला चिप्स',
+-        'category': 'snack',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 30,
+-        'potassium_mg': 140,
+-        'phosphorus_mg': 27,
+-        'sodium_mg': 105,
+-        'protein_g': 1.8,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '1 small handful (30 g)',
+-        'actionable_clinical_tip': 'Moderate potassium concentrated by frying (raw banana already carries K, frying reduces water content and concentrates it further). Sodium depends heavily on brand/recipe — homemade with light rock salt is safer than packaged.',
+-    },
+     {
+         'id': 'food-namkeen-bhujia-mixture',
+         'name': 'Namkeen / Bhujia / Mixture',
+@@ -1340,22 +1272,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '1 small pack (30 g)',
+         'actionable_clinical_tip': 'High K (potato base) AND high sodium AND industrial oils. Never.',
+     },
+-    {
+-        'id': 'food-papad-fried-or-roasted',
+-        'name': 'Papad (fried or roasted)',
+-        'hindi_name': 'पापड़',
+-        'category': 'snack',
+-        'safety_tier': 'RED',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 10,
+-        'potassium_mg': 45,
+-        'phosphorus_mg': 9,
+-        'sodium_mg': 35,
+-        'protein_g': 0.6,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '1 papad (10 g)',
+-        'actionable_clinical_tip': 'One papad = ~500 mg sodium. The K is low but the salt load is brutal.',
+-    },
+     {
+         'id': 'food-pakoras-any-variety',
+         'name': 'Pakoras (any variety)',
+@@ -1372,22 +1288,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '4 pieces (60 g)',
+         'actionable_clinical_tip': 'Besan (chickpea flour) is high in phosphorus + potassium. Deep-fried in reused oil. Skip.',
+     },
+-    {
+-        'id': 'food-samosa',
+-        'name': 'Samosa',
+-        'hindi_name': 'समोसा',
+-        'category': 'snack',
+-        'safety_tier': 'RED',
+-        'primary_risk_factor': 'POTASSIUM',
+-        'portion_g': 100,
+-        'potassium_mg': 380,
+-        'phosphorus_mg': 90,
+-        'sodium_mg': 350,
+-        'protein_g': 6.0,
+-        'fluid_ml': 0,
+-        'portion_limit_text': '1 piece (100 g)',
+-        'actionable_clinical_tip': 'Potato filling + fried maida + heavy salt. Occasional single piece maximum.',
+-    },
+     {
+         'id': 'food-kachori',
+         'name': 'Kachori',
+@@ -1605,12 +1505,13 @@ SEED_GUIDE_STAPLES = [
+         'primary_risk_factor': 'NONE',
+         'portion_g': 150,
+         'potassium_mg': 40,
+-        'phosphorus_mg': 38,
+-        'sodium_mg': 22,
+-        'protein_g': 1.5,
++        'phosphorus_mg': 2,
++        'sodium_mg': 5,
++        'protein_g': 0.0,
+         'fluid_ml': 150,
+         'portion_limit_text': '1 cup (150 ml)',
+         'actionable_clinical_tip': '1-2 cups a day is fine. Adding milk moves this into YELLOW because of phosphorus and potassium in milk.',
++        'source': "USDA FDC SR Legacy 'Beverages, tea, black, brewed, prepared with tap water' (per 100 g: protein 0 g, P 1 mg, Na 3 mg) scaled to 150 ml",
+     },
+     {
+         'id': 'food-unsweetened-almond-milk-plain-store-bought',
+@@ -1676,22 +1577,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '1 cup (150 ml)',
+         'actionable_clinical_tip': "Naturally low in K but concentrated antioxidants can interfere with some medications. Limit to 2 cups; ask your doctor if you're on blood thinners.",
+     },
+-    {
+-        'id': 'food-sweet-lassi',
+-        'name': 'Sweet Lassi',
+-        'hindi_name': 'मीठी लस्सी',
+-        'category': 'beverage',
+-        'safety_tier': 'YELLOW',
+-        'primary_risk_factor': 'NONE',
+-        'portion_g': 150,
+-        'potassium_mg': 210,
+-        'phosphorus_mg': 38,
+-        'sodium_mg': 22,
+-        'protein_g': 1.5,
+-        'fluid_ml': 150,
+-        'portion_limit_text': '1 small glass (150 ml)',
+-        'actionable_clinical_tip': 'Yogurt base means moderate potassium AND phosphorus. Occasional treat only; skip if diabetic.',
+-    },
+     {
+         'id': 'food-sugarcane-juice',
+         'name': 'Sugarcane Juice',
+@@ -1772,22 +1657,6 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '½ glass (100 ml)',
+         'actionable_clinical_tip': 'Toned milk is safer than full-cream for kidneys. Half-glass at a time; avoid multiple servings across the day.',
+     },
+-    {
+-        'id': 'food-coconut-water-nariyal-paani',
+-        'name': 'Coconut Water (Nariyal Paani)',
+-        'hindi_name': 'नारियल पानी',
+-        'category': 'beverage',
+-        'safety_tier': 'RED',
+-        'primary_risk_factor': 'POTASSIUM',
+-        'portion_g': 200,
+-        'potassium_mg': 500,
+-        'phosphorus_mg': 50,
+-        'sodium_mg': 30,
+-        'protein_g': 2.0,
+-        'fluid_ml': 200,
+-        'portion_limit_text': '1 glass (200 ml)',
+-        'actionable_clinical_tip': "Widely thought of as 'natural and safe' — actually one of the most dangerous drinks in CKD. A single tender coconut can push you over the daily potassium limit.",
+-    },
+     {
+         'id': 'food-fresh-orange-juice',
+         'name': 'Fresh Orange Juice',
+@@ -1932,20 +1801,34 @@ SEED_GUIDE_STAPLES = [
+         'portion_limit_text': '1 bottle (330 ml)',
+         'actionable_clinical_tip': 'Even though K is modest, alcohol worsens BP control and dehydrates. Every drink counts toward the strict fluid limit. Ask your nephrologist before any alcohol.',
+     },
+-    {
+-        'id': 'food-thandai-festival-milk-based',
+-        'name': 'Thandai (festival, milk-based)',
+-        'hindi_name': 'ठंडाई',
+-        'category': 'beverage',
+-        'safety_tier': 'RED',
+-        'primary_risk_factor': 'POTASSIUM',
+-        'portion_g': 200,
+-        'potassium_mg': 425,
+-        'phosphorus_mg': 50,
+-        'sodium_mg': 30,
+-        'protein_g': 2.0,
+-        'fluid_ml': 200,
+-        'portion_limit_text': '1 glass (200 ml)',
+-        'actionable_clinical_tip': 'Milk + almonds + multiple nuts/seeds stacks potassium AND phosphorus (~293 mg P per glass). Festival-occasion only, not a routine drink.',
+-    },
+ ]
++
++
++# ---------------------------------------------------------------------------
++# Iter-37 provenance tagging (see module docstring).
++# ---------------------------------------------------------------------------
++DATA_QUALITY_FLAG_ESTIMATED = "estimated_pending_sourcing"
++
++_ITER33_REFINED_IDS = {
++    "food-ridge-gourd-turai", "food-ash-gourd-petha", "food-cauliflower",
++    "food-green-beans-french-cluster", "food-bell-pepper-capsicum", "food-carrot",
++    "food-brinjal-aubergine", "food-green-peas", "food-okra-bhindi",
++    "food-kaddu-pumpkin", "food-mushroom", "food-bitter-gourd-karela",
++    "food-radish-mooli", "food-sweet-potato", "food-yam-suran",
++    "food-colocasia-arbi", "food-spinach-palak", "food-semolina-suji-rava",
++    "food-refined-wheat-flour-maida-roti", "food-bajra-roti", "food-jowar-roti",
++    "food-oats-plain-small", "food-ragi-finger-millet", "food-masoor-dal-red-split",
++    "food-chana-dal-split-bengal-gram-cooked", "food-urad-dal-split-cooked",
++    "food-whole-green-moong-sabut-cooked", "food-herbal-tea-unsweetened",
++    "food-green-tea",
++}
++
++for _entry in SEED_GUIDE_STAPLES:
++    _entry["rescale_exempt"] = True
++    if _entry["id"] in _ITER33_REFINED_IDS:
++        _entry["source_note"] = (
++            "iter-33 refinement toward IFCT 2017 / USDA FDC values; "
++            "per-item citation not recorded — verify and add `source`"
++        )
++    if not _entry.get("source"):
++        _entry["data_quality_flag"] = DATA_QUALITY_FLAG_ESTIMATED
+diff --git a/backend/tests/test_iter13d_pending_resourcing.py b/backend/tests/test_iter13d_pending_resourcing.py
+index 3e3709a..b1103ef 100644
+--- a/backend/tests/test_iter13d_pending_resourcing.py
++++ b/backend/tests/test_iter13d_pending_resourcing.py
+@@ -176,19 +176,20 @@ class TestB5Sajina:
+         assert disc, "serving_disclaimer empty"
+         assert "drumstick" in disc, f"serving_disclaimer={f.get('serving_disclaimer')!r}"
+ 
++    @pytest.mark.xfail(
++        strict=True,
++        reason="OPEN CLINICAL QUESTION (iter-37): seed data + tip say RED / "
++               "'best avoided in advanced CKD and dialysis' at 40 g, but the "
++               "formula gives YELLOW (K 233). Not a decided downgrade — awaiting "
++               "clinician RED-vs-YELLOW call. Tier left as is until then.",
++    )
+     def test_tier_red(self, api):
+         f = _get_food(api, self.FID)
+-        # iter-23 rescale: 40g × 5.83 mg K/g = ~233 mg K per portion, which
+-        # classify_from_nutrients scores as YELLOW (150-299 range). The
+-        # RED assertion here is stale from the pre-rescale 150g reference
+-        # (~875 mg K). Per project rule "let the formula decide" — trust
+-        # the classifier. Aggressive personalization still bumps this to
+-        # personal_tier=RED for dialysis patients (see personalization.py)
+-        # so the clinical safety net remains.
+-        assert f.get("safety_tier") == "YELLOW", f"safety_tier={f.get('safety_tier')}"
+-        # Aggressive personalization still bumps to RED for dialysis.
+-        pt = f.get("personal_tier")
+-        assert pt in ("RED", "YELLOW"), f"personal_tier={pt!r}"
++        assert f.get("safety_tier") == "RED", f"safety_tier={f.get('safety_tier')}"
++
++    def test_personal_tier_red_for_dialysis_demo_user(self, api):
++        f = _get_food(api, self.FID)
++        assert f.get("personal_tier") == "RED", f"personal_tier={f.get('personal_tier')!r}"
+ 
+ 
+ # ---------------- B6: soya-chikki ----------------
+diff --git a/frontend/app/food/[id].tsx b/frontend/app/food/[id].tsx
+index e2a5fa2..fea7858 100644
+--- a/frontend/app/food/[id].tsx
++++ b/frontend/app/food/[id].tsx
+@@ -184,7 +184,8 @@ export default function FoodDetailScreen() {
+           <Text testID="detail-portion" style={styles.sectionBody}>{detail.food.portion_limit_text}</Text>
+         </View>
+ 
+-        {detail.food.data_quality_flag === "concentrated_base_pending_resourcing" ? (
++        {detail.food.data_quality_flag === "concentrated_base_pending_resourcing" ||
++        detail.food.data_quality_flag === "estimated_pending_sourcing" ? (
+           <View testID="pending-resourcing-badge" style={styles.pendingBadge}>
+             <Ionicons name="time-outline" size={18} color={COLORS.textInverse} />
+             <Text style={styles.pendingBadgeText}>{t("pendingResourcing")}</Text>
