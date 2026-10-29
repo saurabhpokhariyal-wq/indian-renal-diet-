@@ -1,0 +1,1663 @@
+...................F...................F................................ [ 10%]
+................FFFF...F.................................xF............F [ 21%]
+...F.F.............................F..F..........F...................... [ 31%]
+.....s.................................................................. [ 42%]
+......................................F..FF.F.........F................. [ 53%]
+........F..FFF.......................................................... [ 63%]
+.......................................FF..................F............ [ 74%]
+.................F....F....................F........ss................FF [ 84%]
+..F..FF..FF...FFEEEEE.EFFFFEEEF......FFEEEEE............................ [ 95%]
+...F..........F...F....F...F..                                           [100%]
+==================================== ERRORS ====================================
+____ ERROR at setup of TestFoodNutrients.test_palak_paneer_nutrient_values _____
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_ ERROR at setup of TestFoodNutrients.test_palak_paneer_swap_benefit_is_computed _
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+________ ERROR at setup of TestFoodNutrients.test_orange_tip_is_factual ________
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+____ ERROR at setup of TestFoodNutrients.test_idli_tip_mentions_added_salt _____
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_ ERROR at setup of TestAllFoodsHaveNutrients.test_all_35_foods_have_all_nutrient_fields _
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+______ ERROR at setup of TestMealLogSummary.test_invalid_date_returns_400 ______
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_____ ERROR at setup of TestRegression.test_register_duplicate_returns_400 _____
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_____ ERROR at setup of TestRegression.test_food_schema_has_required_keys ______
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+__________ ERROR at setup of TestRegression.test_tier_filter_red_only __________
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    @pytest.fixture(scope="module")
+    def user(session):
+>       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_ ERROR at setup of TestPersonalTier.test_dialysis_phosphorus_tightens_to_red __
+
+self = <test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+>       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+_ ERROR at setup of TestPersonalTier.test_pre_dialysis_potassium_softens_to_green _
+
+self = <test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+>       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+___ ERROR at setup of TestPersonalTier.test_pre_dialysis_sodium_not_softened ___
+
+self = <test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+>       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+_ ERROR at setup of TestPersonalTier.test_pre_dialysis_phosphorus_not_softened _
+
+self = <test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+>       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+___ ERROR at setup of TestPersonalTier.test_unknown_stage_no_change_no_note ____
+
+self = <test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+>       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+=================================== FAILURES ===================================
+________ TestFoodsExpansion.test_foods_list_default_limit_capped_at_100 ________
+
+self = <test_iter12_indb_expansion.TestFoodsExpansion object at 0xfc9a78698050>
+headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_foods_list_default_limit_capped_at_100(self, headers):
+        """Default /api/foods returns at most 100 due to server-side limit=100 default.
+        This documents current behaviour — frontend never overrides so it only sees 100."""
+        r = requests.get(f"{BASE_URL}/api/foods", headers=headers, timeout=30)
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+>       assert len(data) == 100, f"Default limit expected 100, got {len(data)}"
+E       AssertionError: Default limit expected 100, got 1170
+E       assert 1170 == 100
+E        +  where 1170 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])
+
+tests/test_iter12_indb_expansion.py:64: AssertionError
+_____________________ TestAuditScript.test_a12_audit_json ______________________
+
+self = <test_iter13_reconciliation.TestAuditScript object at 0xfc9a786b57d0>
+
+    def test_a12_audit_json(self):
+        proc = subprocess.run(
+            ["python", "/app/backend/scripts/audit_seed.py", "--json"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0, f"exit {proc.returncode}\nstderr={proc.stderr[:300]}"
+        data = json.loads(proc.stdout)
+        for k in [
+            "total_input", "reclassified_count", "rescaled_total",
+            "duplicates_dropped_count", "sanity_violations_count",
+            "portion_disclaimer_conflicts_count",
+        ]:
+            assert k in data, f"missing key {k}"
+        assert data["portion_disclaimer_conflicts_count"] == 0
+        assert data["duplicates_dropped_count"] == 9, data["duplicates_dropped_count"]
+        assert data["reclassified_count"] > 400, data["reclassified_count"]
+        assert data["rescaled_total"] > 400, data["rescaled_total"]
+>       assert data["total_input"] == 1027, data["total_input"]
+E       AssertionError: 1178
+E       assert 1178 == 1027
+
+tests/test_iter13_reconciliation.py:182: AssertionError
+___________ TestT6MongoInvariants.test_concentrated_base_count_is_32 ___________
+
+self = <test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786ea810>
+mongo_counts = (42, 10, 1)
+
+    def test_concentrated_base_count_is_32(self, mongo_counts):
+        flagged, _, _ = mongo_counts
+>       assert flagged == 32, f"concentrated_base_pending_resourcing count={flagged} (expected 32)"
+E       AssertionError: concentrated_base_pending_resourcing count=42 (expected 32)
+E       assert 42 == 32
+
+tests/test_iter13c_reconciliation_fixes.py:184: AssertionError
+_____________ TestT6MongoInvariants.test_tier_override_count_is_7 ______________
+
+self = <test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786eaf90>
+mongo_counts = (42, 10, 1)
+
+    def test_tier_override_count_is_7(self, mongo_counts):
+        _, overrides, _ = mongo_counts
+>       assert overrides == 7, f"tier_override count={overrides} (expected 7)"
+E       AssertionError: tier_override count=10 (expected 7)
+E       assert 10 == 7
+
+tests/test_iter13c_reconciliation_fixes.py:188: AssertionError
+________________ TestT6MongoInvariants.test_sets_do_not_overlap ________________
+
+self = <test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786eb6d0>
+mongo_counts = (42, 10, 1)
+
+    def test_sets_do_not_overlap(self, mongo_counts):
+        _, _, overlap = mongo_counts
+>       assert overlap == 0, f"tier_override ∩ concentrated_base overlap={overlap} (expected 0)"
+E       AssertionError: tier_override ∩ concentrated_base overlap=1 (expected 0)
+E       assert 1 == 0
+
+tests/test_iter13c_reconciliation_fixes.py:192: AssertionError
+_________ TestT7AuditScript.test_exit_zero_and_data_quality_flagged_32 _________
+
+self = <test_iter13c_reconciliation_fixes.TestT7AuditScript object at 0xfc9a786ebf50>
+audit_json = ({'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}, 0)
+
+    def test_exit_zero_and_data_quality_flagged_32(self, audit_json):
+        data, rc = audit_json
+        assert rc == 0
+>       assert data.get("data_quality_flagged") == 32, (
+            f"data_quality_flagged={data.get('data_quality_flagged')}"
+        )
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 32
+E        +  where 157 = <built-in method get of dict object at 0xfc9a74ffab00>('data_quality_flagged')
+E        +    where <built-in method get of dict object at 0xfc9a74ffab00> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13c_reconciliation_fixes.py:213: AssertionError
+________________ TestT7AuditScript.test_curated_overrides_seven ________________
+
+self = <test_iter13c_reconciliation_fixes.TestT7AuditScript object at 0xfc9a784f8cd0>
+audit_json = ({'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}, 0)
+
+    def test_curated_overrides_seven(self, audit_json):
+        data, _ = audit_json
+>       assert data.get("curated_overrides") == 7, (
+            f"curated_overrides={data.get('curated_overrides')}"
+        )
+E       AssertionError: curated_overrides=10
+E       assert 10 == 7
+E        +  where 10 = <built-in method get of dict object at 0xfc9a74ffab00>('curated_overrides')
+E        +    where <built-in method get of dict object at 0xfc9a74ffab00> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13c_reconciliation_fixes.py:242: AssertionError
+__________ TestB5Sajina.test_personal_tier_red_for_dialysis_demo_user __________
+
+self = <test_iter13d_pending_resourcing.TestB5Sajina object at 0xfc9a78321950>
+api = <requests.sessions.Session object at 0xfc9a74f94e10>
+
+    def test_personal_tier_red_for_dialysis_demo_user(self, api):
+        f = _get_food(api, self.FID)
+>       assert f.get("personal_tier") == "RED", f"personal_tier={f.get('personal_tier')!r}"
+E       AssertionError: personal_tier='YELLOW'
+E       assert 'YELLOW' == 'RED'
+E         
+E         - RED
+E         + YELLOW
+
+tests/test_iter13d_pending_resourcing.py:192: AssertionError
+_________________ TestT1MongoInvariants.test_flagged_count_39 __________________
+
+self = <test_iter13d_pending_resourcing.TestT1MongoInvariants object at 0xfc9a78309250>
+mongo_counts = (42, 10, 1)
+
+    def test_flagged_count_39(self, mongo_counts):
+        flagged, _, _ = mongo_counts
+        # iter-30: 39 → 42
+        # +2 from adding food-curried-cauliflower-soup and
+        #    food-classic-seasoned-black-beans to CONCENTRATED_BASE_IDS.
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in
+        #    seed_data.py (its %KCl split is unverified) — that flag is
+        #    preserved through reconciliation and lives in Mongo alongside
+        #    tier_override=True (test_no_overlap below).
+        # iter-32: 42 → 43 after seed_guide_staples backfill added 121 new
+        # entries and the Step 7b sanity backstop caught 1 more high-K
+        # concentrated-base outlier (auto-flagged "Pending re-sourcing").
+>       assert flagged == 43, f"concentrated_base flagged={flagged} (expected 43)"
+E       AssertionError: concentrated_base flagged=42 (expected 43)
+E       assert 42 == 43
+
+tests/test_iter13d_pending_resourcing.py:300: AssertionError
+______________________ TestT2AuditScript.test_flagged_39 _______________________
+
+self = <test_iter13d_pending_resourcing.TestT2AuditScript object at 0xfc9a782fa450>
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_flagged_39(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-30: 39 → 42
+        # +2 from CONCENTRATED_BASE_IDS additions (cauliflower soup + black beans)
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in seed;
+        #    the final-count recomputation in reconciliation (Step 7b tail)
+        #    now includes pre-existing flags so the counter matches Mongo.
+        # iter-32: 42 → 43 (see mongo test_flagged_count above).
+>       assert data.get("data_quality_flagged") == 43, (
+            f"data_quality_flagged={data.get('data_quality_flagged')}"
+        )
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 43
+E        +  where 157 = <built-in method get of dict object at 0xfc9a750bd6c0>('data_quality_flagged')
+E        +    where <built-in method get of dict object at 0xfc9a750bd6c0> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13d_pending_resourcing.py:346: AssertionError
+_________________ TestT2AuditScript.test_duplicates_dropped_9 __________________
+
+self = <test_iter13d_pending_resourcing.TestT2AuditScript object at 0xfc9a782f9690>
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_duplicates_dropped_9(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-32: 9 → 11 after seed_guide_staples added two entries whose
+        # slugified IDs collide with pre-existing seed entries — food-samosa
+        # (from Samosa in snack_guide RED) and food-sweet-lassi (from Sweet
+        # Lassi in beverage_guide YELLOW). The deduplication step drops the
+        # stapled duplicates and keeps the canonical seed_data entries with
+        # the richer clinical tips; the guide-file linked_food_id already
+        # points at those canonical IDs so no user-visible impact.
+        # 11 -> 10: iter-37 removed the duplicate staples "food-samosa" (same id as the curated entry).
+>       assert data.get("duplicates_dropped_count") == 10, (
+            f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"
+        )
+E       AssertionError: duplicates_dropped_count=9
+E       assert 9 == 10
+E        +  where 9 = <built-in method get of dict object at 0xfc9a75485e40>('duplicates_dropped_count')
+E        +    where <built-in method get of dict object at 0xfc9a75485e40> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13d_pending_resourcing.py:366: AssertionError
+_____________________ test_potassium_meq_helper_roundtrip ______________________
+
+    def test_potassium_meq_helper_roundtrip():
+>       from backend.guide_utils import mg_to_meq_potassium  # type: ignore
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'backend'
+
+tests/test_iter20_sodium_potassium_meq.py:78: ModuleNotFoundError
+___________________ TestFruitsGuide.test_muskmelon_new_entry ___________________
+
+self = <test_iter20_sodium_potassium_meq.TestFruitsGuide object at 0xfc9a784e2090>
+api = <requests.sessions.Session object at 0xfc9a74ffbd50>
+
+    def test_muskmelon_new_entry(self, api):
+        r = api.get(f"{BASE_URL}/api/fruits/guide")
+        entries = _flatten_entries(r.json(), "fruits")
+        found = _find(entries, "Muskmelon")
+        assert found is not None, "Muskmelon (Kharbuja) must be added"
+        tier, e = found
+        assert tier.upper() == "YELLOW"
+>       assert e["potassium_mg"] == 400
+E       assert 294 == 400
+
+tests/test_iter20_sodium_potassium_meq.py:111: AssertionError
+____________________ TestProteinsGuide.test_egg_yolk_alone _____________________
+
+self = <test_iter20_sodium_potassium_meq.TestProteinsGuide object at 0xfc9a7852dfd0>
+api = <requests.sessions.Session object at 0xfc9a74ffbd50>
+
+    def test_egg_yolk_alone(self, api):
+        r = api.get(f"{BASE_URL}/api/proteins/guide")
+        assert r.status_code == 200
+        entries = _flatten_entries(r.json(), "proteins")
+        # Must match "Egg Yolk" (alone) — not just Egg White or Whole Egg
+        found = None
+        for tier, e in entries:
+            n = str(e.get("name", "")).lower()
+            if "egg yolk" in n:
+                found = (tier, e)
+                break
+        assert found is not None, "Egg Yolk (alone) must be added"
+        tier, e = found
+        assert tier.upper() == "RED"
+>       assert e["potassium_mg"] == 19
+E       assert 18 == 19
+
+tests/test_iter20_sodium_potassium_meq.py:247: AssertionError
+_____ TestSaltSubstitutes.test_kcl_salt_substitutes_are_potassium_flagged ______
+
+self = <test_iter27_salt_protein_vitamin.TestSaltSubstitutes object at 0xfc9a780fea50>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_kcl_salt_substitutes_are_potassium_flagged(self, auth_headers):
+        # KCl-based salt substitutes — after iter-28 chemistry correction,
+        # potassium is elemental K (KCl × 0.525), not raw KCl mass.
+        # Expected: lo-salt K=350 RED, nosalt K=525 RED, tata-saltlite K=184 YELLOW.
+        expected = {
+            "food-lo-salt-substitute": ("RED", 350),
+            "food-nosalt-substitute": ("RED", 525),
+            "food-tata-saltlite": ("YELLOW", 184),
+        }
+        for fid, (tier, k_val) in expected.items():
+            r = requests.get(f"{BASE_URL}/api/foods/{fid}", headers=auth_headers, timeout=15)
+            assert r.status_code == 200, f"{fid} lookup failed"
+            food = r.json()["food"]
+            assert food["safety_tier"] == tier, f"{fid} tier expected {tier}, got {food['safety_tier']}"
+            assert food["primary_risk_factor"] == "POTASSIUM", (
+                f"{fid} risk factor should be POTASSIUM, got {food['primary_risk_factor']}"
+            )
+>           assert food["potassium_mg"] == k_val, f"{fid} K expected {k_val}, got {food['potassium_mg']}"
+E           AssertionError: food-lo-salt-substitute K expected 350, got 346.0
+E           assert 346.0 == 350
+
+tests/test_iter27_salt_protein_vitamin.py:79: AssertionError
+_____________ TestProteinLimits.test_default_summary_has_protein_g _____________
+
+self = <test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a78108090>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_default_summary_has_protein_g(self, auth_headers):
+        r = requests.get(
+            f"{BASE_URL}/api/meal-logs/summary?date=2026-01-15",
+            headers=auth_headers,
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        payload = r.json()
+        assert "limits" in payload
+        limits = payload["limits"]
+        assert "protein_g" in limits, f"protein_g missing from limits: {limits}"
+        # demo user is stage=dialysis → default protein_g = 75
+>       assert limits["protein_g"] == 75, (
+            f"expected 75g dialysis default, got {limits['protein_g']}"
+        )
+E       AssertionError: expected 75g dialysis default, got 50.0
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:120: AssertionError
+_________ TestProteinLimits.test_weekly_report_has_protein_g_in_limits _________
+
+self = <test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a781087d0>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_weekly_report_has_protein_g_in_limits(self, auth_headers):
+        r = requests.get(
+            f"{BASE_URL}/api/reports/weekly?end_date=2026-01-15",
+            headers=auth_headers,
+            timeout=20,
+        )
+        assert r.status_code == 200, r.text
+        payload = r.json()
+        assert "limits" in payload
+        assert "protein_g" in payload["limits"]
+>       assert payload["limits"]["protein_g"] == 75
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:134: AssertionError
+____ TestProteinLimits.test_clear_doctor_limits_falls_back_to_stage_default ____
+
+self = <test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a78109690>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_clear_doctor_limits_falls_back_to_stage_default(self, auth_headers):
+        r = requests.patch(
+            f"{BASE_URL}/api/auth/profile",
+            headers=auth_headers,
+            json={"doctor_limits": None},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["doctor_limits"] is None
+    
+        me = requests.get(f"{BASE_URL}/api/auth/me", headers=auth_headers, timeout=10)
+        assert me.json()["doctor_limits"] is None
+    
+        s = requests.get(
+            f"{BASE_URL}/api/meal-logs/summary?date=2026-01-15",
+            headers=auth_headers,
+            timeout=15,
+        )
+        assert s.status_code == 200
+        # back to stage default (dialysis → 75)
+>       assert s.json()["limits"]["protein_g"] == 75
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:184: AssertionError
+_ TestSaltChemistry.test_food_values_match_expected[food-tata-saltlite-expected2] _
+
+self = <test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry object at 0xfc9a78110390>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+fid = 'food-tata-saltlite'
+expected = {'potassium_mg': 184, 'sodium_mg': 256, 'safety_tier': 'YELLOW', 'primary_risk_factor': 'POTASSIUM'}
+
+    @pytest.mark.parametrize("fid,expected", list(EXPECTED.items()))
+    def test_food_values_match_expected(self, auth_headers, fid, expected):
+        r = requests.get(f"{BASE_URL}/api/foods/{fid}", headers=auth_headers, timeout=15)
+        assert r.status_code == 200, f"{fid} lookup failed: {r.status_code}"
+        food = r.json()["food"]
+        for key, val in expected.items():
+            actual = food.get(key)
+            # numeric comparison tolerates float vs int
+            if isinstance(val, (int, float)):
+                assert float(actual) == float(val), f"{fid} {key} expected {val}, got {actual}"
+            else:
+>               assert actual == val, f"{fid} {key} expected {val}, got {actual}"
+E               AssertionError: food-tata-saltlite safety_tier expected YELLOW, got RED
+E               assert 'RED' == 'YELLOW'
+E                 
+E                 - YELLOW
+E                 + RED
+
+tests/test_iter28_salt_chemistry_and_scan_merge.py:80: AssertionError
+_ TestFix3ConcentratedBaseIdsAndBackstop.test_step_7b_backstop_via_reconcile_seed _
+
+self = <test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop object at 0xfc9a781384d0>
+
+    def test_step_7b_backstop_via_reconcile_seed(self):
+        """Feed a synthetic entry with K=5000 that would fail sanity_check()
+        and has no tier_override; the backstop must auto-flag it."""
+        from reconciliation import reconcile_seed
+        synthetic = {
+            "id": "food-iter30-backstop-test",
+            "name": "Iter-30 Backstop Test Food",
+            "category": "snack",
+            "safety_tier": "RED",
+            "primary_risk_factor": "POTASSIUM",
+            "portion_g": 100,
+            "potassium_mg": 5000,
+            "phosphorus_mg": 50,
+            "sodium_mg": 50,
+            "protein_g": 5,
+            "fluid_ml": 0,
+            "portion_limit_text": "test",
+            "actionable_clinical_tip": "test",
+        }
+        deduped, stats = reconcile_seed([synthetic], [])
+        assert len(deduped) == 1
+        entry = deduped[0]
+>       assert entry.get("data_quality_flag") == "concentrated_base_pending_resourcing", (
+            f"backstop did not flag: {entry.get('data_quality_flag')!r}"
+        )
+E       AssertionError: backstop did not flag: 'estimated_pending_sourcing'
+E       assert 'estimated_pending_sourcing' == 'concentrated...ng_resourcing'
+E         
+E         - concentrated_base_pending_resourcing
+E         + estimated_pending_sourcing
+
+tests/test_iter30_salt_regex_and_reconciliation.py:172: AssertionError
+________________ TestAuditSeedJson.test_data_quality_flagged_41 ________________
+
+self = <test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a78139ad0>
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_data_quality_flagged_41(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-30 finalize: counter now recomputes from final deduped list, so
+        # Tata Salt Lite's pre-set seed flag is included -> 41 becomes 42.
+>       assert data.get("data_quality_flagged") == 42, (
+            f"data_quality_flagged={data.get('data_quality_flagged')} (expected 42)"
+        )
+E       AssertionError: data_quality_flagged=157 (expected 42)
+E       assert 157 == 42
+E        +  where 157 = <built-in method get of dict object at 0xfc9a742896c0>('data_quality_flagged')
+E        +    where <built-in method get of dict object at 0xfc9a742896c0> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter30_salt_regex_and_reconciliation.py:224: AssertionError
+______________ TestAuditSeedJson.test_sanity_violations_count_41 _______________
+
+self = <test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a7813a210>
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_sanity_violations_count_41(self, audit_json):
+        data = json.loads(audit_json.stdout)
+>       assert data.get("sanity_violations_count") == 41, (
+            f"sanity_violations_count={data.get('sanity_violations_count')} (expected 41)"
+        )
+E       AssertionError: sanity_violations_count=42 (expected 41)
+E       assert 42 == 41
+E        +  where 42 = <built-in method get of dict object at 0xfc9a745a33c0>('sanity_violations_count')
+E        +    where <built-in method get of dict object at 0xfc9a745a33c0> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter30_salt_regex_and_reconciliation.py:230: AssertionError
+___________ TestAuditSeedJson.test_curated_overrides_8_via_reconcile ___________
+
+self = <test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a7813a990>
+
+    def test_curated_overrides_8_via_reconcile(self):
+        """Curated_overrides bumped 7 -> 8 (Tata Salt Lite added)."""
+        from reconciliation import reconcile_seed, CURATED_TIER_OVERRIDES
+        # Build synthetic entries so reconcile_seed can count overrides
+        synthetic = [{"id": fid, "name": fid, "category": "test",
+                      "portion_g": 100, "potassium_mg": 0,
+                      "phosphorus_mg": 0, "sodium_mg": 0}
+                     for fid in CURATED_TIER_OVERRIDES.keys()]
+        _, stats = reconcile_seed(synthetic, [])
+>       assert stats["curated_overrides"] == 8, (
+            f"curated_overrides={stats['curated_overrides']} (expected 8)"
+        )
+E       AssertionError: curated_overrides=10 (expected 8)
+E       assert 10 == 8
+
+tests/test_iter30_salt_regex_and_reconciliation.py:243: AssertionError
+_________________________ test_E_iter13d_still_passing _________________________
+
+    def test_E_iter13d_still_passing():
+        """Run iter-13d and inspect the specific assertions bumped by iter-32.
+    
+        We DO NOT fail on the two pre-existing TestB5Sajina failures (those were
+        reported by iter-30/iter-31 as unrelated pre-existing regressions).
+        We DO fail on any NEW iter-32 mismatch (e.g. duplicates_dropped count).
+        """
+        r = subprocess.run(
+            [
+                "pytest",
+                "/app/backend/tests/test_iter13d_pending_resourcing.py",
+                "-v", "--tb=line", "--no-header",
+            ],
+            capture_output=True, text=True, timeout=120,
+        )
+        combined = r.stdout + r.stderr
+        # Assertions bumped by iter-32 must PASS
+        for must_pass in [
+            "test_flagged_count_39 PASSED",
+            "test_flagged_39 PASSED",
+            "test_tier_override_count_7 PASSED",
+            "test_no_overlap PASSED",
+        ]:
+>           assert must_pass in combined, (
+                f"Expected {must_pass!r} in iter-13d output; got tail:\n{combined[-2000:]}"
+            )
+E           AssertionError: Expected 'test_flagged_count_39 PASSED' in iter-13d output; got tail:
+E             ': 157, 'reclassified_count': 460, ...}.get
+E             /app/backend/tests/test_iter13d_pending_resourcing.py:346: AssertionError: data_quality_flagged=157
+E             E   AssertionError: duplicates_dropped_count=9
+E                 assert 9 == 10
+E                  +  where 9 = <built-in method get of dict object at 0xfb75c4eba900>('duplicates_dropped_count')
+E                  +    where <built-in method get of dict object at 0xfb75c4eba900> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+E             /app/backend/tests/test_iter13d_pending_resourcing.py:366: AssertionError: duplicates_dropped_count=9
+E             =============================== warnings summary ===============================
+E             tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+E             tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_exit_zero
+E               /root/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+E               Instance attributes set in this fixture will NOT be visible to test methods,
+E               as each test gets a new instance while the fixture runs only once per class.
+E               Use @classmethod decorator and set attributes on cls instead.
+E               See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+E                 fixturefunc = resolve_fixture_function(fixturedef, request)
+E             
+E             -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+E             =========================== short test summary info ============================
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_personal_tier_red_for_dialysis_demo_user
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_flagged_39
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9
+E             ============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============
+E             
+E           assert 'test_flagged_count_39 PASSED' in '============================= test session starts ==============================\ncollecting ... collected 39 items\n...tScript::test_duplicates_dropped_9\n============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============\n'
+
+tests/test_iter32_guide_backfill_and_search_priority.py:232: AssertionError
+___________________________ test_F_audit_seed_counts ___________________________
+
+    def test_F_audit_seed_counts():
+        r = subprocess.run(
+            ["python3", "/app/backend/scripts/audit_seed.py", "--json"],
+            capture_output=True, text=True, timeout=60, cwd="/app",
+        )
+        assert r.returncode == 0, r.stderr
+        data = json.loads(r.stdout)
+>       assert data["data_quality_flagged"] == 43, data.get("data_quality_flagged")
+E       AssertionError: 157
+E       assert 157 == 43
+
+tests/test_iter32_guide_backfill_and_search_priority.py:261: AssertionError
+____________________ test_audit_seed_reconciliation_counts _____________________
+
+    def test_audit_seed_reconciliation_counts():
+        script_path = "/app/backend/scripts/audit_seed.py"
+        if not os.path.exists(script_path):
+            pytest.skip("audit_seed.py not present")
+        result = subprocess.run(
+            ["python", script_path, "--json"],
+            capture_output=True,
+            text=True,
+            cwd="/app/backend",
+            timeout=60,
+        )
+        assert result.returncode == 0, f"audit_seed exited {result.returncode}: {result.stderr[:400]}"
+        # Try to parse JSON (may have leading log lines)
+        stdout = result.stdout.strip()
+        # extract from last '{' to matching braces or from first line that's JSON
+        try:
+            data = json.loads(stdout)
+        except json.JSONDecodeError:
+            # find last json object
+            lines = stdout.splitlines()
+            for i in range(len(lines)):
+                candidate = "\n".join(lines[i:])
+                try:
+                    data = json.loads(candidate)
+                    break
+                except json.JSONDecodeError:
+                    continue
+            else:
+                pytest.fail(f"could not parse audit_seed JSON output; stdout head: {stdout[:400]}")
+>       assert data.get("data_quality_flagged") == 43, f"data_quality_flagged={data.get('data_quality_flagged')}"
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 43
+E        +  where 157 = <built-in method get of dict object at 0xfc9a74503c80>('data_quality_flagged')
+E        +    where <built-in method get of dict object at 0xfc9a74503c80> = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter33_pna_refinement_and_search.py:163: AssertionError
+__________________ test_no_staple_collides_with_sourced_entry __________________
+
+    def test_no_staple_collides_with_sourced_entry():
+        others = SEED_FOODS + SEED_FOODS_INDB
+        other_ids = {e["id"] for e in others}
+        other_names = {_norm(e["name"]) for e in others}
+        clashes = [e["id"] for e in SEED_GUIDE_STAPLES
+                   if e["id"] in other_ids or _norm(e["name"]) in other_names]
+>       assert not clashes, clashes
+E       AssertionError: ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]
+E       assert not ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]
+
+tests/test_iter37_data_invariants.py:182: AssertionError
+_________________ test_guide_tier_matches_linked_catalog_tier __________________
+
+catalog = ([{'id': 'food-lauki-sabzi', 'name': 'Lauki Sabzi', 'hindi_name': 'लौकी की सब्ज़ी', 'category': 'sabzi', ...}, {'id': ... "Shepherd's pie", 'food-shepherd-s-pie'), ('food-cabbage-rolls-2', 'Cabbage rolls', 'food-cabbage-rolls'), ...], ...})
+
+    def test_guide_tier_matches_linked_catalog_tier(catalog):
+        foods, _ = catalog
+        by_id = {f["id"]: f for f in foods}
+        mismatches = [
+            (g, name, fid, tier, by_id[fid]["safety_tier"])
+            for g, tier, name, fid in _guide_links()
+            if fid in by_id and by_id[fid]["safety_tier"] != tier
+        ]
+>       assert not mismatches, "\n".join(map(str, mismatches))
+E       AssertionError: ('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW')
+E         ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW')
+E         ('fruit', 'Papaya', 'food-papaya', 'GREEN', 'YELLOW')
+E         ('fruit', 'Watermelon', 'food-watermelon', 'GREEN', 'YELLOW')
+E         ('fruit', 'Sapota / Chikoo', 'food-chikoo', 'RED', 'YELLOW')
+E         ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW')
+E         ('fruit', 'Dates', 'food-dates', 'RED', 'YELLOW')
+E         ('fruit', 'Prunes', 'food-prunes', 'RED', 'YELLOW')
+E         ('fruit', 'Amla / Indian Gooseberry (raw)', 'food-amla', 'RED', 'GREEN')
+E         ('vegetable', 'Round Gourd (Tinda)', 'food-tinda', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cabbage', 'food-cabbage', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cauliflower', 'food-cauliflower', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cucumber', 'food-cucumber', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Onion (raw/cooked)', 'food-onion', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Okra (Bhindi)', 'food-okra-bhindi', 'YELLOW', 'RED')
+E         ('vegetable', 'Kaddu (Pumpkin)', 'food-kaddu-pumpkin', 'YELLOW', 'RED')
+E         ('vegetable', 'Beetroot (small portion)', 'food-beetroot-small-portion', 'YELLOW', 'GREEN')
+E         ('vegetable', 'Raw Banana (Kaccha Kela)', 'food-raw-banana-kaccha-kela', 'YELLOW', 'RED')
+E         ('vegetable', 'Water Chestnut (Singhada)', 'food-water-chestnut-singhada', 'YELLOW', 'RED')
+E         ('vegetable', 'Spinach (Palak)', 'food-spinach-palak', 'RED', 'YELLOW')
+E         ('vegetable', 'Drumstick Leaves (Sajina)', 'food-sajina', 'RED', 'YELLOW')
+E         ('vegetable', 'Avocado', 'food-avocado', 'RED', 'YELLOW')
+E         ('snack', 'Homemade Khakhra (plain)', 'food-khakhra', 'GREEN', 'RED')
+E         ('snack', 'Apple / Pear slices', 'food-apple', 'GREEN', 'YELLOW')
+E         ('snack', 'Cucumber Sticks', 'food-cucumber', 'GREEN', 'YELLOW')
+E         ('snack', 'Peanut Chikki (small piece)', 'food-peanut-chikki-small-piece', 'YELLOW', 'GREEN')
+E         ('snack', 'Dry Fruit Trail (very small)', 'food-dry-fruit-trail-very-small', 'YELLOW', 'GREEN')
+E         ('snack', 'Poha (small portion)', 'food-poha', 'YELLOW', 'RED')
+E         ('snack', 'Bread Toast (plain, no butter)', 'food-bread-toast-plain-no-butter', 'YELLOW', 'GREEN')
+E         ('snack', 'Dhokla (steamed, plain)', 'food-dhokla', 'YELLOW', 'RED')
+E         ('snack', 'Pakoras (any variety)', 'food-pakoras-any-variety', 'RED', 'YELLOW')
+E         ('snack', 'Kachori', 'food-kachori', 'RED', 'YELLOW')
+E         ('snack', 'Sev / Ganthiya', 'food-sev-ganthiya', 'RED', 'YELLOW')
+E         ('snack', 'Commercial Biscuits (Marie, cream, cookies)', 'food-commercial-biscuits-marie-cream-cookies', 'RED', 'YELLOW')
+E         ('beverage', 'Buttermilk (Chaas)', 'food-buttermilk-chaas', 'GREEN', 'YELLOW')
+E         ('beverage', 'Masala Chai (with milk)', 'food-masala-chai-with-milk', 'YELLOW', 'GREEN')
+E         ('beverage', 'Filter Coffee (with milk)', 'food-filter-coffee-with-milk', 'YELLOW', 'GREEN')
+E         ('beverage', 'Green Tea', 'food-green-tea', 'YELLOW', 'GREEN')
+E         ('beverage', 'Sweet Lassi', 'food-sweet-lassi', 'YELLOW', 'GREEN')
+E         ('beverage', 'Nimbu Paani (lightly sweetened)', 'food-nimbu-paani-lightly-sweetened', 'YELLOW', 'GREEN')
+E         ('beverage', 'Sports / Energy Drinks', 'food-sports-energy-drinks', 'RED', 'YELLOW')
+E         ('beverage', 'Beer / Alcohol', 'food-beer-alcohol', 'RED', 'GREEN')
+E         ('protein', 'Egg White Bhurji', 'food-egg-white-bhurji', 'GREEN', 'YELLOW')
+E         ('protein', 'Grilled/Baked Chicken Breast', 'food-grilled-baked-chicken-breast', 'GREEN', 'YELLOW')
+E         ('protein', 'Grilled Fish (fresh water)', 'food-grilled-fish-fresh-water', 'GREEN', 'YELLOW')
+E         ('protein', 'Tofu (plain, unsalted)', 'food-tofu-plain-unsalted', 'YELLOW', 'GREEN')
+E         ('protein', 'Sprouted Moong (small)', 'food-sprouted-moong-small', 'YELLOW', 'GREEN')
+E         ('protein', 'Sweetened Condensed Milk', 'food-sweetened-condensed-milk', 'RED', 'GREEN')
+E         ('protein', 'Egg Yolk (alone)', 'food-egg-yolk-alone', 'RED', 'GREEN')
+E         ('grain', 'Whole Wheat Atta Roti', 'food-atta-roti', 'YELLOW', 'RED')
+E         ('grain', 'Bajra Roti', 'food-bajra-roti', 'YELLOW', 'GREEN')
+E         ('grain', 'Jowar Roti', 'food-jowar-roti', 'YELLOW', 'GREEN')
+E         ('grain', 'Oats (plain, small)', 'food-oats-plain-small', 'YELLOW', 'GREEN')
+E         ('grain', 'Poha (small serving)', 'food-poha', 'YELLOW', 'RED')
+E         ('grain', 'Multigrain Roti / Bread', 'food-multigrain-roti-bread', 'RED', 'YELLOW')
+E         ('grain', 'Ragi (Finger Millet)', 'food-ragi-finger-millet', 'RED', 'YELLOW')
+E         ('grain', 'Quinoa', 'food-quinoa', 'RED', 'YELLOW')
+E         ('grain', 'Whole Wheat Pasta', 'food-whole-wheat-pasta', 'RED', 'YELLOW')
+E         ('grain', 'Millets (Kodo, Foxtail, etc.)', 'food-millets-kodo-foxtail-etc', 'RED', 'YELLOW')
+E       assert not [('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW'), ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW'), ('fruit', 'Pa...ota / Chikoo', 'food-chikoo', 'RED', 'YELLOW'), ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW'), ...]
+
+tests/test_iter37_data_invariants.py:241: AssertionError
+_ TestDoctorLimitsSemantics.test_3_summary_reverts_to_stage_defaults_after_clear _
+
+self = <test_iter7_fixes.TestDoctorLimitsSemantics object at 0xfc9a75640110>
+user = {'email': 'TEST_2d250ffb2f@renal.app', 'headers': {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzd...ODEwMDU4NjMiLCJleHAiOjE3OTU4NTA0Mzd9.nm2PlUmmc7HKLPxsw29HwPuWUt-xACoyISjqMaBdLqI', 'Content-Type': 'application/json'}}
+
+    def test_3_summary_reverts_to_stage_defaults_after_clear(self, user):
+        # stage=unknown for fresh user → 2400/1200/2300
+        from datetime import date
+        today = date.today().isoformat()
+        r = requests.get(
+            f"{API}/meal-logs/summary",
+            params={"date": today},
+            headers=user["headers"],
+            timeout=15,
+        )
+        assert r.status_code == 200
+        limits = r.json()["limits"]
+>       assert limits == {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300}
+E       AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Left contains 2 more items:
+E         {'fluid_ml': 2000.0, 'protein_g': 60.0}
+E         Use -v to get more diff
+
+tests/test_iter7_fixes.py:90: AssertionError
+_____ TestPersonalTier.test_atta_roti_yellow_upgrades_to_red_for_dialysis ______
+
+self = <test_new_features.TestPersonalTier object at 0xfc9a7566ddd0>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+dialysis_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzU3NDk1Ni1jYTEzLTQ1ZTItODA1ZC1mZTAzNDNlYmM1NjAiLCJleHAiOj...a13-45e2-805d-fe0343ebc560', 'email': 'test_a435f3f92d@renal.app', 'full_name': 'Test User', 'stage': 'dialysis', ...}}
+
+    def test_atta_roti_yellow_upgrades_to_red_for_dialysis(self, session, dialysis_user):
+        r = session.get(f"{API}/foods/food-atta-roti", headers=dialysis_user["headers"], timeout=15)
+        assert r.status_code == 200, r.text
+        data = r.json()
+        # base YELLOW / PHOSPHORUS risk → personal RED for dialysis
+>       assert data["food"]["safety_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_new_features.py:112: AssertionError
+________ TestPersonalTier.test_atta_roti_stays_yellow_for_unknown_stage ________
+
+self = <test_new_features.TestPersonalTier object at 0xfc9a7565d190>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_atta_roti_stays_yellow_for_unknown_stage(self, session, fresh_user):
+        r = session.get(f"{API}/foods/food-atta-roti", headers=fresh_user["headers"], timeout=15)
+        assert r.status_code == 200
+        data = r.json()
+>       assert data["food"]["personal_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_new_features.py:124: AssertionError
+___________________ TestFavorites.test_toggle_favorite_twice ___________________
+
+self = <test_new_features.TestFavorites object at 0xfc9a7566e910>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def test_toggle_favorite_twice(self, session):
+>       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def _make_user(session: requests.Session) -> dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_new_features.py:36: AssertionError
+___________ TestFavorites.test_favorites_only_returns_only_favorited ___________
+
+self = <test_new_features.TestFavorites object at 0xfc9a7566f750>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def test_favorites_only_returns_only_favorited(self, session):
+>       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def _make_user(session: requests.Session) -> dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_new_features.py:36: AssertionError
+_______________ TestFavorites.test_food_detail_reflects_favorite _______________
+
+self = <test_new_features.TestFavorites object at 0xfc9a7566fd50>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def test_food_detail_reflects_favorite(self, session):
+>       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def _make_user(session: requests.Session) -> dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_new_features.py:36: AssertionError
+__________________ TestWeeklyReport.test_weekly_report_counts __________________
+
+self = <test_new_features.TestWeeklyReport object at 0xfc9a7547d250>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def test_weekly_report_counts(self, session):
+>       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:207: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def _make_user(session: requests.Session) -> dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_new_features.py:36: AssertionError
+_____ TestWeeklyReport.test_weekly_report_dialysis_promotes_yellow_to_red ______
+
+self = <test_new_features.TestWeeklyReport object at 0xfc9a7547d990>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def test_weekly_report_dialysis_promotes_yellow_to_red(self, session):
+        """For dialysis user, atta-roti (YELLOW/PHOSPHORUS) counted as RED in the report."""
+>       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+
+    def _make_user(session: requests.Session) -> dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_new_features.py:36: AssertionError
+________________ TestScanFood.test_scan_real_indian_food_image _________________
+
+self = <test_new_features.TestScanFood object at 0xfc9a7547f610>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_scan_real_indian_food_image(self, session, fresh_user):
+>       assert IMAGE_PATH.exists(), f"missing test image at {IMAGE_PATH}"
+E       AssertionError: missing test image at /tmp/food.jpg
+E       assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/tmp/food.jpg').exists
+
+tests/test_new_features.py:275: AssertionError
+_______________ TestScanFood.test_scan_data_url_prefix_stripped ________________
+
+self = <test_new_features.TestScanFood object at 0xfc9a7566e310>
+session = <requests.sessions.Session object at 0xfc9a74134a90>
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_scan_data_url_prefix_stripped(self, session, fresh_user):
+>       raw = IMAGE_PATH.read_bytes()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/food.jpg'), mode = 'rb', buffering = -1, encoding = None
+errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/food.jpg'
+
+/usr/local/lib/python3.11/pathlib.py:1044: FileNotFoundError
+________________ TestMealLogSummary.test_empty_summary_defaults ________________
+
+self = <test_nutrient_budget.TestMealLogSummary object at 0xfc9a75486fd0>
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def test_empty_summary_defaults(self, session):
+>       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_____________ TestMealLogSummary.test_summary_totals_after_logging _____________
+
+self = <test_nutrient_budget.TestMealLogSummary object at 0xfc9a75487610>
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def test_summary_totals_after_logging(self, session):
+        """Palak Paneer(K650,P180,Na350) + Lauki(K131,P20,Na3) + Egg Whites(K110,P10,Na110)."""
+>       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+___________ TestWeeklyAvgDaily.test_weekly_empty_has_avg_and_limits ____________
+
+self = <test_nutrient_budget.TestWeeklyAvgDaily object at 0xfc9a75487d10>
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def test_weekly_empty_has_avg_and_limits(self, session):
+>       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+________________ TestWeeklyAvgDaily.test_weekly_avg_daily_math _________________
+
+self = <test_nutrient_budget.TestWeeklyAvgDaily object at 0xfc9a7548c350>
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def test_weekly_avg_daily_math(self, session):
+>       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+_______________ TestRegression.test_favorite_toggle_still_works ________________
+
+self = <test_nutrient_budget.TestRegression object at 0xfc9a7548cfd0>
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def test_favorite_toggle_still_works(self, session):
+>       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:245: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = <requests.sessions.Session object at 0xfc9a7427dad0>
+
+    def _register(session: requests.Session) -> dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError
+__________ TestLimitsForUser.test_summary_uses_doctor_limits_when_set __________
+
+self = <test_profile_ai_context.TestLimitsForUser object at 0xfc9a75495190>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    def test_summary_uses_doctor_limits_when_set(self, http):
+>       token, _u, _email = _register(http)
+                            ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+email = 'TEST_6c30d4cc@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+>       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = <Response [429]>.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError
+_________________ TestLimitsForUser.test_pre_dialysis_defaults _________________
+
+self = <test_profile_ai_context.TestLimitsForUser object at 0xfc9a75495790>
+http = <requests.sessions.Session object at 0xfc9a745cc550>
+
+    def test_pre_dialysis_defaults(self, http):
+        token, _u, _e = _register(http)
+        http.post(f"{BASE_URL}/api/auth/stage", json={"stage": "pre_dialysis"}, headers=_auth(token))
+        today = time.strftime("%Y-%m-%d")
+        s = http.get(f"{BASE_URL}/api/meal-logs/summary?date={today}", headers=_auth(token)).json()
+>       assert s["limits"] == {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300}
+E       AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Left contains 2 more items:
+E         {'fluid_ml': 2000.0, 'protein_g': 50.0}
+E         Use -v to get more diff
+
+tests/test_profile_ai_context.py:144: AssertionError
+__________ TestErrorLeakage.test_ai_ask_and_scan_use_generic_message ___________
+
+self = <test_security_fixes.TestErrorLeakage object at 0xfc9a754d1210>
+
+    def test_ai_ask_and_scan_use_generic_message(self):
+        src = SERVER_PY.read_text()
+>       assert 'AI service temporarily unavailable' in src
+E       assert 'AI service temporarily unavailable' in '"""Indian Renal Diet backend — FastAPI + MongoDB.\n\nThin composition entrypoint. Actual logic lives in:\n  - `config...n    allow_credentials=True,\n    allow_origins=CORS_ORIGINS,\n    allow_methods=["*"],\n    allow_headers=["*"],\n)\n'
+
+tests/test_security_fixes.py:158: AssertionError
+______________________ TestLifespan.test_foods_seeded_35 _______________________
+
+self = <test_security_fixes.TestLifespan object at 0xfc9a754dcbd0>
+session = <requests.sessions.Session object at 0xfc9a744bd5d0>
+
+    def test_foods_seeded_35(self, session):
+        _restart_backend()
+        r = session.get(f"{API}/foods", params={"limit": 1000}, timeout=15)
+        assert r.status_code == 200
+        foods = r.json()
+>       assert len(foods) == 35, f"expected 35 foods, got {len(foods)}"
+E       AssertionError: expected 35 foods, got 1000
+E       assert 1000 == 35
+E        +  where 1000 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])
+
+tests/test_security_fixes.py:338: AssertionError
+_______________ TestN1Fix.test_personal_tier_dialysis_vs_unknown _______________
+
+self = <test_security_fixes.TestN1Fix object at 0xfc9a754de790>
+session = <requests.sessions.Session object at 0xfc9a744bd5d0>
+
+    def test_personal_tier_dialysis_vs_unknown(self, session):
+        u1 = _register(session)  # unknown
+        u2 = _register(session)
+        session.post(f"{API}/auth/stage", headers=u2["headers"], json={"stage": "dialysis"}, timeout=15)
+        r1 = session.get(f"{API}/foods/food-atta-roti", headers=u1["headers"], timeout=15)
+        r2 = session.get(f"{API}/foods/food-atta-roti", headers=u2["headers"], timeout=15)
+        assert r1.status_code == 200 and r2.status_code == 200
+>       assert r1.json()["food"]["personal_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_security_fixes.py:390: AssertionError
+_________________________ test_vegetables_guide_shape __________________________
+
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc'
+
+    def test_vegetables_guide_shape(token):
+        r = requests.get(
+            f"{BASE_URL}/api/vegetables/guide",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        data = r.json()
+    
+        for tier in ("GREEN", "YELLOW", "RED"):
+            assert tier in data, f"missing tier {tier}"
+            sec = data[tier]
+            assert "title" in sec and isinstance(sec["title"], str)
+            assert "subtitle" in sec and isinstance(sec["subtitle"], str)
+            assert "vegetables" in sec and isinstance(sec["vegetables"], list)
+    
+        assert len(data["GREEN"]["vegetables"]) == 10
+>       assert len(data["YELLOW"]["vegetables"]) == 8
+E       AssertionError: assert 12 == 8
+E        +  where 12 = len([{'name': 'Tomato (fresh)', 'hindi': 'Tamatar / टमाटर', 'serving': '1 small (60 g)', 'potassium_mg': 142, ...}, {'name...}, {'name': 'Kaddu (Pumpkin)', 'hindi': 'Kaddu / कद्दू', 'serving': '1 katori (100 g)', 'potassium_mg': 340, ...}, ...])
+
+tests/test_vegetables_snacks_guide.py:41: AssertionError
+___________________________ test_snacks_guide_shape ____________________________
+
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc'
+
+    def test_snacks_guide_shape(token):
+        r = requests.get(
+            f"{BASE_URL}/api/snacks/guide",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        data = r.json()
+    
+        for tier in ("GREEN", "YELLOW", "RED"):
+            assert tier in data, f"missing tier {tier}"
+            sec = data[tier]
+            assert "title" in sec and isinstance(sec["title"], str)
+            assert "subtitle" in sec and isinstance(sec["subtitle"], str)
+            assert "snacks" in sec and isinstance(sec["snacks"], list)
+    
+        assert len(data["GREEN"]["snacks"]) == 6
+>       assert len(data["YELLOW"]["snacks"]) == 8
+E       AssertionError: assert 11 == 8
+E        +  where 11 = len([{'name': 'Roasted Chana (small handful)', 'hindi': 'Bhuna chana / भुना चना', 'serving': '2 tbsp (20 g)', 'potassium_m...5, ...}, {'name': 'Idli (1 piece)', 'hindi': 'Idli / इडली', 'serving': '1 piece (60 g)', 'potassium_mg': 90, ...}, ...])
+
+tests/test_vegetables_snacks_guide.py:104: AssertionError
+=============================== warnings summary ===============================
+tests/test_iter25_refactor_and_new_guides.py:319
+  /app/backend/tests/test_iter25_refactor_and_new_guides.py:319: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order("last")
+
+../../root/.venv/lib/python3.11/site-packages/starlette/formparsers.py:12
+  /root/.venv/lib/python3.11/site-packages/starlette/formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+../../root/.venv/lib/python3.11/site-packages/passlib/utils/__init__.py:854
+  /root/.venv/lib/python3.11/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_iter13c_reconciliation_fixes.py::TestT6MongoInvariants::test_concentrated_base_count_is_32
+tests/test_iter13c_reconciliation_fixes.py::TestT7AuditScript::test_exit_zero_and_data_quality_flagged_32
+tests/test_iter13c_reconciliation_fixes.py::TestT8ManualReviewCSV::test_row_count_around_45
+tests/test_iter13c_reconciliation_fixes.py::TestT8ManualReviewCSV::test_poached_egg_not_in_csv
+tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_exit_zero
+tests/test_iter30_salt_regex_and_reconciliation.py::TestAuditSeedJson::test_exit_zero
+tests/test_profile_ai_context.py::TestPersonalTier::test_dialysis_phosphorus_tightens_to_red
+tests/test_security_fixes.py::TestMealLogValidation::test_invalid_calendar_date_422
+  /root/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_iter12_indb_expansion.py::TestFoodsExpansion::test_foods_list_default_limit_capped_at_100
+FAILED tests/test_iter13_reconciliation.py::TestAuditScript::test_a12_audit_json
+FAILED tests/test_iter13c_reconciliation_fixes.py::TestT6MongoInvariants::test_concentrated_base_count_is_32
+FAILED tests/test_iter13c_reconciliation_fixes.py::TestT6MongoInvariants::test_tier_override_count_is_7
+FAILED tests/test_iter13c_reconciliation_fixes.py::TestT6MongoInvariants::test_sets_do_not_overlap
+FAILED tests/test_iter13c_reconciliation_fixes.py::TestT7AuditScript::test_exit_zero_and_data_quality_flagged_32
+FAILED tests/test_iter13c_reconciliation_fixes.py::TestT7AuditScript::test_curated_overrides_seven
+FAILED tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_personal_tier_red_for_dialysis_demo_user
+FAILED tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_flagged_39
+FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9
+FAILED tests/test_iter20_sodium_potassium_meq.py::test_potassium_meq_helper_roundtrip
+FAILED tests/test_iter20_sodium_potassium_meq.py::TestFruitsGuide::test_muskmelon_new_entry
+FAILED tests/test_iter20_sodium_potassium_meq.py::TestProteinsGuide::test_egg_yolk_alone
+FAILED tests/test_iter27_salt_protein_vitamin.py::TestSaltSubstitutes::test_kcl_salt_substitutes_are_potassium_flagged
+FAILED tests/test_iter27_salt_protein_vitamin.py::TestProteinLimits::test_default_summary_has_protein_g
+FAILED tests/test_iter27_salt_protein_vitamin.py::TestProteinLimits::test_weekly_report_has_protein_g_in_limits
+FAILED tests/test_iter27_salt_protein_vitamin.py::TestProteinLimits::test_clear_doctor_limits_falls_back_to_stage_default
+FAILED tests/test_iter28_salt_chemistry_and_scan_merge.py::TestSaltChemistry::test_food_values_match_expected[food-tata-saltlite-expected2]
+FAILED tests/test_iter30_salt_regex_and_reconciliation.py::TestFix3ConcentratedBaseIdsAndBackstop::test_step_7b_backstop_via_reconcile_seed
+FAILED tests/test_iter30_salt_regex_and_reconciliation.py::TestAuditSeedJson::test_data_quality_flagged_41
+FAILED tests/test_iter30_salt_regex_and_reconciliation.py::TestAuditSeedJson::test_sanity_violations_count_41
+FAILED tests/test_iter30_salt_regex_and_reconciliation.py::TestAuditSeedJson::test_curated_overrides_8_via_reconcile
+FAILED tests/test_iter32_guide_backfill_and_search_priority.py::test_E_iter13d_still_passing
+FAILED tests/test_iter32_guide_backfill_and_search_priority.py::test_F_audit_seed_counts
+FAILED tests/test_iter33_pna_refinement_and_search.py::test_audit_seed_reconciliation_counts
+FAILED tests/test_iter37_data_invariants.py::test_no_staple_collides_with_sourced_entry
+FAILED tests/test_iter37_data_invariants.py::test_guide_tier_matches_linked_catalog_tier
+FAILED tests/test_iter7_fixes.py::TestDoctorLimitsSemantics::test_3_summary_reverts_to_stage_defaults_after_clear
+FAILED tests/test_new_features.py::TestPersonalTier::test_atta_roti_yellow_upgrades_to_red_for_dialysis
+FAILED tests/test_new_features.py::TestPersonalTier::test_atta_roti_stays_yellow_for_unknown_stage
+FAILED tests/test_new_features.py::TestFavorites::test_toggle_favorite_twice
+FAILED tests/test_new_features.py::TestFavorites::test_favorites_only_returns_only_favorited
+FAILED tests/test_new_features.py::TestFavorites::test_food_detail_reflects_favorite
+FAILED tests/test_new_features.py::TestWeeklyReport::test_weekly_report_counts
+FAILED tests/test_new_features.py::TestWeeklyReport::test_weekly_report_dialysis_promotes_yellow_to_red
+FAILED tests/test_new_features.py::TestScanFood::test_scan_real_indian_food_image
+FAILED tests/test_new_features.py::TestScanFood::test_scan_data_url_prefix_stripped
+FAILED tests/test_nutrient_budget.py::TestMealLogSummary::test_empty_summary_defaults
+FAILED tests/test_nutrient_budget.py::TestMealLogSummary::test_summary_totals_after_logging
+FAILED tests/test_nutrient_budget.py::TestWeeklyAvgDaily::test_weekly_empty_has_avg_and_limits
+FAILED tests/test_nutrient_budget.py::TestWeeklyAvgDaily::test_weekly_avg_daily_math
+FAILED tests/test_nutrient_budget.py::TestRegression::test_favorite_toggle_still_works
+FAILED tests/test_profile_ai_context.py::TestLimitsForUser::test_summary_uses_doctor_limits_when_set
+FAILED tests/test_profile_ai_context.py::TestLimitsForUser::test_pre_dialysis_defaults
+FAILED tests/test_security_fixes.py::TestErrorLeakage::test_ai_ask_and_scan_use_generic_message
+FAILED tests/test_security_fixes.py::TestLifespan::test_foods_seeded_35 - Ass...
+FAILED tests/test_security_fixes.py::TestN1Fix::test_personal_tier_dialysis_vs_unknown
+FAILED tests/test_vegetables_snacks_guide.py::test_vegetables_guide_shape - A...
+FAILED tests/test_vegetables_snacks_guide.py::test_snacks_guide_shape - Asser...
+ERROR tests/test_nutrient_budget.py::TestFoodNutrients::test_palak_paneer_nutrient_values
+ERROR tests/test_nutrient_budget.py::TestFoodNutrients::test_palak_paneer_swap_benefit_is_computed
+ERROR tests/test_nutrient_budget.py::TestFoodNutrients::test_orange_tip_is_factual
+ERROR tests/test_nutrient_budget.py::TestFoodNutrients::test_idli_tip_mentions_added_salt
+ERROR tests/test_nutrient_budget.py::TestAllFoodsHaveNutrients::test_all_35_foods_have_all_nutrient_fields
+ERROR tests/test_nutrient_budget.py::TestMealLogSummary::test_invalid_date_returns_400
+ERROR tests/test_nutrient_budget.py::TestRegression::test_register_duplicate_returns_400
+ERROR tests/test_nutrient_budget.py::TestRegression::test_food_schema_has_required_keys
+ERROR tests/test_nutrient_budget.py::TestRegression::test_tier_filter_red_only
+ERROR tests/test_profile_ai_context.py::TestPersonalTier::test_dialysis_phosphorus_tightens_to_red
+ERROR tests/test_profile_ai_context.py::TestPersonalTier::test_pre_dialysis_potassium_softens_to_green
+ERROR tests/test_profile_ai_context.py::TestPersonalTier::test_pre_dialysis_sodium_not_softened
+ERROR tests/test_profile_ai_context.py::TestPersonalTier::test_pre_dialysis_phosphorus_not_softened
+ERROR tests/test_profile_ai_context.py::TestPersonalTier::test_unknown_stage_no_change_no_note
+XFAIL tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_tier_red - OPEN CLINICAL QUESTION (iter-37): seed data + tip say RED / 'best avoided in advanced CKD and dialysis' at 40 g, but the formula gives YELLOW (K 233). Not a decided downgrade — awaiting clinician RED-vs-YELLOW call. Tier left as is until then.
+50 failed, 610 passed, 3 skipped, 1 xfailed, 12 warnings, 14 errors in 293.56s (0:04:53)

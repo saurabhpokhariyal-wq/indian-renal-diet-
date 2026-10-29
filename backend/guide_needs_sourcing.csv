@@ -8,6 +8,15 @@ flagged-not-added,n/a,Bhel Puri,,chutneys make sodium recipe-dependent
 flagged-not-added,n/a,Sev Puri,,chutneys make sodium recipe-dependent
 flagged-not-added,n/a,Tata Salt Lite (%KCl split),,seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite.
 flagged-not-added,n/a,"Sev / Ganthiya (Na, P)",,food-sev-ganthiya sodium/phosphorus are category-default estimates (Na 105 per 30 g looks low for a salted besan snack). INDB duplicate food-sev (Omapodi/Karasev) was superseded in iter-37 via reconciliation.SUPERSEDED_IDS — source real per-30 g IFCT/label values; do not guess.
+flagged-not-added,n/a,Rice Water (Kanji) — food-rice-water-kanji,,protein 1.5 g / P 38 mg are category defaults; no IFCT/USDA entry for rice water — needs a real figure
+flagged-not-added,n/a,Roasted Makhana (unsalted) — food-roasted-makhana-unsalted,,Na 105 mg is a salted-snack default on an UNSALTED item; needs IFCT 2017 lotus-seed (dry) figure
+flagged-not-added,n/a,Puffed Rice (unsalted) — food-puffed-rice-unsalted,,Na 105 mg default on an UNSALTED item; commercial murmura may be salted during puffing — needs IFCT figure or label data
+flagged-not-added,n/a,"Thandai (festival, milk-based) — food-thandai-festival-milk-based",,P 50 mg per 200 ml is below the milk it is made from (Milk 200 ml = P 186 in the same file); recipe-variable — needs a sourced recipe figure
+flagged-not-added,n/a,Amla — food-amla,,"values are a USDA 'Gooseberries, raw' (Ribes) proxy, not amla (Phyllanthus emblica); needs IFCT 2017 amla figure"
+flagged-not-added,n/a,Instant Noodles (Maggi etc.) — food-instant-noodles-maggi-etc,,named commercial product — needs per-pack label data (Nestlé India nutrition panel)
+flagged-not-added,n/a,Bournvita / Horlicks / Boost — food-bournvita-horlicks-boost,,named commercial products — needs label data per brand (as made with milk)
+flagged-not-added,n/a,"Potato Chips (Lays, Kurkure) — food-potato-chips-lays-kurkure",,named commercial products — needs per-pack label data
+flagged-not-added,n/a,"Commercial Biscuits (Marie, cream, cookies) — food-commercial-biscuits-marie-cream-cookies",,named commercial products — needs per-brand label data
 fruit,GREEN,Apple,Seb / सेब,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Pear,Nashpati / नाशपाती,sodium_mg not yet sourced — do not guess; flag for real data
 fruit,GREEN,Papaya,Papita / पपीता,sodium_mg not yet sourced — do not guess; flag for real data

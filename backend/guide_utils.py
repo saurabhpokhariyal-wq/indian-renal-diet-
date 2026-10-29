@@ -93,6 +93,17 @@ _FLAGGED_UNSOURCED: List[Dict[str, str]] = [
     {"name": "Sev Puri",         "reason": "chutneys make sodium recipe-dependent"},
     {"name": "Tata Salt Lite (%KCl split)", "reason": "seed uses ~35% KCl / 65% NaCl (product marketing claim) but no manufacturer spec sheet cited — verify % against Tata Consumer Products FSSAI declaration and update potassium_mg/sodium_mg accordingly. See seed_data.py food-tata-saltlite."},
     {"name": "Sev / Ganthiya (Na, P)", "reason": "food-sev-ganthiya sodium/phosphorus are category-default estimates (Na 105 per 30 g looks low for a salted besan snack). INDB duplicate food-sev (Omapodi/Karasev) was superseded in iter-37 via reconciliation.SUPERSEDED_IDS — source real per-30 g IFCT/label values; do not guess."},
+    # Iter-37: staples whose estimated values could not be corrected from a
+    # citable IFCT 2017 / USDA figure — left flagged estimated_pending_sourcing.
+    {"name": "Rice Water (Kanji) — food-rice-water-kanji", "reason": "protein 1.5 g / P 38 mg are category defaults; no IFCT/USDA entry for rice water — needs a real figure"},
+    {"name": "Roasted Makhana (unsalted) — food-roasted-makhana-unsalted", "reason": "Na 105 mg is a salted-snack default on an UNSALTED item; needs IFCT 2017 lotus-seed (dry) figure"},
+    {"name": "Puffed Rice (unsalted) — food-puffed-rice-unsalted", "reason": "Na 105 mg default on an UNSALTED item; commercial murmura may be salted during puffing — needs IFCT figure or label data"},
+    {"name": "Thandai (festival, milk-based) — food-thandai-festival-milk-based", "reason": "P 50 mg per 200 ml is below the milk it is made from (Milk 200 ml = P 186 in the same file); recipe-variable — needs a sourced recipe figure"},
+    {"name": "Amla — food-amla", "reason": "values are a USDA 'Gooseberries, raw' (Ribes) proxy, not amla (Phyllanthus emblica); needs IFCT 2017 amla figure"},
+    {"name": "Instant Noodles (Maggi etc.) — food-instant-noodles-maggi-etc", "reason": "named commercial product — needs per-pack label data (Nestlé India nutrition panel)"},
+    {"name": "Bournvita / Horlicks / Boost — food-bournvita-horlicks-boost", "reason": "named commercial products — needs label data per brand (as made with milk)"},
+    {"name": "Potato Chips (Lays, Kurkure) — food-potato-chips-lays-kurkure", "reason": "named commercial products — needs per-pack label data"},
+    {"name": "Commercial Biscuits (Marie, cream, cookies) — food-commercial-biscuits-marie-cream-cookies", "reason": "named commercial products — needs per-brand label data"},
 ]
 
 

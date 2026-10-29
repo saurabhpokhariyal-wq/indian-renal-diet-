@@ -15,10 +15,8 @@ from grain_guide import GRAIN_GUIDE
 from guide_utils import collect_needs_sourcing, write_needs_sourcing_csv
 from oil_guide import OIL_GUIDE
 from protein_guide import PROTEIN_GUIDE
-from reconciliation import reconcile_seed
-from seed_data import SEED_FOODS, SEED_SWAPS
-from seed_data_indb import SEED_FOODS_INDB
-from seed_guide_staples import SEED_GUIDE_STAPLES
+from reconciliation import build_catalog
+from seed_data import SEED_SWAPS
 from snack_guide import SNACK_GUIDE
 from vegetable_guide import VEGETABLE_GUIDE
 
@@ -36,7 +34,7 @@ async def lifespan(_app: FastAPI):
     await db.meal_logs.create_index([("user_id", 1), ("date", 1)])
     await db.favorites.create_index([("user_id", 1), ("food_id", 1)], unique=True)
 
-    all_foods, recon_stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB + SEED_GUIDE_STAPLES, logger=logger)
+    all_foods, recon_stats = build_catalog(logger=logger)
     reconciled_ids = {food["id"] for food in all_foods}
     for food in all_foods:
         # replace_one (not $set) so fields no longer applicable in the current

@@ -176,19 +176,20 @@ class TestB5Sajina:
         assert disc, "serving_disclaimer empty"
         assert "drumstick" in disc, f"serving_disclaimer={f.get('serving_disclaimer')!r}"
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason="OPEN CLINICAL QUESTION (iter-37): seed data + tip say RED / "
+               "'best avoided in advanced CKD and dialysis' at 40 g, but the "
+               "formula gives YELLOW (K 233). Not a decided downgrade — awaiting "
+               "clinician RED-vs-YELLOW call. Tier left as is until then.",
+    )
     def test_tier_red(self, api):
         f = _get_food(api, self.FID)
-        # iter-23 rescale: 40g × 5.83 mg K/g = ~233 mg K per portion, which
-        # classify_from_nutrients scores as YELLOW (150-299 range). The
-        # RED assertion here is stale from the pre-rescale 150g reference
-        # (~875 mg K). Per project rule "let the formula decide" — trust
-        # the classifier. Aggressive personalization still bumps this to
-        # personal_tier=RED for dialysis patients (see personalization.py)
-        # so the clinical safety net remains.
-        assert f.get("safety_tier") == "YELLOW", f"safety_tier={f.get('safety_tier')}"
-        # Aggressive personalization still bumps to RED for dialysis.
-        pt = f.get("personal_tier")
-        assert pt in ("RED", "YELLOW"), f"personal_tier={pt!r}"
+        assert f.get("safety_tier") == "RED", f"safety_tier={f.get('safety_tier')}"
+
+    def test_personal_tier_red_for_dialysis_demo_user(self, api):
+        f = _get_food(api, self.FID)
+        assert f.get("personal_tier") == "RED", f"personal_tier={f.get('personal_tier')!r}"
 
 
 # ---------------- B6: soya-chikki ----------------

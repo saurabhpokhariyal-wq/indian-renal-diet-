@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from reconciliation import (  # noqa: E402
     DATA_QUALITY_FLAG_CONCENTRATED,
     DATA_QUALITY_FLAG_ESTIMATED,
+    build_catalog,
     reconcile_seed,
 )
 from routes.scan import _looks_like_salt_substitute  # noqa: E402
@@ -35,7 +36,7 @@ def _norm(name: str) -> str:
 
 @pytest.fixture(scope="module")
 def catalog():
-    foods, stats = reconcile_seed(SEED_FOODS, SEED_FOODS_INDB + SEED_GUIDE_STAPLES)
+    foods, stats = build_catalog()
     return foods, stats
 
 
@@ -181,11 +182,63 @@ def test_no_staple_collides_with_sourced_entry():
     assert not clashes, clashes
 
 
-def test_staples_lose_collisions_structurally():
-    staple = dict(SEED_GUIDE_STAPLES[0])
-    sourced = {**staple, "id": "food-sourced", "rescale_exempt": False, "source": "IFCT"}
-    foods, _ = reconcile_seed([], [sourced, staple])
-    assert [f["id"] for f in foods] == ["food-sourced"]
+def test_no_staple_collides_by_id_or_exact_name():
+    others = SEED_FOODS + SEED_FOODS_INDB
+    other_ids = {e["id"] for e in others}
+    other_names = {(e["name"] or "").strip().lower() for e in others}
+    clashes = [e["id"] for e in SEED_GUIDE_STAPLES
+               if e["id"] in other_ids or (e["name"] or "").strip().lower() in other_names]
+    assert not clashes, clashes
+
+
+# ---------- Task 1: one load order for live boot and the audit ----------
+@pytest.mark.parametrize("rel", ["lifespan.py", "scripts/audit_seed.py"])
+def test_catalog_built_only_via_build_catalog(rel):
+    src = (Path(__file__).resolve().parents[1] / rel).read_text()
+    assert "build_catalog(" in src, f"{rel} must call reconciliation.build_catalog()"
+    assert "reconcile_seed(" not in src, f"{rel} must not call reconcile_seed() directly"
+    for name in ("SEED_FOODS_INDB", "SEED_GUIDE_STAPLES"):
+        assert name not in src, f"{rel} must not assemble the catalog from {name} itself"
+
+
+def test_sweet_lassi_is_the_sourced_indb_entry(catalog):
+    foods, _ = catalog
+    lassi = [f for f in foods if f["id"] == "food-sweet-lassi"]
+    assert len(lassi) == 1
+    indb = next(e for e in SEED_FOODS_INDB if e["id"] == "food-sweet-lassi")
+    assert lassi[0]["actionable_clinical_tip"] == indb["actionable_clinical_tip"]
+    assert "added sugar" in lassi[0]["actionable_clinical_tip"]
+
+
+# ---------- Guide tier block must match the linked catalog tier ----------
+def _guide_links():
+    import beverage_guide, fruit_guide, grain_guide, oil_guide, protein_guide, snack_guide, vegetable_guide  # noqa: E401
+    guides = [
+        ("fruit", fruit_guide.FRUIT_GUIDE, "fruits"),
+        ("vegetable", vegetable_guide.VEGETABLE_GUIDE, "vegetables"),
+        ("snack", snack_guide.SNACK_GUIDE, "snacks"),
+        ("beverage", beverage_guide.BEVERAGE_GUIDE, "beverages"),
+        ("protein", protein_guide.PROTEIN_GUIDE, "proteins"),
+        ("grain", grain_guide.GRAIN_GUIDE, "grains"),
+        ("oil", oil_guide.OIL_GUIDE, "oils"),
+    ]
+    for gname, guide, key in guides:
+        for tier, block in guide.items():
+            if isinstance(block, dict) and key in block:
+                for e in block[key]:
+                    if e.get("linked_food_id"):
+                        yield gname, tier, e["name"], e["linked_food_id"]
+
+
+def test_guide_tier_matches_linked_catalog_tier(catalog):
+    foods, _ = catalog
+    by_id = {f["id"]: f for f in foods}
+    mismatches = [
+        (g, name, fid, tier, by_id[fid]["safety_tier"])
+        for g, tier, name, fid in _guide_links()
+        if fid in by_id and by_id[fid]["safety_tier"] != tier
+    ]
+    assert not mismatches, "\n".join(map(str, mismatches))
 
 
 # ---------- P2: Sub-Salt regex ----------

@@ -15,8 +15,12 @@ import pytest
 import requests
 
 _cache: dict = {}
+_bypass = {"on": False}
 _orig_post = requests.post
 _orig_session_post = requests.Session.post
+
+# Tests that exercise login or the rate limiter itself must hit the server.
+_REAL_LOGIN_TEST = ("login", "rate", "429")
 
 
 def _key(url, kwargs):
@@ -34,7 +38,7 @@ def _key(url, kwargs):
 
 
 def _cached(send, url, kwargs):
-    key = _key(url, kwargs)
+    key = None if _bypass["on"] else _key(url, kwargs)
     if key and key in _cache:
         return _cache[key]
     resp = send()
@@ -56,3 +60,12 @@ def _share_login_tokens():
     yield
     requests.post = _orig_post
     requests.Session.post = _orig_session_post
+
+
+@pytest.fixture(autouse=True)
+def _real_login_for_auth_tests(request):
+    """Login / rate-limit tests bypass the token cache (real request every time)."""
+    name = request.node.name.lower()
+    _bypass["on"] = any(w in name for w in _REAL_LOGIN_TEST)
+    yield
+    _bypass["on"] = False

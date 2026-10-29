@@ -115,6 +115,9 @@ CONCENTRATED_BASE_IDS: set[str] = {
     # (dal-like bean category isn't bucketed for the soup rescale rule)
 }
 DATA_QUALITY_FLAG_CONCENTRATED = "concentrated_base_pending_resourcing"
+# Iter-37: plausible-looking values that are estimates / unverified (no source
+# string), NOT a concentrated base. Same patient-facing badge, different cause.
+DATA_QUALITY_FLAG_ESTIMATED = "estimated_pending_sourcing"
 
 # Source rows removed from the catalog because another entry already covers the
 # same food and this one is contradictory/implausible. id -> reason (audit trail).
@@ -383,6 +386,19 @@ def portion_disclaimer_conflict(food: dict) -> bool:
 
 
 # --------------------------- Main pipeline ---------------------------
+def build_catalog(logger=None) -> Tuple[list[dict], dict]:
+    """The ONE way to build the food catalog (used by lifespan.py and
+    scripts/audit_seed.py, enforced by tests). Load order: curated seed_data,
+    then hand-authored staples, then INDB. Seed modules are imported lazily
+    because seed_guide_staples imports a constant from this module.
+    """
+    from seed_data import SEED_FOODS
+    from seed_data_indb import SEED_FOODS_INDB
+    from seed_guide_staples import SEED_GUIDE_STAPLES
+
+    return reconcile_seed(SEED_FOODS + SEED_GUIDE_STAPLES, SEED_FOODS_INDB, logger=logger)
+
+
 def reconcile_seed(
     curated: Iterable[dict],
     indb: Iterable[dict],
@@ -508,7 +524,10 @@ def reconcile_seed(
         if food.get("data_quality_flag"):
             continue
         if sanity_check(food):
-            food["data_quality_flag"] = DATA_QUALITY_FLAG_CONCENTRATED
+            # Entries in CONCENTRATED_BASE_IDS were already flagged above and
+            # skipped; any other breach is an unverified value (e.g. Maggi),
+            # not a concentrate.
+            food["data_quality_flag"] = DATA_QUALITY_FLAG_ESTIMATED
             stats["data_quality_flagged"] += 1
 
     # Recompute data_quality_flagged as the FINAL count of every entry

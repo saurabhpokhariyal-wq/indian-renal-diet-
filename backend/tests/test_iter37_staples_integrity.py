@@ -26,7 +26,7 @@ from seed_guide_staples import SEED_GUIDE_STAPLES  # noqa: E402
 # RATCHET: the set must match exactly, so fixing a collision forces its removal
 # from this list, and a new collision fails the build. food-sweet-lassi is left
 # in because resolving it changes a patient-visible tier (see review notes).
-KNOWN_COLLISIONS = {"food-sweet-lassi"}
+KNOWN_COLLISIONS: set = set()
 
 NUTRIENT_KEYS = ("portion_g", "potassium_mg", "phosphorus_mg", "sodium_mg", "protein_g")
 

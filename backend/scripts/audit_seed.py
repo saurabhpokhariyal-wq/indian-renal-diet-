@@ -27,10 +27,7 @@ from pathlib import Path
 _BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_BACKEND_DIR))
 
-from reconciliation import reconcile_seed  # noqa: E402
-from seed_data import SEED_FOODS  # noqa: E402
-from seed_data_indb import SEED_FOODS_INDB  # noqa: E402
-from seed_guide_staples import SEED_GUIDE_STAPLES  # noqa: E402
+from reconciliation import build_catalog  # noqa: E402
 import re
 
 # ---------- Category-plausibility check (iter-23) ----------
@@ -97,7 +94,7 @@ def _category_plausibility_flags(foods: list[dict]) -> list[tuple[str, str, str,
 
 
 def build_report() -> dict:
-    reconciled, stats = reconcile_seed(SEED_FOODS + SEED_GUIDE_STAPLES, SEED_FOODS_INDB, logger=None)
+    reconciled, stats = build_catalog(logger=None)
     bucket_counts = Counter(bucket for _id, bucket in stats["rescaled"])
     cat_flags = _category_plausibility_flags(reconciled)
     return {

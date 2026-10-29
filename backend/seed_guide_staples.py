@@ -22,6 +22,15 @@ Removed as duplicates of existing entries (do not re-add):
       this copy had Na 35 / GREEN, contradicting its own "~500 mg sodium" tip.
       snack_guide.py already links "Papad" to food-papad.
   food-samosa — same id as the curated entry; curated copy already won.
+  food-sweet-lassi — same id as the sourced INDB entry (iter-37 clinician
+      decision: the sourced entry wins). This hand-made copy (K 210 / 150 ml,
+      YELLOW) was an estimate; the INDB copy keeps its own numbers and tier.
+
+Provenance (iter-37): an entry with a `source` string carries a specific
+IFCT 2017 / USDA citation. Every entry WITHOUT one gets
+data_quality_flag = "estimated_pending_sourcing" (loop at the bottom).
+`source_note` marks the entries refined in iter-33 — their per-item citation
+was never recorded, so they still count as unsourced and stay flagged.
 """
 
 SEED_GUIDE_STAPLES = [
@@ -434,12 +443,13 @@ SEED_GUIDE_STAPLES = [
         'primary_risk_factor': 'NONE',
         'portion_g': 75,
         'potassium_mg': 35,
-        'phosphorus_mg': 82,
-        'sodium_mg': 4,
-        'protein_g': 6.0,
+        'phosphorus_mg': 32,
+        'sodium_mg': 1,
+        'protein_g': 2.0,
         'fluid_ml': 0,
         'portion_limit_text': '1 katori (75 g cooked)',
         'actionable_clinical_tip': 'Refined white rice is one of the safest daily grains for CKD. Basmati is fine.',
+        'source': "USDA FDC SR Legacy 'Rice, white, long-grain, regular, enriched, cooked' (per 100 g: protein 2.69 g, P 43 mg, Na 1 mg) scaled to 75 g",
     },
     {
         'id': 'food-semolina-suji-rava',
@@ -514,12 +524,13 @@ SEED_GUIDE_STAPLES = [
         'primary_risk_factor': 'NONE',
         'portion_g': 75,
         'potassium_mg': 30,
-        'phosphorus_mg': 82,
-        'sodium_mg': 4,
-        'protein_g': 6.0,
+        'phosphorus_mg': 2,
+        'sodium_mg': 0,
+        'protein_g': 0.1,
         'fluid_ml': 0,
         'portion_limit_text': '½ katori (75 g)',
         'actionable_clinical_tip': 'Very low K and phosphorus. Watch the peanuts + salt in most sabudana recipes.',
+        'source': "USDA FDC SR Legacy 'Tapioca, pearl, dry' (per 100 g: protein 0.19 g, P 7 mg, Na 1 mg) scaled to ~25 g dry pearls per 75 g boiled",
     },
     {
         'id': 'food-bajra-roti',
@@ -1586,12 +1597,13 @@ SEED_GUIDE_STAPLES = [
         'primary_risk_factor': 'NONE',
         'portion_g': 150,
         'potassium_mg': 40,
-        'phosphorus_mg': 38,
-        'sodium_mg': 22,
-        'protein_g': 1.5,
+        'phosphorus_mg': 2,
+        'sodium_mg': 5,
+        'protein_g': 0.0,
         'fluid_ml': 150,
         'portion_limit_text': '1 cup (150 ml)',
         'actionable_clinical_tip': '1-2 cups a day is fine. Adding milk moves this into YELLOW because of phosphorus and potassium in milk.',
+        'source': "USDA FDC SR Legacy 'Beverages, tea, black, brewed, prepared with tap water' (per 100 g: protein 0 g, P 1 mg, Na 3 mg) scaled to 150 ml",
     },
     {
         'id': 'food-unsweetened-almond-milk-plain-store-bought',
@@ -1656,22 +1668,6 @@ SEED_GUIDE_STAPLES = [
         'fluid_ml': 150,
         'portion_limit_text': '1 cup (150 ml)',
         'actionable_clinical_tip': "Naturally low in K but concentrated antioxidants can interfere with some medications. Limit to 2 cups; ask your doctor if you're on blood thinners.",
-    },
-    {
-        'id': 'food-sweet-lassi',
-        'name': 'Sweet Lassi',
-        'hindi_name': 'मीठी लस्सी',
-        'category': 'beverage',
-        'safety_tier': 'YELLOW',
-        'primary_risk_factor': 'NONE',
-        'portion_g': 150,
-        'potassium_mg': 210,
-        'phosphorus_mg': 38,
-        'sodium_mg': 22,
-        'protein_g': 1.5,
-        'fluid_ml': 150,
-        'portion_limit_text': '1 small glass (150 ml)',
-        'actionable_clinical_tip': 'Yogurt base means moderate potassium AND phosphorus. Occasional treat only; skip if diabetic.',
     },
     {
         'id': 'food-sugarcane-juice',
@@ -1762,12 +1758,13 @@ SEED_GUIDE_STAPLES = [
         'primary_risk_factor': 'POTASSIUM',
         'portion_g': 200,
         'potassium_mg': 500,
-        'phosphorus_mg': 50,
-        'sodium_mg': 30,
-        'protein_g': 2.0,
+        'phosphorus_mg': 40,
+        'sodium_mg': 210,
+        'protein_g': 1.4,
         'fluid_ml': 200,
         'portion_limit_text': '1 glass (200 ml)',
         'actionable_clinical_tip': "Widely thought of as 'natural and safe' — actually one of the most dangerous drinks in CKD. A single tender coconut can push you over the daily potassium limit.",
+        'source': "USDA FDC SR Legacy 'Nuts, coconut water' (per 100 g: K 250 mg, P 20 mg, Na 105 mg, protein 0.72 g) scaled to 200 ml",
     },
     {
         'id': 'food-fresh-orange-juice',
@@ -1932,6 +1929,32 @@ SEED_GUIDE_STAPLES = [
 ]
 
 
+from reconciliation import DATA_QUALITY_FLAG_ESTIMATED  # noqa: E402
+
+# Entries refined in iter-33 toward IFCT/USDA values without a recorded
+# per-item citation. Marked so refined can be told from default, but they
+# remain unsourced (flagged) until a real `source` string is added.
+_ITER33_REFINED_IDS = {
+    "food-ridge-gourd-turai", "food-ash-gourd-petha", "food-cauliflower",
+    "food-green-beans-french-cluster", "food-bell-pepper-capsicum", "food-carrot",
+    "food-brinjal-aubergine", "food-green-peas", "food-okra-bhindi",
+    "food-kaddu-pumpkin", "food-mushroom", "food-bitter-gourd-karela",
+    "food-radish-mooli", "food-sweet-potato", "food-yam-suran",
+    "food-colocasia-arbi", "food-spinach-palak", "food-semolina-suji-rava",
+    "food-refined-wheat-flour-maida-roti", "food-bajra-roti", "food-jowar-roti",
+    "food-oats-plain-small", "food-ragi-finger-millet", "food-masoor-dal-red-split",
+    "food-chana-dal-split-bengal-gram-cooked", "food-urad-dal-split-cooked",
+    "food-whole-green-moong-sabut-cooked", "food-herbal-tea-unsweetened",
+    "food-green-tea",
+}
+
 # Authored at real serving sizes — opt out of the legacy 150 g rescale buckets.
 for _food in SEED_GUIDE_STAPLES:
     _food.setdefault("rescale_exempt", True)
+    if _food["id"] in _ITER33_REFINED_IDS:
+        _food["source_note"] = (
+            "iter-33 refinement toward IFCT 2017 / USDA FDC values; "
+            "per-item citation not recorded — verify and add `source`"
+        )
+    if not _food.get("source"):
+        _food["data_quality_flag"] = DATA_QUALITY_FLAG_ESTIMATED

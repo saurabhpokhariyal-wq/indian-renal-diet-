@@ -2773,7 +2773,7 @@ SEED_FOODS_INDB = [
         "protein_g": 1.9,
         "fluid_ml": 150,
         "portion_limit_text": "1 medium katori (150g) per meal",
-        "actionable_clinical_tip": "Kidney-friendly — low potassium (95 mg) and phosphorus (58 mg) per 150g. Suitable as a regular renal-diet choice. Remember to count this toward your daily fluid limit.",
+        "actionable_clinical_tip": "Kidney-friendly — low potassium (95 mg) and phosphorus (58 mg) per 150g. Suitable as a regular renal-diet choice. Remember to count this toward your daily fluid limit. Contains added sugar — count it in your sugar/diabetes plan; a plain, unsweetened curd drink is the better choice if you also have diabetes.",
         "serving_disclaimer": "Beverage — count as FLUID intake, not just food. Values per 150ml here; a real glass is 200–250ml. Critical for fluid-restricted / dialysis patients.",
     },
     {

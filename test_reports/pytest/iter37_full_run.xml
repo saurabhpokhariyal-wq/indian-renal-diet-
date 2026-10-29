@@ -1,0 +1,1363 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="14" failures="50" skipped="4" tests="678" time="293.540" timestamp="2026-10-29T07:18:05.134132+00:00" hostname="agent-env-fb391f92-f1a2-420b-a0bd-456248a19490"><testcase classname="tests.test_beverages_guide" name="test_beverages_guide_authenticated" time="0.703" /><testcase classname="tests.test_beverages_guide" name="test_green_has_buttermilk" time="0.155" /><testcase classname="tests.test_beverages_guide" name="test_yellow_has_masala_chai" time="0.125" /><testcase classname="tests.test_beverages_guide" name="test_red_has_coconut_water_high_k" time="0.109" /><testcase classname="tests.test_fruits_guide.TestFruitsGuide" name="test_b1_login" time="0.364" /><testcase classname="tests.test_fruits_guide.TestFruitsGuide" name="test_b2_fruits_guide_authed" time="0.119" /><testcase classname="tests.test_fruits_guide.TestFruitsGuide" name="test_b3_fruits_guide_unauth_behavior" time="0.134" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_a_login_ok" time="0.001" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_b_scan_barcode_returns_bc_id" time="0.781" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_c_get_food_by_bc_id" time="0.060" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_d_log_bc_id_as_snack" time="0.061" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_e_meal_logs_lists_bc_id" time="0.061" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_f_summary_reflects_potassium" time="0.058" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_g_favorite_toggle_and_filter" time="0.231" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestBarcodePersistence" name="test_h_idempotent_second_scan" time="0.713" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestRegression" name="test_scan_food_requires_auth" time="0.054" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestRegression" name="test_foods_search_palak" time="0.059" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestRegression" name="test_ai_ask_bengali" time="9.055" /><testcase classname="tests.test_iter10_barcode_persist_and_pack_flow.TestRegression" name="test_weekly_report" time="0.058" /><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_foods_list_default_limit_capped_at_100" time="0.227"><failure message="AssertionError: Default limit expected 100, got 1170&#10;assert 1170 == 100&#10; +  where 1170 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])">self = &lt;test_iter12_indb_expansion.TestFoodsExpansion object at 0xfc9a78698050&gt;
+headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_foods_list_default_limit_capped_at_100(self, headers):
+        """Default /api/foods returns at most 100 due to server-side limit=100 default.
+        This documents current behaviour — frontend never overrides so it only sees 100."""
+        r = requests.get(f"{BASE_URL}/api/foods", headers=headers, timeout=30)
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+&gt;       assert len(data) == 100, f"Default limit expected 100, got {len(data)}"
+E       AssertionError: Default limit expected 100, got 1170
+E       assert 1170 == 100
+E        +  where 1170 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])
+
+tests/test_iter12_indb_expansion.py:64: AssertionError</failure></testcase><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_foods_list_full_count_with_large_limit" time="0.249" /><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_rasam_detail_has_serving_disclaimer" time="0.147" /><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_lauki_detail_has_no_disclaimer_and_tip_preserved" time="0.111" /><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_search_rasam" time="0.118" /><testcase classname="tests.test_iter12_indb_expansion.TestFoodsExpansion" name="test_search_palak_regression" time="0.123" /><testcase classname="tests.test_iter12_indb_expansion.TestMealLogRegression" name="test_create_and_summary_and_delete" time="0.377" /><testcase classname="tests.test_iter12_indb_expansion.TestFavoritesRegression" name="test_toggle_lauki_twice" time="0.231" /><testcase classname="tests.test_iter12_indb_expansion.TestReportRegression" name="test_weekly_report_ok" time="0.117" /><testcase classname="tests.test_iter13_reconciliation.TestAuth" name="test_a1_login_success" time="0.000" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a2_soya_chunks_sweet_and_sour" time="0.119" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a3_cold_tomato_soup" time="0.061" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a4_mayonnaise" time="0.068" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a5_raw_mango_chutney" time="0.063" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a6_chat_masala" time="0.064" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a7_cheese_soup" time="0.061" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a8_toor_dal_override" time="0.059" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a9_orange_override" time="0.056" /><testcase classname="tests.test_iter13_reconciliation.TestFoodReconciliation" name="test_a10_brown_rice_override" time="0.063" /><testcase classname="tests.test_iter13_reconciliation.TestFoodsList" name="test_a11_list_length_and_dedupe" time="0.210" /><testcase classname="tests.test_iter13_reconciliation.TestAuditScript" name="test_a12_audit_json" time="0.047"><failure message="AssertionError: 1178&#10;assert 1178 == 1027">self = &lt;test_iter13_reconciliation.TestAuditScript object at 0xfc9a786b57d0&gt;
+
+    def test_a12_audit_json(self):
+        proc = subprocess.run(
+            ["python", "/app/backend/scripts/audit_seed.py", "--json"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0, f"exit {proc.returncode}\nstderr={proc.stderr[:300]}"
+        data = json.loads(proc.stdout)
+        for k in [
+            "total_input", "reclassified_count", "rescaled_total",
+            "duplicates_dropped_count", "sanity_violations_count",
+            "portion_disclaimer_conflicts_count",
+        ]:
+            assert k in data, f"missing key {k}"
+        assert data["portion_disclaimer_conflicts_count"] == 0
+        assert data["duplicates_dropped_count"] == 9, data["duplicates_dropped_count"]
+        assert data["reclassified_count"] &gt; 400, data["reclassified_count"]
+        assert data["rescaled_total"] &gt; 400, data["rescaled_total"]
+&gt;       assert data["total_input"] == 1027, data["total_input"]
+E       AssertionError: 1178
+E       assert 1178 == 1027
+
+tests/test_iter13_reconciliation.py:182: AssertionError</failure></testcase><testcase classname="tests.test_iter13_reconciliation.TestAuditScript" name="test_a13_needs_manual_review_csv" time="0.000" /><testcase classname="tests.test_iter13_reconciliation.TestAuditScript" name="test_a14_audit_fail_on_flags" time="0.046" /><testcase classname="tests.test_iter13_reconciliation.TestRegression" name="test_r1_palak_search" time="0.062" /><testcase classname="tests.test_iter13_reconciliation.TestRegression" name="test_r2_lauki_sabzi" time="0.059" /><testcase classname="tests.test_iter13_reconciliation.TestRegression" name="test_r3_meal_log_chat_masala" time="0.193" /><testcase classname="tests.test_iter13_reconciliation.TestRegression" name="test_r4_barcode_scan" time="0.579" /><testcase classname="tests.test_iter13_reconciliation.TestRegression" name="test_r5_weekly_report" time="0.069" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-cabbage-rolls-2]" time="0.117" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-white-sauce-2]" time="0.066" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-white-sauce-3]" time="0.066" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-caramel-custard-2]" time="0.065" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-shepherd-s-pie-2]" time="0.060" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-stuffed-bittergourd-2]" time="0.067" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-chicken-sandwich-2]" time="0.064" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-cheese-and-tomato-sandwich-2]" time="0.079" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_id_returns_404[food-fruit-punch-2]" time="0.065" /><testcase classname="tests.test_iter13b_retest.TestR1DroppedIds" name="test_dropped_ids_absent_from_list" time="0.140" /><testcase classname="tests.test_iter13b_retest.TestR2UnsafeFixes" name="test_soya_chunks_red" time="0.061" /><testcase classname="tests.test_iter13b_retest.TestR2UnsafeFixes" name="test_cold_tomato_soup_red" time="0.061" /><testcase classname="tests.test_iter13b_retest.TestR2UnsafeFixes" name="test_mayonnaise_red" time="0.059" /><testcase classname="tests.test_iter13b_retest.TestR2UnsafeFixes" name="test_raw_mango_chutney_rescaled" time="0.060" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-cabbage-rolls]" time="0.057" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-white-sauce]" time="0.059" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-caramel-custard]" time="0.065" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-shepherd-s-pie]" time="0.061" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-stuffed-bittergourd]" time="0.079" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-chicken-sandwich]" time="0.062" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-cheese-and-tomato-sandwich]" time="0.065" /><testcase classname="tests.test_iter13b_retest.TestR3KeptPrimaryIds" name="test_primary_id_returns_200[food-fruit-punch]" time="0.064" /><testcase classname="tests.test_iter13b_retest.TestR4Regression" name="test_foods_count_at_least_1018" time="0.000" /><testcase classname="tests.test_iter13b_retest.TestR4Regression" name="test_meal_log_lauki_sabzi_works" time="0.125" /><testcase classname="tests.test_iter13b_retest.TestR5BeverageDisclaimer" name="test_rasam_with_lemon_disclaimer" time="0.060" /><testcase classname="tests.test_iter13b_retest.TestR5BeverageDisclaimer" name="test_cold_coffee_disclaimer" time="0.071" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT1PoachedEgg" name="test_sodium_corrected_to_186" time="0.137" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT1PoachedEgg" name="test_tier_red_phosphorus" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT1PoachedEgg" name="test_not_auto_rescaled" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT2MincedMeatPancake" name="test_not_auto_rescaled" time="0.071" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT2MincedMeatPancake" name="test_portion_150g_raw_sodium" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT3SpaghettiBolognese" name="test_not_auto_rescaled" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT3SpaghettiBolognese" name="test_portion_150g" time="0.064" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT3SpaghettiBolognese" name="test_concentrated_base_flag" time="0.064" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT4RealSoups" name="test_real_soup_still_rescaled[food-cheese-soup]" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT4RealSoups" name="test_real_soup_still_rescaled[food-meat-consomme]" time="0.057" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT4RealSoups" name="test_real_soup_still_rescaled[food-mulligatawny-soup]" time="0.059" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT5BagharPrecision" name="test_mustard_seeds_baghar_rescaled" time="0.058" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT5BagharPrecision" name="test_cumin_seeds_baghar_rescaled" time="0.064" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT5BagharPrecision" name="test_onion_tomato_baghar_not_rescaled" time="0.069" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT5BagharPrecision" name="test_green_gram_whole_with_baghar_not_rescaled" time="0.064" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT6MongoInvariants" name="test_concentrated_base_count_is_32" time="0.009"><failure message="AssertionError: concentrated_base_pending_resourcing count=42 (expected 32)&#10;assert 42 == 32">self = &lt;test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786ea810&gt;
+mongo_counts = (42, 10, 1)
+
+    def test_concentrated_base_count_is_32(self, mongo_counts):
+        flagged, _, _ = mongo_counts
+&gt;       assert flagged == 32, f"concentrated_base_pending_resourcing count={flagged} (expected 32)"
+E       AssertionError: concentrated_base_pending_resourcing count=42 (expected 32)
+E       assert 42 == 32
+
+tests/test_iter13c_reconciliation_fixes.py:184: AssertionError</failure></testcase><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT6MongoInvariants" name="test_tier_override_count_is_7" time="0.001"><failure message="AssertionError: tier_override count=10 (expected 7)&#10;assert 10 == 7">self = &lt;test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786eaf90&gt;
+mongo_counts = (42, 10, 1)
+
+    def test_tier_override_count_is_7(self, mongo_counts):
+        _, overrides, _ = mongo_counts
+&gt;       assert overrides == 7, f"tier_override count={overrides} (expected 7)"
+E       AssertionError: tier_override count=10 (expected 7)
+E       assert 10 == 7
+
+tests/test_iter13c_reconciliation_fixes.py:188: AssertionError</failure></testcase><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT6MongoInvariants" name="test_sets_do_not_overlap" time="0.001"><failure message="AssertionError: tier_override ∩ concentrated_base overlap=1 (expected 0)&#10;assert 1 == 0">self = &lt;test_iter13c_reconciliation_fixes.TestT6MongoInvariants object at 0xfc9a786eb6d0&gt;
+mongo_counts = (42, 10, 1)
+
+    def test_sets_do_not_overlap(self, mongo_counts):
+        _, _, overlap = mongo_counts
+&gt;       assert overlap == 0, f"tier_override ∩ concentrated_base overlap={overlap} (expected 0)"
+E       AssertionError: tier_override ∩ concentrated_base overlap=1 (expected 0)
+E       assert 1 == 0
+
+tests/test_iter13c_reconciliation_fixes.py:192: AssertionError</failure></testcase><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT7AuditScript" name="test_exit_zero_and_data_quality_flagged_32" time="0.047"><failure message="AssertionError: data_quality_flagged=157&#10;assert 157 == 32&#10; +  where 157 = &lt;built-in method get of dict object at 0xfc9a74ffab00&gt;('data_quality_flagged')&#10; +    where &lt;built-in method get of dict object at 0xfc9a74ffab00&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter13c_reconciliation_fixes.TestT7AuditScript object at 0xfc9a786ebf50&gt;
+audit_json = ({'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}, 0)
+
+    def test_exit_zero_and_data_quality_flagged_32(self, audit_json):
+        data, rc = audit_json
+        assert rc == 0
+&gt;       assert data.get("data_quality_flagged") == 32, (
+            f"data_quality_flagged={data.get('data_quality_flagged')}"
+        )
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 32
+E        +  where 157 = &lt;built-in method get of dict object at 0xfc9a74ffab00&gt;('data_quality_flagged')
+E        +    where &lt;built-in method get of dict object at 0xfc9a74ffab00&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13c_reconciliation_fixes.py:213: AssertionError</failure></testcase><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT7AuditScript" name="test_soup_bucket_around_29" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT7AuditScript" name="test_spice_bucket_around_35" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT7AuditScript" name="test_portion_disclaimer_conflicts_zero" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT7AuditScript" name="test_curated_overrides_seven" time="0.000"><failure message="AssertionError: curated_overrides=10&#10;assert 10 == 7&#10; +  where 10 = &lt;built-in method get of dict object at 0xfc9a74ffab00&gt;('curated_overrides')&#10; +    where &lt;built-in method get of dict object at 0xfc9a74ffab00&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter13c_reconciliation_fixes.TestT7AuditScript object at 0xfc9a784f8cd0&gt;
+audit_json = ({'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}, 0)
+
+    def test_curated_overrides_seven(self, audit_json):
+        data, _ = audit_json
+&gt;       assert data.get("curated_overrides") == 7, (
+            f"curated_overrides={data.get('curated_overrides')}"
+        )
+E       AssertionError: curated_overrides=10
+E       assert 10 == 7
+E        +  where 10 = &lt;built-in method get of dict object at 0xfc9a74ffab00&gt;('curated_overrides')
+E        +    where &lt;built-in method get of dict object at 0xfc9a74ffab00&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13c_reconciliation_fixes.py:242: AssertionError</failure></testcase><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_row_count_around_45" time="0.001" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_poached_egg_not_in_csv" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_expected_id_in_csv[food-minced-meat-pancake]" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_expected_id_in_csv[food-spaghetti-bolognese]" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_expected_id_in_csv[food-cajun-chicken]" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_expected_id_in_csv[food-instant-idli]" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestT8ManualReviewCSV" name="test_expected_id_in_csv[food-instant-dhokla]" time="0.000" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-cabbage-rolls-2]" time="0.058" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-white-sauce-2]" time="0.055" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-white-sauce-3]" time="0.062" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-caramel-custard-2]" time="0.057" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-shepherd-s-pie-2]" time="0.057" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-stuffed-bittergourd-2]" time="0.058" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-chicken-sandwich-2]" time="0.055" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-cheese-and-tomato-sandwich-2]" time="0.058" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_dropped_dupes_still_404[food-fruit-punch-2]" time="0.056" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_soya_chunks_still_red" time="0.056" /><testcase classname="tests.test_iter13c_reconciliation_fixes.TestR1Regression" name="test_mayonnaise_still_red" time="0.058" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB1MaaChaaneKiDal" name="test_portion_and_nutrients" time="0.140" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB1MaaChaaneKiDal" name="test_tier_and_risk" time="0.064" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB1MaaChaaneKiDal" name="test_portion_limit_text_contains_75g" time="0.063" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB1MaaChaaneKiDal" name="test_no_data_quality_flag" time="0.062" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB2SoyabeanCurry" name="test_portion_and_nutrients" time="0.062" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB2SoyabeanCurry" name="test_tier_red" time="0.063" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB3MoongBeanDosa" name="test_portion_and_nutrients" time="0.058" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB3MoongBeanDosa" name="test_portion_limit_text" time="0.073" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB3MoongBeanDosa" name="test_tier_red" time="0.067" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB4MoongDalCheela" name="test_portion_and_nutrients" time="0.064" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB4MoongDalCheela" name="test_portion_limit_text" time="0.065" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB4MoongDalCheela" name="test_tier_red" time="0.060" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB5Sajina" name="test_portion_unchanged" time="0.059" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB5Sajina" name="test_portion_limit_text" time="0.075" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB5Sajina" name="test_serving_disclaimer_mentions_drumstick" time="0.060" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB5Sajina" name="test_tier_red" time="0.058"><skipped type="pytest.xfail" message="OPEN CLINICAL QUESTION (iter-37): seed data + tip say RED / 'best avoided in advanced CKD and dialysis' at 40 g, but the formula gives YELLOW (K 233). Not a decided downgrade — awaiting clinician RED-vs-YELLOW call. Tier left as is until then." /></testcase><testcase classname="tests.test_iter13d_pending_resourcing.TestB5Sajina" name="test_personal_tier_red_for_dialysis_demo_user" time="0.057"><failure message="AssertionError: personal_tier='YELLOW'&#10;assert 'YELLOW' == 'RED'&#10;  &#10;  - RED&#10;  + YELLOW">self = &lt;test_iter13d_pending_resourcing.TestB5Sajina object at 0xfc9a78321950&gt;
+api = &lt;requests.sessions.Session object at 0xfc9a74f94e10&gt;
+
+    def test_personal_tier_red_for_dialysis_demo_user(self, api):
+        f = _get_food(api, self.FID)
+&gt;       assert f.get("personal_tier") == "RED", f"personal_tier={f.get('personal_tier')!r}"
+E       AssertionError: personal_tier='YELLOW'
+E       assert 'YELLOW' == 'RED'
+E         
+E         - RED
+E         + YELLOW
+
+tests/test_iter13d_pending_resourcing.py:192: AssertionError</failure></testcase><testcase classname="tests.test_iter13d_pending_resourcing.TestB6SoyaChikki" name="test_portion_and_nutrients" time="0.057" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB6SoyaChikki" name="test_tier_green" time="0.059" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB6SoyaChikki" name="test_disclaimer_mentions_sugar" time="0.057" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB7PearlMilletInfant" name="test_data_quality_flag_set" time="0.056" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB7PearlMilletInfant" name="test_portion_limit_text_pending" time="0.061" /><testcase classname="tests.test_iter13d_pending_resourcing.TestB7PearlMilletInfant" name="test_tier_red" time="0.061" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-chicken-manchurian]" time="0.058" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-mutton-pulao]" time="0.059" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-chicken-pulao]" time="0.059" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-meat-and-macaroni-casserole]" time="0.064" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-savoury-puffs]" time="0.059" /><testcase classname="tests.test_iter13d_pending_resourcing.TestC1NewConcentratedBaseIds" name="test_flag_and_tier[food-minced-meat-pancake]" time="0.063" /><testcase classname="tests.test_iter13d_pending_resourcing.TestT1MongoInvariants" name="test_flagged_count_39" time="0.007"><failure message="AssertionError: concentrated_base flagged=42 (expected 43)&#10;assert 42 == 43">self = &lt;test_iter13d_pending_resourcing.TestT1MongoInvariants object at 0xfc9a78309250&gt;
+mongo_counts = (42, 10, 1)
+
+    def test_flagged_count_39(self, mongo_counts):
+        flagged, _, _ = mongo_counts
+        # iter-30: 39 → 42
+        # +2 from adding food-curried-cauliflower-soup and
+        #    food-classic-seasoned-black-beans to CONCENTRATED_BASE_IDS.
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in
+        #    seed_data.py (its %KCl split is unverified) — that flag is
+        #    preserved through reconciliation and lives in Mongo alongside
+        #    tier_override=True (test_no_overlap below).
+        # iter-32: 42 → 43 after seed_guide_staples backfill added 121 new
+        # entries and the Step 7b sanity backstop caught 1 more high-K
+        # concentrated-base outlier (auto-flagged "Pending re-sourcing").
+&gt;       assert flagged == 43, f"concentrated_base flagged={flagged} (expected 43)"
+E       AssertionError: concentrated_base flagged=42 (expected 43)
+E       assert 42 == 43
+
+tests/test_iter13d_pending_resourcing.py:300: AssertionError</failure></testcase><testcase classname="tests.test_iter13d_pending_resourcing.TestT1MongoInvariants" name="test_tier_override_count_7" time="0.000" /><testcase classname="tests.test_iter13d_pending_resourcing.TestT1MongoInvariants" name="test_no_overlap" time="0.000" /><testcase classname="tests.test_iter13d_pending_resourcing.TestT2AuditScript" name="test_exit_zero" time="0.047" /><testcase classname="tests.test_iter13d_pending_resourcing.TestT2AuditScript" name="test_flagged_39" time="0.001"><failure message="AssertionError: data_quality_flagged=157&#10;assert 157 == 43&#10; +  where 157 = &lt;built-in method get of dict object at 0xfc9a750bd6c0&gt;('data_quality_flagged')&#10; +    where &lt;built-in method get of dict object at 0xfc9a750bd6c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter13d_pending_resourcing.TestT2AuditScript object at 0xfc9a782fa450&gt;
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_flagged_39(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-30: 39 → 42
+        # +2 from CONCENTRATED_BASE_IDS additions (cauliflower soup + black beans)
+        # +1 from Tata Salt Lite carrying data_quality_flag directly in seed;
+        #    the final-count recomputation in reconciliation (Step 7b tail)
+        #    now includes pre-existing flags so the counter matches Mongo.
+        # iter-32: 42 → 43 (see mongo test_flagged_count above).
+&gt;       assert data.get("data_quality_flagged") == 43, (
+            f"data_quality_flagged={data.get('data_quality_flagged')}"
+        )
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 43
+E        +  where 157 = &lt;built-in method get of dict object at 0xfc9a750bd6c0&gt;('data_quality_flagged')
+E        +    where &lt;built-in method get of dict object at 0xfc9a750bd6c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13d_pending_resourcing.py:346: AssertionError</failure></testcase><testcase classname="tests.test_iter13d_pending_resourcing.TestT2AuditScript" name="test_portion_disclaimer_conflicts_zero" time="0.000" /><testcase classname="tests.test_iter13d_pending_resourcing.TestT2AuditScript" name="test_duplicates_dropped_9" time="0.001"><failure message="AssertionError: duplicates_dropped_count=9&#10;assert 9 == 10&#10; +  where 9 = &lt;built-in method get of dict object at 0xfc9a75485e40&gt;('duplicates_dropped_count')&#10; +    where &lt;built-in method get of dict object at 0xfc9a75485e40&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter13d_pending_resourcing.TestT2AuditScript object at 0xfc9a782f9690&gt;
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_duplicates_dropped_9(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-32: 9 → 11 after seed_guide_staples added two entries whose
+        # slugified IDs collide with pre-existing seed entries — food-samosa
+        # (from Samosa in snack_guide RED) and food-sweet-lassi (from Sweet
+        # Lassi in beverage_guide YELLOW). The deduplication step drops the
+        # stapled duplicates and keeps the canonical seed_data entries with
+        # the richer clinical tips; the guide-file linked_food_id already
+        # points at those canonical IDs so no user-visible impact.
+        # 11 -&gt; 10: iter-37 removed the duplicate staples "food-samosa" (same id as the curated entry).
+&gt;       assert data.get("duplicates_dropped_count") == 10, (
+            f"duplicates_dropped_count={data.get('duplicates_dropped_count')}"
+        )
+E       AssertionError: duplicates_dropped_count=9
+E       assert 9 == 10
+E        +  where 9 = &lt;built-in method get of dict object at 0xfc9a75485e40&gt;('duplicates_dropped_count')
+E        +    where &lt;built-in method get of dict object at 0xfc9a75485e40&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter13d_pending_resourcing.py:366: AssertionError</failure></testcase><testcase classname="tests.test_iter13d_pending_resourcing.TestRegression" name="test_r1_weekly_report" time="0.079" /><testcase classname="tests.test_iter13d_pending_resourcing.TestRegression" name="test_r2_barcode_scan" time="0.560" /><testcase classname="tests.test_iter13d_pending_resourcing.TestRegression" name="test_r3_meal_log_lauki" time="0.060" /><testcase classname="tests.test_iter17_guides.TestProteinsGuide" name="test_returns_200_and_shape" time="0.111" /><testcase classname="tests.test_iter17_guides.TestProteinsGuide" name="test_has_linked_toor_dal" time="0.058" /><testcase classname="tests.test_iter17_guides.TestGrainsGuide" name="test_returns_200_and_shape" time="0.100" /><testcase classname="tests.test_iter17_guides.TestGrainsGuide" name="test_has_linked_atta_roti" time="0.073" /><testcase classname="tests.test_iter17_guides" name="test_existing_guides_still_ok[/api/fruits/guide-fruits]" time="0.064" /><testcase classname="tests.test_iter17_guides" name="test_existing_guides_still_ok[/api/beverages/guide-beverages]" time="0.057" /><testcase classname="tests.test_iter17_guides" name="test_existing_guides_still_ok[/api/vegetables/guide-vegetables]" time="0.071" /><testcase classname="tests.test_iter17_guides" name="test_existing_guides_still_ok[/api/snacks/guide-snacks]" time="0.069" /><testcase classname="tests.test_iter17_guides.TestFoodsRegression" name="test_foods_count" time="0.149" /><testcase classname="tests.test_iter17_guides.TestFoodsRegression" name="test_food_detail[food-toor-dal-YELLOW]" time="0.056" /><testcase classname="tests.test_iter17_guides.TestFoodsRegression" name="test_food_detail[food-brown-rice-YELLOW]" time="0.060" /><testcase classname="tests.test_iter17_guides.TestFoodsRegression" name="test_food_detail[food-orange-None]" time="0.057" /><testcase classname="tests.test_iter17_guides.TestFoodsRegression" name="test_orange_exists_and_has_tier" time="0.062" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_login_response_contains_nutrient_unit" time="0.360" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_me_returns_nutrient_unit" time="0.122" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_patch_to_meq_and_verify_persisted" time="0.231" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_patch_back_to_mg" time="0.230" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_patch_invalid_unit_rejected" time="0.124" /><testcase classname="tests.test_iter19_nutrient_unit.TestNutrientUnitField" name="test_new_user_default_is_mg" time="0.486" /><testcase classname="tests.test_iter19_nutrient_unit.TestDoctorLimitsRegression" name="test_patch_only_doctor_limits" time="0.110" /><testcase classname="tests.test_iter19_nutrient_unit.TestDoctorLimitsRegression" name="test_clear_doctor_limits" time="0.114" /><testcase classname="tests.test_iter19_nutrient_unit.TestFoodsRegression" name="test_list_foods" time="0.112" /><testcase classname="tests.test_iter19_nutrient_unit.TestFoodsRegression" name="test_food_detail" time="0.226" /><testcase classname="tests.test_iter19_nutrient_unit.TestFoodsRegression" name="test_meal_logs_endpoint" time="0.116" /><testcase classname="tests.test_iter19_nutrient_unit.TestFoodsRegression" name="test_meal_logs_summary" time="0.109" /><testcase classname="tests.test_iter19_nutrient_unit.TestAiRegression" name="test_ai_ask_with_meq_context" time="7.407" /><testcase classname="tests.test_iter20_sodium_potassium_meq" name="test_potassium_meq_helper_roundtrip" time="0.001"><failure message="ModuleNotFoundError: No module named 'backend'">def test_potassium_meq_helper_roundtrip():
+&gt;       from backend.guide_utils import mg_to_meq_potassium  # type: ignore
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'backend'
+
+tests/test_iter20_sodium_potassium_meq.py:78: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_iter20_sodium_potassium_meq.TestFruitsGuide" name="test_all_entries_have_derived_fields" time="0.113" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestFruitsGuide" name="test_apple_potassium_meq" time="0.065" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestFruitsGuide" name="test_muskmelon_new_entry" time="0.060"><failure message="assert 294 == 400">self = &lt;test_iter20_sodium_potassium_meq.TestFruitsGuide object at 0xfc9a784e2090&gt;
+api = &lt;requests.sessions.Session object at 0xfc9a74ffbd50&gt;
+
+    def test_muskmelon_new_entry(self, api):
+        r = api.get(f"{BASE_URL}/api/fruits/guide")
+        entries = _flatten_entries(r.json(), "fruits")
+        found = _find(entries, "Muskmelon")
+        assert found is not None, "Muskmelon (Kharbuja) must be added"
+        tier, e = found
+        assert tier.upper() == "YELLOW"
+&gt;       assert e["potassium_mg"] == 400
+E       assert 294 == 400
+
+tests/test_iter20_sodium_potassium_meq.py:111: AssertionError</failure></testcase><testcase classname="tests.test_iter20_sodium_potassium_meq.TestVegetablesGuide" name="test_karela_new_entry" time="0.059" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestVegetablesGuide" name="test_raw_banana_new_entry" time="0.069" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestVegetablesGuide" name="test_all_have_meq_and_flag" time="0.063" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestSnacksGuide" name="test_dhokla" time="0.060" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestSnacksGuide" name="test_pani_puri_high_sodium" time="0.063" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestSnacksGuide" name="test_banana_chips" time="0.059" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestBeveragesGuide" name="test_almond_milk" time="0.059" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestBeveragesGuide" name="test_jaljeera" time="0.062" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestBeveragesGuide" name="test_aam_panna" time="0.057" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestBeveragesGuide" name="test_thandai" time="0.057" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestProteinsGuide" name="test_egg_yolk_alone" time="0.056"><failure message="assert 18 == 19">self = &lt;test_iter20_sodium_potassium_meq.TestProteinsGuide object at 0xfc9a7852dfd0&gt;
+api = &lt;requests.sessions.Session object at 0xfc9a74ffbd50&gt;
+
+    def test_egg_yolk_alone(self, api):
+        r = api.get(f"{BASE_URL}/api/proteins/guide")
+        assert r.status_code == 200
+        entries = _flatten_entries(r.json(), "proteins")
+        # Must match "Egg Yolk" (alone) — not just Egg White or Whole Egg
+        found = None
+        for tier, e in entries:
+            n = str(e.get("name", "")).lower()
+            if "egg yolk" in n:
+                found = (tier, e)
+                break
+        assert found is not None, "Egg Yolk (alone) must be added"
+        tier, e = found
+        assert tier.upper() == "RED"
+&gt;       assert e["potassium_mg"] == 19
+E       assert 18 == 19
+
+tests/test_iter20_sodium_potassium_meq.py:247: AssertionError</failure></testcase><testcase classname="tests.test_iter20_sodium_potassium_meq.TestGrainsGuide" name="test_regression" time="0.057" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestNeedsSourcingCSV" name="test_exists_and_header" time="0.000" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestNeedsSourcingCSV" name="test_flagged_rows_present" time="0.001" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestNeedsSourcingCSV" name="test_total_row_count" time="0.001" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_root" time="0.057" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_foods_list" time="0.132" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_food_toor_dal" time="0.058" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_login_still_works" time="0.000" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_nutrient_unit_roundtrip" time="0.227" /><testcase classname="tests.test_iter20_sodium_potassium_meq.TestRegression" name="test_meals_crud" time="0.175" /><testcase classname="tests.test_iter21_ifct_sourcing.TestProteins" name="test_egg_yolk_alone_ifct_values" time="0.114" /><testcase classname="tests.test_iter21_ifct_sourcing.TestProteins" name="test_khoa_mawa" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestProteins" name="test_whole_egg_boiled" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestProteins" name="test_legacy_toor_dal_no_source" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_muskmelon_ifct_correction" time="0.064" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_fig_fresh_green" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_ber_yellow" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_bael_red" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_phalsa_red" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestFruits" name="test_apple_legacy_no_source" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestVegetables" name="test_radish_yellow" time="0.066" /><testcase classname="tests.test_iter21_ifct_sourcing.TestVegetables" name="test_water_chestnut_yellow" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestVegetables" name="test_bottle_gourd_legacy_no_source" time="0.000" /><testcase classname="tests.test_iter21_ifct_sourcing.TestIter20Regression" name="test_jaljeera_still_high_sodium" time="0.068" /><testcase classname="tests.test_iter21_ifct_sourcing.TestIter20Regression" name="test_pani_puri_still_high_sodium" time="0.067" /><testcase classname="tests.test_iter21_ifct_sourcing.TestCoreApis" name="test_foods_list" time="0.138" /><testcase classname="tests.test_iter21_ifct_sourcing.TestCoreApis" name="test_auth_login_and_me" time="0.342" /><testcase classname="tests.test_iter21_ifct_sourcing.TestCoreApis" name="test_meal_logs_crud" time="0.124"><skipped type="pytest.skip" message="No meal endpoint found; not a iter-21 regression concern.">/app/backend/tests/test_iter21_ifct_sourcing.py:251: No meal endpoint found; not a iter-21 regression concern.</skipped></testcase><testcase classname="tests.test_iter21_ifct_sourcing.TestAllNewEntriesLowSodium" name="test_all_ifct_entries_low_sodium" time="0.001" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiAskGrounding" name="test_made_up_dish_not_classified" time="2.502" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiAskGrounding" name="test_known_food_potato_grounded" time="7.014" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiAskGrounding" name="test_guide_only_khoa" time="6.839" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiAskGrounding" name="test_guide_only_water_chestnut" time="6.582" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiAskGrounding" name="test_tamil_unicode_preserved" time="5.611" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestAiLogMeal" name="test_meal_parse_returns_items" time="1.126" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestQuantityMultiplier" name="test_create_and_verify_summary" time="0.307" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestQuantityMultiplier" name="test_quantity_validation_zero_rejected" time="0.061" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestQuantityMultiplier" name="test_quantity_validation_high_rejected" time="0.060" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestQuantityMultiplier" name="test_quantity_default_one" time="0.125" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestWeeklyReport" name="test_weekly_scales_with_qty" time="0.310" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestRegression" name="test_foods_list" time="0.064" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestRegression" name="test_toor_dal_detail" time="0.067" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestRegression" name="test_auth_me" time="0.059" /><testcase classname="tests.test_iter22_grounding_and_meal_nl.TestRegression" name="test_meal_logs_list_ok" time="0.060" /><testcase classname="tests.test_iter23_data_quality.TestSajinaRescale" name="test_sajina_rescale" time="0.219" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-classic-club-sandwich]" time="0.064" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-buttermilk-biscuit]" time="0.063" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-coffee-biscuit]" time="0.063" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-kadhai-paneer]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-classic-seasoned-black-beans]" time="0.064" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-milk-cake]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-orange-gateau]" time="0.069" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-black-forest-gateau]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-macaroni-salad]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-vanilla-souffle]" time="0.060" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-vanilla-ice-cream-with-egg]" time="0.061" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-vanilla-ice-cream-without-egg]" time="0.054" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-lemon-souffle]" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-pineapple-souffle]" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-orange-souffle]" time="0.060" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-chocolate-souffle]" time="0.063" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-steamed-orange-pudding]" time="0.064" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-milk-cookies]" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestNonBeverageClassification" name="test_non_beverage[food-steamed-cake-with-chocolate-sauce]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-mayonnaise-without-eggs-condiment]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-french-dressing-condiment]" time="0.062" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-curd-dressing-condiment]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-coffee-drops-snack]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-curried-cauliflower-soup-snack]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-chicken-stock-beverage]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestJudgmentCall" name="test_judgment[food-egg-nog-beverage]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-choconut-ice-cream]" time="0.062" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-peach-melba-ice-cream]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-coffee-ice-cream]" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-fruit-ice-cream]" time="0.058" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-chocolate-ice-cream]" time="0.058" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-mango-ice-cream]" time="0.060" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-chocochip-ice-cream]" time="0.057" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-caramel-ice-cream]" time="0.056" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_ice_creams_dairy[food-strawberry-ice-cream]" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestAuditSurfaced" name="test_vada_snack" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestCsvAuditTrail" name="test_csv_exists_and_row_count" time="0.000" /><testcase classname="tests.test_iter23_data_quality.TestAuditScript" name="test_audit_script_no_category_flags" time="0.046" /><testcase classname="tests.test_iter23_data_quality.TestSolidsCannotBeFluids" name="test_no_solid_has_fluid_ml" time="0.130" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_total_foods_at_least_1000" time="0.000" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_toor_dal_k" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_apple_k" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_auth_me" time="0.055" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_meal_log_create" time="0.058" /><testcase classname="tests.test_iter23_data_quality.TestRegression" name="test_ai_ask_grounded" time="3.395" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestScanFoodGrounding" name="test_scan_food_no_db_match_returns_unverified" time="0.249" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestScanFoodGrounding" name="test_scan_food_parse_failure_returns_unverified" time="0.003" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestScanFoodGrounding" name="test_scan_food_db_match_regression" time="0.002" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestScanBarcodeGrounding" name="test_barcode_empty_nutriments_returns_unverified_no_synthetic" time="0.003" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestScanBarcodeGrounding" name="test_barcode_with_nutrients_regression_creates_bc_food" time="0.004" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestFluidBudget" name="test_summary_returns_fluid_ml" time="0.144" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestFluidBudget" name="test_weekly_report_returns_fluid_ml" time="0.144" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestFluidBudget" name="test_stage_default_fluid_dialysis_vs_predialysis" time="0.434" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestFluidBudget" name="test_doctor_override_fluid" time="0.352" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_foods_listing" time="0.188" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_food_apple" time="0.121" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_food_toor_dal" time="0.115" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_auth_me" time="0.113" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_ai_ask_grounded" time="3.552" /><testcase classname="tests.test_iter24_scan_grounding_and_fluid_budget.TestRegression" name="test_no_non_beverage_has_fluid" time="0.216" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_auth_login_returns_access_token_and_user" time="0.364" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_auth_me_includes_nutrient_unit" time="0.132" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_foods_list_returns_1000_plus" time="0.220" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_foods_query_filter" time="0.140" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_food_by_id" time="0.110" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[fruits-fruits]" time="0.114" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[beverages-beverages]" time="0.115" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[vegetables-vegetables]" time="0.111" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[snacks-snacks]" time="0.110" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[proteins-proteins]" time="0.106" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[grains-grains]" time="0.107" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_guide_shape[oils-oils]" time="0.109" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_meal_logs_summary_includes_fluid_ml" time="0.112" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_reports_weekly_includes_fluid_ml" time="0.114" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_doctor_override_fluid_ml_and_restore" time="0.575" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_meal_log_create_list_delete" time="0.344" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_favorite_toggle" time="0.215" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_ai_ask_returns_200" time="3.827" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_oils_guide_full_shape" time="0.142" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_oils_guide_green_contains_expected_entries" time="0.121" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_oils_guide_red_contains_expected_entries" time="0.133" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_oils_guide_entries_have_ifct_source" time="0.108" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_proteins_guide_yellow_new_entries" time="0.111" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_proteins_guide_red_new_dairy_entries" time="0.114" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_proteins_guide_yellow_new_entries_derived_meq_and_high_sodium" time="0.111" /><testcase classname="tests.test_iter25_refactor_and_new_guides" name="test_rate_limiter_on_login" time="3.282" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestSaltSubstitutes" name="test_search_salt_returns_new_seeds" time="0.138" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestSaltSubstitutes" name="test_kcl_salt_substitutes_are_potassium_flagged" time="0.121"><failure message="AssertionError: food-lo-salt-substitute K expected 350, got 346.0&#10;assert 346.0 == 350">self = &lt;test_iter27_salt_protein_vitamin.TestSaltSubstitutes object at 0xfc9a780fea50&gt;
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_kcl_salt_substitutes_are_potassium_flagged(self, auth_headers):
+        # KCl-based salt substitutes — after iter-28 chemistry correction,
+        # potassium is elemental K (KCl × 0.525), not raw KCl mass.
+        # Expected: lo-salt K=350 RED, nosalt K=525 RED, tata-saltlite K=184 YELLOW.
+        expected = {
+            "food-lo-salt-substitute": ("RED", 350),
+            "food-nosalt-substitute": ("RED", 525),
+            "food-tata-saltlite": ("YELLOW", 184),
+        }
+        for fid, (tier, k_val) in expected.items():
+            r = requests.get(f"{BASE_URL}/api/foods/{fid}", headers=auth_headers, timeout=15)
+            assert r.status_code == 200, f"{fid} lookup failed"
+            food = r.json()["food"]
+            assert food["safety_tier"] == tier, f"{fid} tier expected {tier}, got {food['safety_tier']}"
+            assert food["primary_risk_factor"] == "POTASSIUM", (
+                f"{fid} risk factor should be POTASSIUM, got {food['primary_risk_factor']}"
+            )
+&gt;           assert food["potassium_mg"] == k_val, f"{fid} K expected {k_val}, got {food['potassium_mg']}"
+E           AssertionError: food-lo-salt-substitute K expected 350, got 346.0
+E           assert 346.0 == 350
+
+tests/test_iter27_salt_protein_vitamin.py:79: AssertionError</failure></testcase><testcase classname="tests.test_iter27_salt_protein_vitamin.TestSaltSubstitutes" name="test_pink_and_kala_namak_are_sodium_flagged" time="0.219" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestSaltSubstitutes" name="test_lemon_herb_seasoning_is_green" time="0.111" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestProteinLimits" name="test_default_summary_has_protein_g" time="0.109"><failure message="AssertionError: expected 75g dialysis default, got 50.0&#10;assert 50.0 == 75">self = &lt;test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a78108090&gt;
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_default_summary_has_protein_g(self, auth_headers):
+        r = requests.get(
+            f"{BASE_URL}/api/meal-logs/summary?date=2026-01-15",
+            headers=auth_headers,
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        payload = r.json()
+        assert "limits" in payload
+        limits = payload["limits"]
+        assert "protein_g" in limits, f"protein_g missing from limits: {limits}"
+        # demo user is stage=dialysis → default protein_g = 75
+&gt;       assert limits["protein_g"] == 75, (
+            f"expected 75g dialysis default, got {limits['protein_g']}"
+        )
+E       AssertionError: expected 75g dialysis default, got 50.0
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:120: AssertionError</failure></testcase><testcase classname="tests.test_iter27_salt_protein_vitamin.TestProteinLimits" name="test_weekly_report_has_protein_g_in_limits" time="0.114"><failure message="assert 50.0 == 75">self = &lt;test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a781087d0&gt;
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_weekly_report_has_protein_g_in_limits(self, auth_headers):
+        r = requests.get(
+            f"{BASE_URL}/api/reports/weekly?end_date=2026-01-15",
+            headers=auth_headers,
+            timeout=20,
+        )
+        assert r.status_code == 200, r.text
+        payload = r.json()
+        assert "limits" in payload
+        assert "protein_g" in payload["limits"]
+&gt;       assert payload["limits"]["protein_g"] == 75
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:134: AssertionError</failure></testcase><testcase classname="tests.test_iter27_salt_protein_vitamin.TestProteinLimits" name="test_set_doctor_protein_override_and_persist" time="0.370" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestProteinLimits" name="test_clear_doctor_limits_falls_back_to_stage_default" time="0.361"><failure message="assert 50.0 == 75">self = &lt;test_iter27_salt_protein_vitamin.TestProteinLimits object at 0xfc9a78109690&gt;
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+
+    def test_clear_doctor_limits_falls_back_to_stage_default(self, auth_headers):
+        r = requests.patch(
+            f"{BASE_URL}/api/auth/profile",
+            headers=auth_headers,
+            json={"doctor_limits": None},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["doctor_limits"] is None
+    
+        me = requests.get(f"{BASE_URL}/api/auth/me", headers=auth_headers, timeout=10)
+        assert me.json()["doctor_limits"] is None
+    
+        s = requests.get(
+            f"{BASE_URL}/api/meal-logs/summary?date=2026-01-15",
+            headers=auth_headers,
+            timeout=15,
+        )
+        assert s.status_code == 200
+        # back to stage default (dialysis → 75)
+&gt;       assert s.json()["limits"]["protein_g"] == 75
+E       assert 50.0 == 75
+
+tests/test_iter27_salt_protein_vitamin.py:184: AssertionError</failure></testcase><testcase classname="tests.test_iter27_salt_protein_vitamin" name="test_ai_ask_vitamin_and_myths[Is Lo-Salt safe for me?-expected_any0]" time="6.018" /><testcase classname="tests.test_iter27_salt_protein_vitamin" name="test_ai_ask_vitamin_and_myths[Can I take whey protein powder?-expected_any1]" time="5.764" /><testcase classname="tests.test_iter27_salt_protein_vitamin" name="test_ai_ask_vitamin_and_myths[Is coconut water healthy for kidneys?-expected_any2]" time="7.396" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestRegression" name="test_food_catalog_still_has_1000_plus_entries" time="0.193" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestRegression" name="test_food_detail_has_expected_fields" time="0.114" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestRegression" name="test_meal_log_summary_schema_complete" time="0.113" /><testcase classname="tests.test_iter27_salt_protein_vitamin.TestRegression" name="test_weekly_report_schema_complete" time="0.113" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-lo-salt-substitute-expected0]" time="0.121" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-nosalt-substitute-expected1]" time="0.109" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-tata-saltlite-expected2]" time="0.138"><failure message="AssertionError: food-tata-saltlite safety_tier expected YELLOW, got RED&#10;assert 'RED' == 'YELLOW'&#10;  &#10;  - YELLOW&#10;  + RED">self = &lt;test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry object at 0xfc9a78110390&gt;
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc', 'Content-Type': 'application/json'}
+fid = 'food-tata-saltlite'
+expected = {'potassium_mg': 184, 'sodium_mg': 256, 'safety_tier': 'YELLOW', 'primary_risk_factor': 'POTASSIUM'}
+
+    @pytest.mark.parametrize("fid,expected", list(EXPECTED.items()))
+    def test_food_values_match_expected(self, auth_headers, fid, expected):
+        r = requests.get(f"{BASE_URL}/api/foods/{fid}", headers=auth_headers, timeout=15)
+        assert r.status_code == 200, f"{fid} lookup failed: {r.status_code}"
+        food = r.json()["food"]
+        for key, val in expected.items():
+            actual = food.get(key)
+            # numeric comparison tolerates float vs int
+            if isinstance(val, (int, float)):
+                assert float(actual) == float(val), f"{fid} {key} expected {val}, got {actual}"
+            else:
+&gt;               assert actual == val, f"{fid} {key} expected {val}, got {actual}"
+E               AssertionError: food-tata-saltlite safety_tier expected YELLOW, got RED
+E               assert 'RED' == 'YELLOW'
+E                 
+E                 - YELLOW
+E                 + RED
+
+tests/test_iter28_salt_chemistry_and_scan_merge.py:80: AssertionError</failure></testcase><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-himalayan-pink-salt-expected3]" time="0.125" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-kala-namak-expected4]" time="0.112" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltChemistry" name="test_food_values_match_expected[food-lemon-herb-seasoning-expected5]" time="0.109" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltSources" name="test_all_have_non_empty_source" time="0.709" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSaltSources" name="test_conversion_factors_cited" time="0.459" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestSourcingCSV" name="test_csv_exists_and_has_tata_salt_lite_row" time="0.001" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestRegression" name="test_food_catalog_still_over_1000" time="0.179" /><testcase classname="tests.test_iter28_salt_chemistry_and_scan_merge.TestRegression" name="test_salt_substitute_category_returns_exactly_6" time="0.119" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestLoSaltComposition" name="test_lo_salt_values" time="0.123" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestTataSaltLitePending" name="test_tata_saltlite_flag" time="0.109" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestGuideNeedsSourcing" name="test_tata_saltlite_row" time="0.000" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestBarcodeSaltWarning" name="test_lo_salt_barcode_triggers_warning" time="0.652" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestBarcodeSaltWarning" name="test_nutella_barcode_no_warning" time="0.617" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestSaltSubstituteRegex" name="test_positive_keywords" time="0.000" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestSaltSubstituteRegex" name="test_negative_keywords" time="0.000" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestSaltSubstituteRegex" name="test_multi_arg_matching" time="0.000" /><testcase classname="tests.test_iter29_salt_verification_and_scan_warning.TestScanFoodWarningBranches" name="test_two_return_branches_include_flag" time="0.001" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix1SaltSubstituteRegex" name="test_new_negatives" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix1SaltSubstituteRegex" name="test_all_15_positives_still_match" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix1SaltSubstituteRegex" name="test_bare_no_salt_still_matches" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix2TataSaltLiteTierOverride" name="test_curated_overrides_contains_key" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix2TataSaltLiteTierOverride" name="test_tata_saltlite_endpoint" time="0.133" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop" name="test_new_ids_in_set" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop" name="test_curried_cauliflower_soup_flagged" time="0.146" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop" name="test_classic_seasoned_black_beans_flagged" time="0.117" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop" name="test_step_7b_backstop_via_reconcile_seed" time="0.001"><failure message="AssertionError: backstop did not flag: 'estimated_pending_sourcing'&#10;assert 'estimated_pending_sourcing' == 'concentrated...ng_resourcing'&#10;  &#10;  - concentrated_base_pending_resourcing&#10;  + estimated_pending_sourcing">self = &lt;test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop object at 0xfc9a781384d0&gt;
+
+    def test_step_7b_backstop_via_reconcile_seed(self):
+        """Feed a synthetic entry with K=5000 that would fail sanity_check()
+        and has no tier_override; the backstop must auto-flag it."""
+        from reconciliation import reconcile_seed
+        synthetic = {
+            "id": "food-iter30-backstop-test",
+            "name": "Iter-30 Backstop Test Food",
+            "category": "snack",
+            "safety_tier": "RED",
+            "primary_risk_factor": "POTASSIUM",
+            "portion_g": 100,
+            "potassium_mg": 5000,
+            "phosphorus_mg": 50,
+            "sodium_mg": 50,
+            "protein_g": 5,
+            "fluid_ml": 0,
+            "portion_limit_text": "test",
+            "actionable_clinical_tip": "test",
+        }
+        deduped, stats = reconcile_seed([synthetic], [])
+        assert len(deduped) == 1
+        entry = deduped[0]
+&gt;       assert entry.get("data_quality_flag") == "concentrated_base_pending_resourcing", (
+            f"backstop did not flag: {entry.get('data_quality_flag')!r}"
+        )
+E       AssertionError: backstop did not flag: 'estimated_pending_sourcing'
+E       assert 'estimated_pending_sourcing' == 'concentrated...ng_resourcing'
+E         
+E         - concentrated_base_pending_resourcing
+E         + estimated_pending_sourcing
+
+tests/test_iter30_salt_regex_and_reconciliation.py:172: AssertionError</failure></testcase><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestFix3ConcentratedBaseIdsAndBackstop" name="test_step_7b_backstop_exempts_tier_override" time="0.000" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson" name="test_exit_zero" time="0.048" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson" name="test_data_quality_flagged_41" time="0.001"><failure message="AssertionError: data_quality_flagged=157 (expected 42)&#10;assert 157 == 42&#10; +  where 157 = &lt;built-in method get of dict object at 0xfc9a742896c0&gt;('data_quality_flagged')&#10; +    where &lt;built-in method get of dict object at 0xfc9a742896c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a78139ad0&gt;
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_data_quality_flagged_41(self, audit_json):
+        data = json.loads(audit_json.stdout)
+        # iter-30 finalize: counter now recomputes from final deduped list, so
+        # Tata Salt Lite's pre-set seed flag is included -&gt; 41 becomes 42.
+&gt;       assert data.get("data_quality_flagged") == 42, (
+            f"data_quality_flagged={data.get('data_quality_flagged')} (expected 42)"
+        )
+E       AssertionError: data_quality_flagged=157 (expected 42)
+E       assert 157 == 42
+E        +  where 157 = &lt;built-in method get of dict object at 0xfc9a742896c0&gt;('data_quality_flagged')
+E        +    where &lt;built-in method get of dict object at 0xfc9a742896c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter30_salt_regex_and_reconciliation.py:224: AssertionError</failure></testcase><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson" name="test_sanity_violations_count_41" time="0.001"><failure message="AssertionError: sanity_violations_count=42 (expected 41)&#10;assert 42 == 41&#10; +  where 42 = &lt;built-in method get of dict object at 0xfc9a745a33c0&gt;('sanity_violations_count')&#10; +    where &lt;built-in method get of dict object at 0xfc9a745a33c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">self = &lt;test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a7813a210&gt;
+audit_json = CompletedProcess(args=['python', '/app/backend/scripts/audit_seed.py', '--json'], returncode=0, stdout='{\n  "total_in...aimer_conflicts": [],\n  "category_plausibility_flags_count": 0,\n  "category_plausibility_flags": []\n}\n', stderr='')
+
+    def test_sanity_violations_count_41(self, audit_json):
+        data = json.loads(audit_json.stdout)
+&gt;       assert data.get("sanity_violations_count") == 41, (
+            f"sanity_violations_count={data.get('sanity_violations_count')} (expected 41)"
+        )
+E       AssertionError: sanity_violations_count=42 (expected 41)
+E       assert 42 == 41
+E        +  where 42 = &lt;built-in method get of dict object at 0xfc9a745a33c0&gt;('sanity_violations_count')
+E        +    where &lt;built-in method get of dict object at 0xfc9a745a33c0&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter30_salt_regex_and_reconciliation.py:230: AssertionError</failure></testcase><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson" name="test_curated_overrides_8_via_reconcile" time="0.001"><failure message="AssertionError: curated_overrides=10 (expected 8)&#10;assert 10 == 8">self = &lt;test_iter30_salt_regex_and_reconciliation.TestAuditSeedJson object at 0xfc9a7813a990&gt;
+
+    def test_curated_overrides_8_via_reconcile(self):
+        """Curated_overrides bumped 7 -&gt; 8 (Tata Salt Lite added)."""
+        from reconciliation import reconcile_seed, CURATED_TIER_OVERRIDES
+        # Build synthetic entries so reconcile_seed can count overrides
+        synthetic = [{"id": fid, "name": fid, "category": "test",
+                      "portion_g": 100, "potassium_mg": 0,
+                      "phosphorus_mg": 0, "sodium_mg": 0}
+                     for fid in CURATED_TIER_OVERRIDES.keys()]
+        _, stats = reconcile_seed(synthetic, [])
+&gt;       assert stats["curated_overrides"] == 8, (
+            f"curated_overrides={stats['curated_overrides']} (expected 8)"
+        )
+E       AssertionError: curated_overrides=10 (expected 8)
+E       assert 10 == 8
+
+tests/test_iter30_salt_regex_and_reconciliation.py:243: AssertionError</failure></testcase><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestBarcodeRegression" name="test_lo_salt_barcode_still_warns" time="0.465" /><testcase classname="tests.test_iter30_salt_regex_and_reconciliation.TestBarcodeRegression" name="test_nutella_barcode_no_warning" time="0.616" /><testcase classname="tests.test_iter31_mango_fruits_search.TestAMangoSearch" name="test_mango_returns_15_or_more" time="0.113" /><testcase classname="tests.test_iter31_mango_fruits_search.TestAMangoSearch" name="test_mango_small_and_whole_present" time="0.072" /><testcase classname="tests.test_iter31_mango_fruits_search.TestAMangoSearch" name="test_mango_small_shape" time="0.065" /><testcase classname="tests.test_iter31_mango_fruits_search.TestAMangoSearch" name="test_mango_whole_shape" time="0.072" /><testcase classname="tests.test_iter31_mango_fruits_search.TestAMangoSearch" name="test_mango_malpua_category_snack" time="0.065" /><testcase classname="tests.test_iter31_mango_fruits_search.TestBRegressionSearches" name="test_search_returns_expected[grapes-food-grapes-Grapes]" time="0.087" /><testcase classname="tests.test_iter31_mango_fruits_search.TestBRegressionSearches" name="test_search_returns_expected[watermelon-food-watermelon-Watermelon]" time="0.060" /><testcase classname="tests.test_iter31_mango_fruits_search.TestBRegressionSearches" name="test_search_returns_expected[guava-food-guava-Guava]" time="0.066" /><testcase classname="tests.test_iter31_mango_fruits_search.TestBRegressionSearches" name="test_search_returns_expected[kiwi-food-kiwi-Kiwi]" time="0.065" /><testcase classname="tests.test_iter31_mango_fruits_search.TestBRegressionSearches" name="test_chikoo_or_sapota" time="0.066" /><testcase classname="tests.test_iter31_mango_fruits_search.TestCFoodDetailSmoke" name="test_food_detail_200[food-pineapple]" time="0.078" /><testcase classname="tests.test_iter31_mango_fruits_search.TestCFoodDetailSmoke" name="test_food_detail_200[food-pomegranate]" time="0.063" /><testcase classname="tests.test_iter31_mango_fruits_search.TestCFoodDetailSmoke" name="test_food_detail_200[food-lychee]" time="0.062" /><testcase classname="tests.test_iter31_mango_fruits_search.TestCFoodDetailSmoke" name="test_food_detail_200[food-strawberries]" time="0.067" /><testcase classname="tests.test_iter31_mango_fruits_search.TestCFoodDetailSmoke" name="test_food_detail_200[food-guava]" time="0.080" /><testcase classname="tests.test_iter31_mango_fruits_search.TestDCategoryFilter" name="test_fruit_category_ge_33" time="0.063" /><testcase classname="tests.test_iter31_mango_fruits_search.TestEFruitGuideLinkedIds" name="test_guide_returns_200" time="0.069" /><testcase classname="tests.test_iter31_mango_fruits_search.TestEFruitGuideLinkedIds" name="test_mango_small_has_linked_food_id" time="0.061" /><testcase classname="tests.test_iter31_mango_fruits_search.TestEFruitGuideLinkedIds" name="test_multiple_new_linked_ids" time="0.076" /><testcase classname="tests.test_iter31_mango_fruits_search.TestGSaltSubstituteRegression" name="test_lo_salt_barcode_warning" time="0.452" /><testcase classname="tests.test_iter31_mango_fruits_search.TestGSaltSubstituteRegression" name="test_tata_salt_lite_food" time="0.124" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_A_mango_search_exact_first" time="0.114" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_A_milk_search_starts_with_milk" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_A_water_search_exact_first" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_A_green_tea_exact_first" time="0.067" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_A_cauliflower_exact_first" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[carrot]" time="0.063" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[brinjal]" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[okra]" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[pumpkin]" time="0.061" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[spinach]" time="0.063" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[avocado]" time="0.061" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[sweet potato]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[arbi]" time="0.060" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[beetroot]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[mushroom]" time="0.066" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_vegetable_searchable[raw banana]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[boiled white rice]" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[suji]" time="0.061" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[maida]" time="0.060" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[bajra roti]" time="0.066" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[jowar roti]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[oats]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[ragi]" time="0.066" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[quinoa]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[multigrain]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[pasta]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_grain_searchable[millet]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[egg white]" time="0.067" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[chicken breast]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[masoor]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[chana dal]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[urad dal]" time="0.056" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[whole moong]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[kala chana]" time="0.056" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[tofu]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[mutton]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[prawns]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_protein_searchable[cheese]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[makhana]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[puffed rice]" time="0.060" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[roasted chana]" time="0.061" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[chikki]" time="0.065" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[sabudana khichdi]" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[upma]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[pakora]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[kachori]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[chocolate]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[biscuit]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[instant noodles]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_snack_searchable[popcorn]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[water]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[herbal tea]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[barley water]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[masala chai]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[filter coffee]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[green tea]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[nimbu paani]" time="0.060" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[jaljeera]" time="0.067" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[aam panna]" time="0.060" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[orange juice]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[pomegranate juice]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[sports]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[bournvita]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[tomato juice]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[beetroot juice]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_B_beverage_searchable[beer]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_C_losalt_barcode_still_warns" time="0.554" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_C_nutella_barcode_no_warn" time="0.576" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_guide_has_linked_food_ids[/api/vegetables/guide-20]" time="0.056" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_guide_has_linked_food_ids[/api/grains/guide-10]" time="0.057" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_guide_has_linked_food_ids[/api/proteins/guide-20]" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_guide_has_linked_food_ids[/api/snacks/guide-20]" time="0.059" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_guide_has_linked_food_ids[/api/beverages/guide-20]" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_D_cauliflower_veg_guide_linked" time="0.058" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_E_iter13d_still_passing" time="3.259"><failure message="AssertionError: Expected 'test_flagged_count_39 PASSED' in iter-13d output; got tail:&#10;  ': 157, 'reclassified_count': 460, ...}.get&#10;  /app/backend/tests/test_iter13d_pending_resourcing.py:346: AssertionError: data_quality_flagged=157&#10;  E   AssertionError: duplicates_dropped_count=9&#10;      assert 9 == 10&#10;       +  where 9 = &lt;built-in method get of dict object at 0xfb75c4eba900&gt;('duplicates_dropped_count')&#10;       +    where &lt;built-in method get of dict object at 0xfb75c4eba900&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get&#10;  /app/backend/tests/test_iter13d_pending_resourcing.py:366: AssertionError: duplicates_dropped_count=9&#10;  =============================== warnings summary ===============================&#10;  tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39&#10;  tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_exit_zero&#10;    /root/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.&#10;    Instance attributes set in this fixture will NOT be visible to test methods,&#10;    as each test gets a new instance while the fixture runs only once per class.&#10;    Use @classmethod decorator and set attributes on cls instead.&#10;    See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method&#10;      fixturefunc = resolve_fixture_function(fixturedef, request)&#10;  &#10;  -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html&#10;  =========================== short test summary info ============================&#10;  FAILED tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_personal_tier_red_for_dialysis_demo_user&#10;  FAILED tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39&#10;  FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_flagged_39&#10;  FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9&#10;  ============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============&#10;  &#10;assert 'test_flagged_count_39 PASSED' in '============================= test session starts ==============================\ncollecting ... collected 39 items\n...tScript::test_duplicates_dropped_9\n============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============\n'">def test_E_iter13d_still_passing():
+        """Run iter-13d and inspect the specific assertions bumped by iter-32.
+    
+        We DO NOT fail on the two pre-existing TestB5Sajina failures (those were
+        reported by iter-30/iter-31 as unrelated pre-existing regressions).
+        We DO fail on any NEW iter-32 mismatch (e.g. duplicates_dropped count).
+        """
+        r = subprocess.run(
+            [
+                "pytest",
+                "/app/backend/tests/test_iter13d_pending_resourcing.py",
+                "-v", "--tb=line", "--no-header",
+            ],
+            capture_output=True, text=True, timeout=120,
+        )
+        combined = r.stdout + r.stderr
+        # Assertions bumped by iter-32 must PASS
+        for must_pass in [
+            "test_flagged_count_39 PASSED",
+            "test_flagged_39 PASSED",
+            "test_tier_override_count_7 PASSED",
+            "test_no_overlap PASSED",
+        ]:
+&gt;           assert must_pass in combined, (
+                f"Expected {must_pass!r} in iter-13d output; got tail:\n{combined[-2000:]}"
+            )
+E           AssertionError: Expected 'test_flagged_count_39 PASSED' in iter-13d output; got tail:
+E             ': 157, 'reclassified_count': 460, ...}.get
+E             /app/backend/tests/test_iter13d_pending_resourcing.py:346: AssertionError: data_quality_flagged=157
+E             E   AssertionError: duplicates_dropped_count=9
+E                 assert 9 == 10
+E                  +  where 9 = &lt;built-in method get of dict object at 0xfb75c4eba900&gt;('duplicates_dropped_count')
+E                  +    where &lt;built-in method get of dict object at 0xfb75c4eba900&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+E             /app/backend/tests/test_iter13d_pending_resourcing.py:366: AssertionError: duplicates_dropped_count=9
+E             =============================== warnings summary ===============================
+E             tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+E             tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_exit_zero
+E               /root/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+E               Instance attributes set in this fixture will NOT be visible to test methods,
+E               as each test gets a new instance while the fixture runs only once per class.
+E               Use @classmethod decorator and set attributes on cls instead.
+E               See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+E                 fixturefunc = resolve_fixture_function(fixturedef, request)
+E             
+E             -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+E             =========================== short test summary info ============================
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestB5Sajina::test_personal_tier_red_for_dialysis_demo_user
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT1MongoInvariants::test_flagged_count_39
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_flagged_39
+E             FAILED tests/test_iter13d_pending_resourcing.py::TestT2AuditScript::test_duplicates_dropped_9
+E             ============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============
+E             
+E           assert 'test_flagged_count_39 PASSED' in '============================= test session starts ==============================\ncollecting ... collected 39 items\n...tScript::test_duplicates_dropped_9\n============= 4 failed, 34 passed, 1 xfailed, 2 warnings in 2.96s ==============\n'
+
+tests/test_iter32_guide_backfill_and_search_priority.py:232: AssertionError</failure></testcase><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_F_audit_seed_counts" time="0.047"><failure message="AssertionError: 157&#10;assert 157 == 43">def test_F_audit_seed_counts():
+        r = subprocess.run(
+            ["python3", "/app/backend/scripts/audit_seed.py", "--json"],
+            capture_output=True, text=True, timeout=60, cwd="/app",
+        )
+        assert r.returncode == 0, r.stderr
+        data = json.loads(r.stdout)
+&gt;       assert data["data_quality_flagged"] == 43, data.get("data_quality_flagged")
+E       AssertionError: 157
+E       assert 157 == 43
+
+tests/test_iter32_guide_backfill_and_search_priority.py:261: AssertionError</failure></testcase><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_G_vegetable_count_25plus" time="0.070" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_G_beverage_count_20plus" time="0.062" /><testcase classname="tests.test_iter32_guide_backfill_and_search_priority" name="test_G_snack_count_25plus" time="0.068" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_pna_values[food-cauliflower-44-8-1.9]" time="0.118" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_pna_values[food-oats-plain-small-99-1-4.2]" time="0.061" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_pna_values[food-carrot-20-40-0.6]" time="0.062" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_pna_values[food-ridge-gourd-turai-35-8-0.6]" time="0.059" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_pna_values[food-masoor-dal-red-split-115-3-5.4]" time="0.063" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_tiers_unchanged[food-cauliflower-YELLOW]" time="0.069" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_tiers_unchanged[food-oats-plain-small-GREEN]" time="0.066" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_refined_tiers_unchanged[food-carrot-YELLOW]" time="0.061" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_devanagari_aam_mango_ranked_first" time="0.085" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_devanagari_dudh_milk" time="0.075" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_english_search_first_result[mango-Mango (small portion)]" time="0.068" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_english_search_first_result[water-Water]" time="0.059" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_english_search_first_result[cauliflower-Cauliflower]" time="0.060" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_english_search_first_result[sports drink-Sports]" time="0.081" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_english_search_milk_starts_with" time="0.062" /><testcase classname="tests.test_iter33_pna_refinement_and_search" name="test_audit_seed_reconciliation_counts" time="0.048"><failure message="AssertionError: data_quality_flagged=157&#10;assert 157 == 43&#10; +  where 157 = &lt;built-in method get of dict object at 0xfc9a74503c80&gt;('data_quality_flagged')&#10; +    where &lt;built-in method get of dict object at 0xfc9a74503c80&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get">def test_audit_seed_reconciliation_counts():
+        script_path = "/app/backend/scripts/audit_seed.py"
+        if not os.path.exists(script_path):
+            pytest.skip("audit_seed.py not present")
+        result = subprocess.run(
+            ["python", script_path, "--json"],
+            capture_output=True,
+            text=True,
+            cwd="/app/backend",
+            timeout=60,
+        )
+        assert result.returncode == 0, f"audit_seed exited {result.returncode}: {result.stderr[:400]}"
+        # Try to parse JSON (may have leading log lines)
+        stdout = result.stdout.strip()
+        # extract from last '{' to matching braces or from first line that's JSON
+        try:
+            data = json.loads(stdout)
+        except json.JSONDecodeError:
+            # find last json object
+            lines = stdout.splitlines()
+            for i in range(len(lines)):
+                candidate = "\n".join(lines[i:])
+                try:
+                    data = json.loads(candidate)
+                    break
+                except json.JSONDecodeError:
+                    continue
+            else:
+                pytest.fail(f"could not parse audit_seed JSON output; stdout head: {stdout[:400]}")
+&gt;       assert data.get("data_quality_flagged") == 43, f"data_quality_flagged={data.get('data_quality_flagged')}"
+E       AssertionError: data_quality_flagged=157
+E       assert 157 == 43
+E        +  where 157 = &lt;built-in method get of dict object at 0xfc9a74503c80&gt;('data_quality_flagged')
+E        +    where &lt;built-in method get of dict object at 0xfc9a74503c80&gt; = {'total_input': 1178, 'curated_overrides': 10, 'data_quality_flagged': 157, 'reclassified_count': 460, ...}.get
+
+tests/test_iter33_pna_refinement_and_search.py:163: AssertionError</failure></testcase><testcase classname="tests.test_iter36_claude_model_upgrade.TestModelConfig" name="test_config_model_value" time="0.000" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestModelConfig" name="test_routes_use_config_model" time="0.001" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiAsk" name="test_ask_banana" time="5.569" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiAsk" name="test_ask_hindi" time="10.074" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiAsk" name="test_ask_empty_400" time="0.148" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiAsk" name="test_ask_unauth" time="0.107" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiLogMeal" name="test_log_meal_parses_items" time="1.017" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiLogMeal" name="test_candidate_nutrients_from_db" time="0.973" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestAiLogMeal" name="test_log_meal_empty_400" time="0.115" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestScanFood" name="test_scan_real_photo" time="2.617" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestScanFood" name="test_scan_data_uri_prefix" time="2.516" /><testcase classname="tests.test_iter36_claude_model_upgrade.TestScanFood" name="test_scan_invalid_b64" time="0.144" /><testcase classname="tests.test_iter37_data_invariants" name="test_every_staple_is_rescale_exempt" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_rescale_exempt_values_equal_authored" time="0.008" /><testcase classname="tests.test_iter37_data_invariants" name="test_beverage_staples_keep_own_portion" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_no_base_name_tier_conflict" time="0.002" /><testcase classname="tests.test_iter37_data_invariants" name="test_papad_staple_duplicate_removed" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_every_unsourced_staple_is_flagged" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_named_commercial_products_flagged_or_labelled[food-instant-noodles-maggi-etc]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_named_commercial_products_flagged_or_labelled[food-bournvita-horlicks-boost]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_named_commercial_products_flagged_or_labelled[food-potato-chips-lays-kurkure]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_named_commercial_products_flagged_or_labelled[food-commercial-biscuits-marie-cream-cookies]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_corrected_staples_match_cited_values" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_iter33_refined_entries_marked" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_every_fruit_has_source_or_flag" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_guava_matches_usda" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_flag_values_are_known" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_concentrated_flag_only_on_concentrates" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_step7b_non_concentrate_gets_estimated_flag" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_no_staple_collides_with_sourced_entry" time="0.002"><failure message="AssertionError: ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]&#10;assert not ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]">def test_no_staple_collides_with_sourced_entry():
+        others = SEED_FOODS + SEED_FOODS_INDB
+        other_ids = {e["id"] for e in others}
+        other_names = {_norm(e["name"]) for e in others}
+        clashes = [e["id"] for e in SEED_GUIDE_STAPLES
+                   if e["id"] in other_ids or _norm(e["name"]) in other_names]
+&gt;       assert not clashes, clashes
+E       AssertionError: ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]
+E       assert not ['food-poha-small-serving', 'food-poha-small-portion', 'food-idli-1-piece', 'food-dhokla-steamed-plain', 'food-banana-chips-kerala-coconut-oil-fried', 'food-coconut-water-nariyal-paani', ...]
+
+tests/test_iter37_data_invariants.py:182: AssertionError</failure></testcase><testcase classname="tests.test_iter37_data_invariants" name="test_no_staple_collides_by_id_or_exact_name" time="0.001" /><testcase classname="tests.test_iter37_data_invariants" name="test_catalog_built_only_via_build_catalog[lifespan.py]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_catalog_built_only_via_build_catalog[scripts/audit_seed.py]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_sweet_lassi_is_the_sourced_indb_entry" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_guide_tier_matches_linked_catalog_tier" time="0.001"><failure message="AssertionError: ('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW')&#10;  ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW')&#10;  ('fruit', 'Papaya', 'food-papaya', 'GREEN', 'YELLOW')&#10;  ('fruit', 'Watermelon', 'food-watermelon', 'GREEN', 'YELLOW')&#10;  ('fruit', 'Sapota / Chikoo', 'food-chikoo', 'RED', 'YELLOW')&#10;  ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW')&#10;  ('fruit', 'Dates', 'food-dates', 'RED', 'YELLOW')&#10;  ('fruit', 'Prunes', 'food-prunes', 'RED', 'YELLOW')&#10;  ('fruit', 'Amla / Indian Gooseberry (raw)', 'food-amla', 'RED', 'GREEN')&#10;  ('vegetable', 'Round Gourd (Tinda)', 'food-tinda', 'GREEN', 'YELLOW')&#10;  ('vegetable', 'Cabbage', 'food-cabbage', 'GREEN', 'YELLOW')&#10;  ('vegetable', 'Cauliflower', 'food-cauliflower', 'GREEN', 'YELLOW')&#10;  ('vegetable', 'Cucumber', 'food-cucumber', 'GREEN', 'YELLOW')&#10;  ('vegetable', 'Onion (raw/cooked)', 'food-onion', 'GREEN', 'YELLOW')&#10;  ('vegetable', 'Okra (Bhindi)', 'food-okra-bhindi', 'YELLOW', 'RED')&#10;  ('vegetable', 'Kaddu (Pumpkin)', 'food-kaddu-pumpkin', 'YELLOW', 'RED')&#10;  ('vegetable', 'Beetroot (small portion)', 'food-beetroot-small-portion', 'YELLOW', 'GREEN')&#10;  ('vegetable', 'Raw Banana (Kaccha Kela)', 'food-raw-banana-kaccha-kela', 'YELLOW', 'RED')&#10;  ('vegetable', 'Water Chestnut (Singhada)', 'food-water-chestnut-singhada', 'YELLOW', 'RED')&#10;  ('vegetable', 'Spinach (Palak)', 'food-spinach-palak', 'RED', 'YELLOW')&#10;  ('vegetable', 'Drumstick Leaves (Sajina)', 'food-sajina', 'RED', 'YELLOW')&#10;  ('vegetable', 'Avocado', 'food-avocado', 'RED', 'YELLOW')&#10;  ('snack', 'Homemade Khakhra (plain)', 'food-khakhra', 'GREEN', 'RED')&#10;  ('snack', 'Apple / Pear slices', 'food-apple', 'GREEN', 'YELLOW')&#10;  ('snack', 'Cucumber Sticks', 'food-cucumber', 'GREEN', 'YELLOW')&#10;  ('snack', 'Peanut Chikki (small piece)', 'food-peanut-chikki-small-piece', 'YELLOW', 'GREEN')&#10;  ('snack', 'Dry Fruit Trail (very small)', 'food-dry-fruit-trail-very-small', 'YELLOW', 'GREEN')&#10;  ('snack', 'Poha (small portion)', 'food-poha', 'YELLOW', 'RED')&#10;  ('snack', 'Bread Toast (plain, no butter)', 'food-bread-toast-plain-no-butter', 'YELLOW', 'GREEN')&#10;  ('snack', 'Dhokla (steamed, plain)', 'food-dhokla', 'YELLOW', 'RED')&#10;  ('snack', 'Pakoras (any variety)', 'food-pakoras-any-variety', 'RED', 'YELLOW')&#10;  ('snack', 'Kachori', 'food-kachori', 'RED', 'YELLOW')&#10;  ('snack', 'Sev / Ganthiya', 'food-sev-ganthiya', 'RED', 'YELLOW')&#10;  ('snack', 'Commercial Biscuits (Marie, cream, cookies)', 'food-commercial-biscuits-marie-cream-cookies', 'RED', 'YELLOW')&#10;  ('beverage', 'Buttermilk (Chaas)', 'food-buttermilk-chaas', 'GREEN', 'YELLOW')&#10;  ('beverage', 'Masala Chai (with milk)', 'food-masala-chai-with-milk', 'YELLOW', 'GREEN')&#10;  ('beverage', 'Filter Coffee (with milk)', 'food-filter-coffee-with-milk', 'YELLOW', 'GREEN')&#10;  ('beverage', 'Green Tea', 'food-green-tea', 'YELLOW', 'GREEN')&#10;  ('beverage', 'Sweet Lassi', 'food-sweet-lassi', 'YELLOW', 'GREEN')&#10;  ('beverage', 'Nimbu Paani (lightly sweetened)', 'food-nimbu-paani-lightly-sweetened', 'YELLOW', 'GREEN')&#10;  ('beverage', 'Sports / Energy Drinks', 'food-sports-energy-drinks', 'RED', 'YELLOW')&#10;  ('beverage', 'Beer / Alcohol', 'food-beer-alcohol', 'RED', 'GREEN')&#10;  ('protein', 'Egg White Bhurji', 'food-egg-white-bhurji', 'GREEN', 'YELLOW')&#10;  ('protein', 'Grilled/Baked Chicken Breast', 'food-grilled-baked-chicken-breast', 'GREEN', 'YELLOW')&#10;  ('protein', 'Grilled Fish (fresh water)', 'food-grilled-fish-fresh-water', 'GREEN', 'YELLOW')&#10;  ('protein', 'Tofu (plain, unsalted)', 'food-tofu-plain-unsalted', 'YELLOW', 'GREEN')&#10;  ('protein', 'Sprouted Moong (small)', 'food-sprouted-moong-small', 'YELLOW', 'GREEN')&#10;  ('protein', 'Sweetened Condensed Milk', 'food-sweetened-condensed-milk', 'RED', 'GREEN')&#10;  ('protein', 'Egg Yolk (alone)', 'food-egg-yolk-alone', 'RED', 'GREEN')&#10;  ('grain', 'Whole Wheat Atta Roti', 'food-atta-roti', 'YELLOW', 'RED')&#10;  ('grain', 'Bajra Roti', 'food-bajra-roti', 'YELLOW', 'GREEN')&#10;  ('grain', 'Jowar Roti', 'food-jowar-roti', 'YELLOW', 'GREEN')&#10;  ('grain', 'Oats (plain, small)', 'food-oats-plain-small', 'YELLOW', 'GREEN')&#10;  ('grain', 'Poha (small serving)', 'food-poha', 'YELLOW', 'RED')&#10;  ('grain', 'Multigrain Roti / Bread', 'food-multigrain-roti-bread', 'RED', 'YELLOW')&#10;  ('grain', 'Ragi (Finger Millet)', 'food-ragi-finger-millet', 'RED', 'YELLOW')&#10;  ('grain', 'Quinoa', 'food-quinoa', 'RED', 'YELLOW')&#10;  ('grain', 'Whole Wheat Pasta', 'food-whole-wheat-pasta', 'RED', 'YELLOW')&#10;  ('grain', 'Millets (Kodo, Foxtail, etc.)', 'food-millets-kodo-foxtail-etc', 'RED', 'YELLOW')&#10;assert not [('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW'), ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW'), ('fruit', 'Pa...ota / Chikoo', 'food-chikoo', 'RED', 'YELLOW'), ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW'), ...]">catalog = ([{'id': 'food-lauki-sabzi', 'name': 'Lauki Sabzi', 'hindi_name': 'लौकी की सब्ज़ी', 'category': 'sabzi', ...}, {'id': ... "Shepherd's pie", 'food-shepherd-s-pie'), ('food-cabbage-rolls-2', 'Cabbage rolls', 'food-cabbage-rolls'), ...], ...})
+
+    def test_guide_tier_matches_linked_catalog_tier(catalog):
+        foods, _ = catalog
+        by_id = {f["id"]: f for f in foods}
+        mismatches = [
+            (g, name, fid, tier, by_id[fid]["safety_tier"])
+            for g, tier, name, fid in _guide_links()
+            if fid in by_id and by_id[fid]["safety_tier"] != tier
+        ]
+&gt;       assert not mismatches, "\n".join(map(str, mismatches))
+E       AssertionError: ('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW')
+E         ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW')
+E         ('fruit', 'Papaya', 'food-papaya', 'GREEN', 'YELLOW')
+E         ('fruit', 'Watermelon', 'food-watermelon', 'GREEN', 'YELLOW')
+E         ('fruit', 'Sapota / Chikoo', 'food-chikoo', 'RED', 'YELLOW')
+E         ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW')
+E         ('fruit', 'Dates', 'food-dates', 'RED', 'YELLOW')
+E         ('fruit', 'Prunes', 'food-prunes', 'RED', 'YELLOW')
+E         ('fruit', 'Amla / Indian Gooseberry (raw)', 'food-amla', 'RED', 'GREEN')
+E         ('vegetable', 'Round Gourd (Tinda)', 'food-tinda', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cabbage', 'food-cabbage', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cauliflower', 'food-cauliflower', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Cucumber', 'food-cucumber', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Onion (raw/cooked)', 'food-onion', 'GREEN', 'YELLOW')
+E         ('vegetable', 'Okra (Bhindi)', 'food-okra-bhindi', 'YELLOW', 'RED')
+E         ('vegetable', 'Kaddu (Pumpkin)', 'food-kaddu-pumpkin', 'YELLOW', 'RED')
+E         ('vegetable', 'Beetroot (small portion)', 'food-beetroot-small-portion', 'YELLOW', 'GREEN')
+E         ('vegetable', 'Raw Banana (Kaccha Kela)', 'food-raw-banana-kaccha-kela', 'YELLOW', 'RED')
+E         ('vegetable', 'Water Chestnut (Singhada)', 'food-water-chestnut-singhada', 'YELLOW', 'RED')
+E         ('vegetable', 'Spinach (Palak)', 'food-spinach-palak', 'RED', 'YELLOW')
+E         ('vegetable', 'Drumstick Leaves (Sajina)', 'food-sajina', 'RED', 'YELLOW')
+E         ('vegetable', 'Avocado', 'food-avocado', 'RED', 'YELLOW')
+E         ('snack', 'Homemade Khakhra (plain)', 'food-khakhra', 'GREEN', 'RED')
+E         ('snack', 'Apple / Pear slices', 'food-apple', 'GREEN', 'YELLOW')
+E         ('snack', 'Cucumber Sticks', 'food-cucumber', 'GREEN', 'YELLOW')
+E         ('snack', 'Peanut Chikki (small piece)', 'food-peanut-chikki-small-piece', 'YELLOW', 'GREEN')
+E         ('snack', 'Dry Fruit Trail (very small)', 'food-dry-fruit-trail-very-small', 'YELLOW', 'GREEN')
+E         ('snack', 'Poha (small portion)', 'food-poha', 'YELLOW', 'RED')
+E         ('snack', 'Bread Toast (plain, no butter)', 'food-bread-toast-plain-no-butter', 'YELLOW', 'GREEN')
+E         ('snack', 'Dhokla (steamed, plain)', 'food-dhokla', 'YELLOW', 'RED')
+E         ('snack', 'Pakoras (any variety)', 'food-pakoras-any-variety', 'RED', 'YELLOW')
+E         ('snack', 'Kachori', 'food-kachori', 'RED', 'YELLOW')
+E         ('snack', 'Sev / Ganthiya', 'food-sev-ganthiya', 'RED', 'YELLOW')
+E         ('snack', 'Commercial Biscuits (Marie, cream, cookies)', 'food-commercial-biscuits-marie-cream-cookies', 'RED', 'YELLOW')
+E         ('beverage', 'Buttermilk (Chaas)', 'food-buttermilk-chaas', 'GREEN', 'YELLOW')
+E         ('beverage', 'Masala Chai (with milk)', 'food-masala-chai-with-milk', 'YELLOW', 'GREEN')
+E         ('beverage', 'Filter Coffee (with milk)', 'food-filter-coffee-with-milk', 'YELLOW', 'GREEN')
+E         ('beverage', 'Green Tea', 'food-green-tea', 'YELLOW', 'GREEN')
+E         ('beverage', 'Sweet Lassi', 'food-sweet-lassi', 'YELLOW', 'GREEN')
+E         ('beverage', 'Nimbu Paani (lightly sweetened)', 'food-nimbu-paani-lightly-sweetened', 'YELLOW', 'GREEN')
+E         ('beverage', 'Sports / Energy Drinks', 'food-sports-energy-drinks', 'RED', 'YELLOW')
+E         ('beverage', 'Beer / Alcohol', 'food-beer-alcohol', 'RED', 'GREEN')
+E         ('protein', 'Egg White Bhurji', 'food-egg-white-bhurji', 'GREEN', 'YELLOW')
+E         ('protein', 'Grilled/Baked Chicken Breast', 'food-grilled-baked-chicken-breast', 'GREEN', 'YELLOW')
+E         ('protein', 'Grilled Fish (fresh water)', 'food-grilled-fish-fresh-water', 'GREEN', 'YELLOW')
+E         ('protein', 'Tofu (plain, unsalted)', 'food-tofu-plain-unsalted', 'YELLOW', 'GREEN')
+E         ('protein', 'Sprouted Moong (small)', 'food-sprouted-moong-small', 'YELLOW', 'GREEN')
+E         ('protein', 'Sweetened Condensed Milk', 'food-sweetened-condensed-milk', 'RED', 'GREEN')
+E         ('protein', 'Egg Yolk (alone)', 'food-egg-yolk-alone', 'RED', 'GREEN')
+E         ('grain', 'Whole Wheat Atta Roti', 'food-atta-roti', 'YELLOW', 'RED')
+E         ('grain', 'Bajra Roti', 'food-bajra-roti', 'YELLOW', 'GREEN')
+E         ('grain', 'Jowar Roti', 'food-jowar-roti', 'YELLOW', 'GREEN')
+E         ('grain', 'Oats (plain, small)', 'food-oats-plain-small', 'YELLOW', 'GREEN')
+E         ('grain', 'Poha (small serving)', 'food-poha', 'YELLOW', 'RED')
+E         ('grain', 'Multigrain Roti / Bread', 'food-multigrain-roti-bread', 'RED', 'YELLOW')
+E         ('grain', 'Ragi (Finger Millet)', 'food-ragi-finger-millet', 'RED', 'YELLOW')
+E         ('grain', 'Quinoa', 'food-quinoa', 'RED', 'YELLOW')
+E         ('grain', 'Whole Wheat Pasta', 'food-whole-wheat-pasta', 'RED', 'YELLOW')
+E         ('grain', 'Millets (Kodo, Foxtail, etc.)', 'food-millets-kodo-foxtail-etc', 'RED', 'YELLOW')
+E       assert not [('fruit', 'Apple', 'food-apple', 'GREEN', 'YELLOW'), ('fruit', 'Pear', 'food-pear', 'GREEN', 'YELLOW'), ('fruit', 'Pa...ota / Chikoo', 'food-chikoo', 'RED', 'YELLOW'), ('fruit', 'Custard Apple', 'food-custard-apple', 'RED', 'YELLOW'), ...]
+
+tests/test_iter37_data_invariants.py:241: AssertionError</failure></testcase><testcase classname="tests.test_iter37_data_invariants" name="test_sub_salt_triggers_warning[Sub-Salt]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_sub_salt_triggers_warning[SubSalt]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_sub_salt_triggers_warning[sub salt seasoning]" time="0.000" /><testcase classname="tests.test_iter37_data_invariants" name="test_sub_salt_no_false_positive" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_every_staple_is_rescale_exempt" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_exempt_entries_are_never_bucketed" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_staples_values_pass_through_reconciliation_unchanged" time="0.008" /><testcase classname="tests.test_iter37_staples_integrity" name="test_beverage_staples_keep_their_real_fluid_ml" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_legacy_150g_beverages_are_still_rescaled" time="0.003" /><testcase classname="tests.test_iter37_staples_integrity" name="test_beverage_rescale_count_is_legacy_only" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_staples_collisions_match_the_known_list_exactly" time="0.001" /><testcase classname="tests.test_iter37_staples_integrity" name="test_staples_ids_unique_within_file" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_papad_has_single_red_high_sodium_entry" time="0.001" /><testcase classname="tests.test_iter37_staples_integrity" name="test_sev_resolves_to_one_non_green_entry" time="0.001" /><testcase classname="tests.test_iter37_staples_integrity" name="test_superseded_ids_have_a_reason_and_exist_in_a_source" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_superseded_never_overlaps_tier_override_or_quality_flag" time="0.000" /><testcase classname="tests.test_iter37_staples_integrity" name="test_every_guide_linked_food_id_resolves" time="0.001" /><testcase classname="tests.test_iter37_staples_integrity" name="test_superseded_sev_is_logged_for_real_sourcing" time="0.000" /><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_1_set_partial_doctor_limits" time="0.646" /><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_2_explicit_null_clears" time="0.366" /><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_3_summary_reverts_to_stage_defaults_after_clear" time="0.117"><failure message="AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}&#10;  &#10;  Omitting 3 identical items, use -vv to show&#10;  Left contains 2 more items:&#10;  {'fluid_ml': 2000.0, 'protein_g': 60.0}&#10;  Use -v to get more diff">self = &lt;test_iter7_fixes.TestDoctorLimitsSemantics object at 0xfc9a75640110&gt;
+user = {'email': 'TEST_2d250ffb2f@renal.app', 'headers': {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzd...ODEwMDU4NjMiLCJleHAiOjE3OTU4NTA0Mzd9.nm2PlUmmc7HKLPxsw29HwPuWUt-xACoyISjqMaBdLqI', 'Content-Type': 'application/json'}}
+
+    def test_3_summary_reverts_to_stage_defaults_after_clear(self, user):
+        # stage=unknown for fresh user → 2400/1200/2300
+        from datetime import date
+        today = date.today().isoformat()
+        r = requests.get(
+            f"{API}/meal-logs/summary",
+            params={"date": today},
+            headers=user["headers"],
+            timeout=15,
+        )
+        assert r.status_code == 200
+        limits = r.json()["limits"]
+&gt;       assert limits == {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300}
+E       AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Left contains 2 more items:
+E         {'fluid_ml': 2000.0, 'protein_g': 60.0}
+E         Use -v to get more diff
+
+tests/test_iter7_fixes.py:90: AssertionError</failure></testcase><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_4_empty_object_clears" time="0.238" /><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_5_empty_payload_is_noop" time="0.458" /><testcase classname="tests.test_iter7_fixes.TestDoctorLimitsSemantics" name="test_6_diabetic_only_does_not_touch_doctor_limits" time="0.460" /><testcase classname="tests.test_iter8_grounding_and_scan.TestAiGrounding" name="test_red_palak_paneer_dialysis" time="5.910" /><testcase classname="tests.test_iter8_grounding_and_scan.TestAiGrounding" name="test_toor_dal_softened_predialysis" time="5.427" /><testcase classname="tests.test_iter8_grounding_and_scan.TestAiGrounding" name="test_no_match_still_200" time="2.664" /><testcase classname="tests.test_iter8_grounding_and_scan.TestAiGrounding" name="test_hindi_palak_paneer_red" time="6.081" /><testcase classname="tests.test_iter8_grounding_and_scan.TestAiGrounding" name="test_rate_limit_429" time="20.044" /><testcase classname="tests.test_iter8_grounding_and_scan.TestScanOverride" name="test_scan_match_overrides_db" time="0.106"><skipped type="pytest.skip" message="Test image not available">/app/backend/tests/test_iter8_grounding_and_scan.py:157: Test image not available</skipped></testcase><testcase classname="tests.test_iter8_grounding_and_scan.TestScanOverride" name="test_scan_no_match_passes_through" time="0.001"><skipped type="pytest.skip" message="Test image not available">/app/backend/tests/test_iter8_grounding_and_scan.py:187: Test image not available</skipped></testcase><testcase classname="tests.test_iter8_grounding_and_scan.TestRegression" name="test_full_flow" time="1.431" /><testcase classname="tests.test_iter9_barcode_and_lang.TestAuth" name="test_login_returns_token_and_user" time="0.334" /><testcase classname="tests.test_iter9_barcode_and_lang.TestBarcodeScan" name="test_barcode_nutella_returns_expected_fields" time="0.696" /><testcase classname="tests.test_iter9_barcode_and_lang.TestBarcodeScan" name="test_barcode_not_found_returns_404" time="0.429" /><testcase classname="tests.test_iter9_barcode_and_lang.TestBarcodeScan" name="test_barcode_too_short_returns_422" time="0.066" /><testcase classname="tests.test_iter9_barcode_and_lang.TestBarcodeScan" name="test_barcode_no_auth_returns_401_or_403" time="0.071" /><testcase classname="tests.test_iter9_barcode_and_lang.TestRegression" name="test_foods_search_palak" time="0.066" /><testcase classname="tests.test_iter9_barcode_and_lang.TestRegression" name="test_get_food_by_id" time="0.126" /><testcase classname="tests.test_iter9_barcode_and_lang.TestRegression" name="test_meal_log_create_and_summary" time="0.260" /><testcase classname="tests.test_iter9_barcode_and_lang.TestRegression" name="test_scan_food_requires_auth" time="0.068" /><testcase classname="tests.test_iter9_barcode_and_lang.TestRegression" name="test_ai_ask_tamil" time="8.813" /><testcase classname="tests.test_new_features.TestStage" name="test_new_user_has_stage_unknown" time="0.375" /><testcase classname="tests.test_new_features.TestStage" name="test_stage_requires_auth" time="0.063" /><testcase classname="tests.test_new_features.TestStage" name="test_set_stage_dialysis" time="0.413" /><testcase classname="tests.test_new_features.TestStage" name="test_set_stage_pre_dialysis" time="0.350" /><testcase classname="tests.test_new_features.TestStage" name="test_set_stage_invalid_value" time="0.060" /><testcase classname="tests.test_new_features.TestPersonalTier" name="test_atta_roti_yellow_upgrades_to_red_for_dialysis" time="0.403"><failure message="AssertionError: assert 'RED' == 'YELLOW'&#10;  &#10;  - YELLOW&#10;  + RED">self = &lt;test_new_features.TestPersonalTier object at 0xfc9a7566ddd0&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+dialysis_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzU3NDk1Ni1jYTEzLTQ1ZTItODA1ZC1mZTAzNDNlYmM1NjAiLCJleHAiOj...a13-45e2-805d-fe0343ebc560', 'email': 'test_a435f3f92d@renal.app', 'full_name': 'Test User', 'stage': 'dialysis', ...}}
+
+    def test_atta_roti_yellow_upgrades_to_red_for_dialysis(self, session, dialysis_user):
+        r = session.get(f"{API}/foods/food-atta-roti", headers=dialysis_user["headers"], timeout=15)
+        assert r.status_code == 200, r.text
+        data = r.json()
+        # base YELLOW / PHOSPHORUS risk → personal RED for dialysis
+&gt;       assert data["food"]["safety_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_new_features.py:112: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestPersonalTier" name="test_atta_roti_stays_yellow_for_unknown_stage" time="0.061"><failure message="AssertionError: assert 'RED' == 'YELLOW'&#10;  &#10;  - YELLOW&#10;  + RED">self = &lt;test_new_features.TestPersonalTier object at 0xfc9a7565d190&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_atta_roti_stays_yellow_for_unknown_stage(self, session, fresh_user):
+        r = session.get(f"{API}/foods/food-atta-roti", headers=fresh_user["headers"], timeout=15)
+        assert r.status_code == 200
+        data = r.json()
+&gt;       assert data["food"]["personal_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_new_features.py:124: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestPersonalTier" name="test_lauki_stays_green_for_dialysis" time="0.072" /><testcase classname="tests.test_new_features.TestFavorites" name="test_toggle_favorite_requires_auth" time="0.063" /><testcase classname="tests.test_new_features.TestFavorites" name="test_toggle_favorite_twice" time="0.060"><failure message="AssertionError: register failed: 429 {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_new_features.TestFavorites object at 0xfc9a7566e910&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def test_toggle_favorite_twice(self, session):
+&gt;       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def _make_user(session: requests.Session) -&gt; dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_new_features.py:36: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestFavorites" name="test_favorite_missing_food_404" time="0.060" /><testcase classname="tests.test_new_features.TestFavorites" name="test_favorites_only_requires_auth" time="0.064" /><testcase classname="tests.test_new_features.TestFavorites" name="test_favorites_only_returns_only_favorited" time="0.058"><failure message="AssertionError: register failed: 429 {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_new_features.TestFavorites object at 0xfc9a7566f750&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def test_favorites_only_returns_only_favorited(self, session):
+&gt;       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def _make_user(session: requests.Session) -&gt; dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_new_features.py:36: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestFavorites" name="test_food_detail_reflects_favorite" time="0.058"><failure message="AssertionError: register failed: 429 {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_new_features.TestFavorites object at 0xfc9a7566fd50&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def test_food_detail_reflects_favorite(self, session):
+&gt;       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def _make_user(session: requests.Session) -&gt; dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_new_features.py:36: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestWeeklyReport" name="test_requires_auth" time="0.058" /><testcase classname="tests.test_new_features.TestWeeklyReport" name="test_weekly_report_empty" time="0.090" /><testcase classname="tests.test_new_features.TestWeeklyReport" name="test_weekly_report_counts" time="0.058"><failure message="AssertionError: register failed: 429 {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_new_features.TestWeeklyReport object at 0xfc9a7547d250&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def test_weekly_report_counts(self, session):
+&gt;       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:207: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def _make_user(session: requests.Session) -&gt; dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_new_features.py:36: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestWeeklyReport" name="test_weekly_report_dialysis_promotes_yellow_to_red" time="0.058"><failure message="AssertionError: register failed: 429 {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_new_features.TestWeeklyReport object at 0xfc9a7547d990&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def test_weekly_report_dialysis_promotes_yellow_to_red(self, session):
+        """For dialysis user, atta-roti (YELLOW/PHOSPHORUS) counted as RED in the report."""
+&gt;       u = _make_user(session)
+            ^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+
+    def _make_user(session: requests.Session) -&gt; dict:
+        """Register a fresh user and return {token, headers, email, user}."""
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
+E       AssertionError: register failed: 429 {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_new_features.py:36: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestScanFood" name="test_requires_auth" time="0.057" /><testcase classname="tests.test_new_features.TestScanFood" name="test_empty_image_400" time="0.072" /><testcase classname="tests.test_new_features.TestScanFood" name="test_invalid_base64_400" time="0.060" /><testcase classname="tests.test_new_features.TestScanFood" name="test_scan_real_indian_food_image" time="0.001"><failure message="AssertionError: missing test image at /tmp/food.jpg&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/tmp/food.jpg').exists">self = &lt;test_new_features.TestScanFood object at 0xfc9a7547f610&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_scan_real_indian_food_image(self, session, fresh_user):
+&gt;       assert IMAGE_PATH.exists(), f"missing test image at {IMAGE_PATH}"
+E       AssertionError: missing test image at /tmp/food.jpg
+E       assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/tmp/food.jpg').exists
+
+tests/test_new_features.py:275: AssertionError</failure></testcase><testcase classname="tests.test_new_features.TestScanFood" name="test_scan_data_url_prefix_stripped" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/tmp/food.jpg'">self = &lt;test_new_features.TestScanFood object at 0xfc9a7566e310&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a74134a90&gt;
+fresh_user = {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjRjMzg4NS1jYzNhLTQ1N2UtYTc0NC1mZDIyMTg2OTM1ZDgiLCJleHAiOj...cc3a-457e-a744-fd22186935d8', 'email': 'test_249c001b96@renal.app', 'full_name': 'Test User', 'stage': 'unknown', ...}}
+
+    def test_scan_data_url_prefix_stripped(self, session, fresh_user):
+&gt;       raw = IMAGE_PATH.read_bytes()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_new_features.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/food.jpg'), mode = 'rb', buffering = -1, encoding = None
+errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+&gt;       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/food.jpg'
+
+/usr/local/lib/python3.11/pathlib.py:1044: FileNotFoundError</failure></testcase><testcase classname="tests.test_nutrient_budget.TestFoodNutrients" name="test_palak_paneer_nutrient_values" time="0.112"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestFoodNutrients" name="test_palak_paneer_swap_benefit_is_computed" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestFoodNutrients" name="test_orange_tip_is_factual" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestFoodNutrients" name="test_idli_tip_mentions_added_salt" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestAllFoodsHaveNutrients" name="test_all_35_foods_have_all_nutrient_fields" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestMealLogSummary" name="test_requires_auth" time="0.066" /><testcase classname="tests.test_nutrient_budget.TestMealLogSummary" name="test_invalid_date_returns_400" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestMealLogSummary" name="test_empty_summary_defaults" time="0.061"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_nutrient_budget.TestMealLogSummary object at 0xfc9a75486fd0&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def test_empty_summary_defaults(self, session):
+&gt;       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</failure></testcase><testcase classname="tests.test_nutrient_budget.TestMealLogSummary" name="test_summary_totals_after_logging" time="0.061"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_nutrient_budget.TestMealLogSummary object at 0xfc9a75487610&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def test_summary_totals_after_logging(self, session):
+        """Palak Paneer(K650,P180,Na350) + Lauki(K131,P20,Na3) + Egg Whites(K110,P10,Na110)."""
+&gt;       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</failure></testcase><testcase classname="tests.test_nutrient_budget.TestWeeklyAvgDaily" name="test_weekly_empty_has_avg_and_limits" time="0.069"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_nutrient_budget.TestWeeklyAvgDaily object at 0xfc9a75487d10&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def test_weekly_empty_has_avg_and_limits(self, session):
+&gt;       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</failure></testcase><testcase classname="tests.test_nutrient_budget.TestWeeklyAvgDaily" name="test_weekly_avg_daily_math" time="0.055"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_nutrient_budget.TestWeeklyAvgDaily object at 0xfc9a7548c350&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def test_weekly_avg_daily_math(self, session):
+&gt;       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</failure></testcase><testcase classname="tests.test_nutrient_budget.TestRegression" name="test_register_duplicate_returns_400" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestRegression" name="test_food_schema_has_required_keys" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestRegression" name="test_tier_filter_red_only" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    @pytest.fixture(scope="module")
+    def user(session):
+&gt;       return _register(session)
+               ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</error></testcase><testcase classname="tests.test_nutrient_budget.TestRegression" name="test_favorite_toggle_still_works" time="0.074"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_nutrient_budget.TestRegression object at 0xfc9a7548cfd0&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def test_favorite_toggle_still_works(self, session):
+&gt;       u = _register(session)
+            ^^^^^^^^^^^^^^^^^^
+
+tests/test_nutrient_budget.py:245: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = &lt;requests.sessions.Session object at 0xfc9a7427dad0&gt;
+
+    def _register(session: requests.Session) -&gt; dict:
+        email = f"TEST_{uuid.uuid4().hex[:10]}@renal.app"
+        r = session.post(
+            f"{API}/auth/register",
+            json={"email": email, "password": "pass1234", "full_name": "Test User"},
+            timeout=20,
+        )
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_nutrient_budget.py:32: AssertionError</failure></testcase><testcase classname="tests.test_profile_ai_context.TestAuthMeNewFields" name="test_me_returns_diabetic_and_doctor_limits_defaults" time="7.609" /><testcase classname="tests.test_profile_ai_context.TestProfilePatch" name="test_patch_requires_auth" time="0.066" /><testcase classname="tests.test_profile_ai_context.TestProfilePatch" name="test_set_diabetic_true" time="0.123" /><testcase classname="tests.test_profile_ai_context.TestProfilePatch" name="test_partial_doctor_limits" time="0.123" /><testcase classname="tests.test_profile_ai_context.TestProfilePatch" name="test_empty_patch_returns_unchanged" time="0.116" /><testcase classname="tests.test_profile_ai_context.TestProfilePatch" name="test_clear_doctor_limits" time="0.116" /><testcase classname="tests.test_profile_ai_context.TestLimitsForUser" name="test_summary_uses_doctor_limits_when_set" time="0.060"><failure message="AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code">self = &lt;test_profile_ai_context.TestLimitsForUser object at 0xfc9a75495190&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    def test_summary_uses_doctor_limits_when_set(self, http):
+&gt;       token, _u, _email = _register(http)
+                            ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_6c30d4cc@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</failure></testcase><testcase classname="tests.test_profile_ai_context.TestLimitsForUser" name="test_pre_dialysis_defaults" time="0.406"><failure message="AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}&#10;  &#10;  Omitting 3 identical items, use -vv to show&#10;  Left contains 2 more items:&#10;  {'fluid_ml': 2000.0, 'protein_g': 50.0}&#10;  Use -v to get more diff">self = &lt;test_profile_ai_context.TestLimitsForUser object at 0xfc9a75495790&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    def test_pre_dialysis_defaults(self, http):
+        token, _u, _e = _register(http)
+        http.post(f"{BASE_URL}/api/auth/stage", json={"stage": "pre_dialysis"}, headers=_auth(token))
+        today = time.strftime("%Y-%m-%d")
+        s = http.get(f"{BASE_URL}/api/meal-logs/summary?date={today}", headers=_auth(token)).json()
+&gt;       assert s["limits"] == {"potassium_mg": 2400, "phosphorus_mg": 1200, "sodium_mg": 2300}
+E       AssertionError: assert {'potassium_m...: 2000.0, ...} == {'potassium_m...ium_mg': 2300}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Left contains 2 more items:
+E         {'fluid_ml': 2000.0, 'protein_g': 50.0}
+E         Use -v to get more diff
+
+tests/test_profile_ai_context.py:144: AssertionError</failure></testcase><testcase classname="tests.test_profile_ai_context.TestPersonalTier" name="test_dialysis_phosphorus_tightens_to_red" time="0.066"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">self = &lt;test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+&gt;       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</error></testcase><testcase classname="tests.test_profile_ai_context.TestPersonalTier" name="test_pre_dialysis_potassium_softens_to_green" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">self = &lt;test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+&gt;       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</error></testcase><testcase classname="tests.test_profile_ai_context.TestPersonalTier" name="test_pre_dialysis_sodium_not_softened" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">self = &lt;test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+&gt;       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</error></testcase><testcase classname="tests.test_profile_ai_context.TestPersonalTier" name="test_pre_dialysis_phosphorus_not_softened" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">self = &lt;test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+&gt;       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</error></testcase><testcase classname="tests.test_profile_ai_context.TestPersonalTier" name="test_unknown_stage_no_change_no_note" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;detail&quot;:&quot;Too many requests. Please slow down.&quot;}&#10;assert 429 == 200&#10; +  where 429 = &lt;Response [429]&gt;.status_code&quot;">self = &lt;test_profile_ai_context.TestPersonalTier object at 0xfc9a754958d0&gt;
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+
+    @pytest.fixture(scope="class")
+    def tokens(self, http):
+&gt;       pre = _register(http)[0]
+              ^^^^^^^^^^^^^^^
+
+tests/test_profile_ai_context.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+http = &lt;requests.sessions.Session object at 0xfc9a745cc550&gt;
+email = 'TEST_9d256751@renal.app', password = 'TestPass1'
+
+    def _register(http, email=None, password="TestPass1"):
+        email = email or f"TEST_{uuid.uuid4().hex[:8]}@renal.app"
+        r = http.post(f"{BASE_URL}/api/auth/register",
+                      json={"email": email, "password": password, "full_name": "Test User"})
+&gt;       assert r.status_code == 200, r.text
+E       AssertionError: {"detail":"Too many requests. Please slow down."}
+E       assert 429 == 200
+E        +  where 429 = &lt;Response [429]&gt;.status_code
+
+tests/test_profile_ai_context.py:33: AssertionError</error></testcase><testcase classname="tests.test_profile_ai_context.TestAskAI" name="test_ask_english" time="6.811" /><testcase classname="tests.test_profile_ai_context.TestAskAI" name="test_ask_hindi_returns_devanagari" time="7.233" /><testcase classname="tests.test_profile_ai_context.TestAskAI" name="test_ask_works_with_zero_meal_logs" time="7.271" /><testcase classname="tests.test_renal_api.TestAuth" name="test_register_new_user" time="0.412" /><testcase classname="tests.test_renal_api.TestAuth" name="test_register_duplicate_rejected" time="0.062" /><testcase classname="tests.test_renal_api.TestAuth" name="test_login_wrong_pw" time="0.281" /><testcase classname="tests.test_renal_api.TestAuth" name="test_me_requires_auth" time="0.062" /><testcase classname="tests.test_renal_api.TestAuth" name="test_me_with_token" time="0.068" /><testcase classname="tests.test_renal_api.TestFoods" name="test_list_all_foods_35" time="0.184" /><testcase classname="tests.test_renal_api.TestFoods" name="test_search_palak" time="0.063" /><testcase classname="tests.test_renal_api.TestFoods" name="test_search_besan" time="0.059" /><testcase classname="tests.test_renal_api.TestFoods" name="test_search_lauki" time="0.066" /><testcase classname="tests.test_renal_api.TestFoods" name="test_tier_filter_red" time="0.102" /><testcase classname="tests.test_renal_api.TestFoods" name="test_food_detail_red_has_swap" time="0.069" /><testcase classname="tests.test_renal_api.TestFoods" name="test_food_detail_green_no_swap" time="0.068" /><testcase classname="tests.test_renal_api.TestFoods" name="test_food_detail_not_found" time="0.056" /><testcase classname="tests.test_renal_api.TestMealLogs" name="test_list_requires_auth" time="0.061" /><testcase classname="tests.test_renal_api.TestMealLogs" name="test_create_meal_log" time="0.067" /><testcase classname="tests.test_renal_api.TestMealLogs" name="test_list_shows_created" time="0.058" /><testcase classname="tests.test_renal_api.TestMealLogs" name="test_delete_meal_log" time="0.121" /><testcase classname="tests.test_renal_api.TestMealLogs" name="test_create_meal_log_invalid_food" time="0.057" /><testcase classname="tests.test_renal_api.TestAI" name="test_ai_requires_auth" time="0.059" /><testcase classname="tests.test_renal_api.TestAI" name="test_ai_empty_question" time="0.062" /><testcase classname="tests.test_renal_api.TestAI" name="test_ai_ask_returns_answer" time="5.249" /><testcase classname="tests.test_security_fixes.TestCORS" name="test_allowed_origin_echoed" time="0.002" /><testcase classname="tests.test_security_fixes.TestCORS" name="test_disallowed_origin_not_echoed" time="0.042" /><testcase classname="tests.test_security_fixes.TestCORS" name="test_no_wildcard_in_source" time="0.001" /><testcase classname="tests.test_security_fixes.TestRegexInjection" name="test_unbalanced_paren" time="0.150" /><testcase classname="tests.test_security_fixes.TestRegexInjection" name="test_bracket_and_star" time="0.063" /><testcase classname="tests.test_security_fixes.TestRegexInjection" name="test_palak_still_matches" time="0.058" /><testcase classname="tests.test_security_fixes.TestErrorLeakage" name="test_no_exception_string_in_502" time="0.001" /><testcase classname="tests.test_security_fixes.TestErrorLeakage" name="test_ai_ask_and_scan_use_generic_message" time="0.001"><failure message="assert 'AI service temporarily unavailable' in '&quot;&quot;&quot;Indian Renal Diet backend — FastAPI + MongoDB.\n\nThin composition entrypoint. Actual logic lives in:\n  - `config...n    allow_credentials=True,\n    allow_origins=CORS_ORIGINS,\n    allow_methods=[&quot;*&quot;],\n    allow_headers=[&quot;*&quot;],\n)\n'">self = &lt;test_security_fixes.TestErrorLeakage object at 0xfc9a754d1210&gt;
+
+    def test_ai_ask_and_scan_use_generic_message(self):
+        src = SERVER_PY.read_text()
+&gt;       assert 'AI service temporarily unavailable' in src
+E       assert 'AI service temporarily unavailable' in '"""Indian Renal Diet backend — FastAPI + MongoDB.\n\nThin composition entrypoint. Actual logic lives in:\n  - `config...n    allow_credentials=True,\n    allow_origins=CORS_ORIGINS,\n    allow_methods=["*"],\n    allow_headers=["*"],\n)\n'
+
+tests/test_security_fixes.py:158: AssertionError</failure></testcase><testcase classname="tests.test_security_fixes.TestMealLogValidation" name="test_invalid_calendar_date_422" time="0.341" /><testcase classname="tests.test_security_fixes.TestMealLogValidation" name="test_not_a_date_422" time="0.056" /><testcase classname="tests.test_security_fixes.TestMealLogValidation" name="test_invalid_meal_type_422" time="0.063" /><testcase classname="tests.test_security_fixes.TestMealLogValidation" name="test_valid_meal_log_200_and_shape" time="0.062" /><testcase classname="tests.test_security_fixes.TestMealLogValidation" name="test_get_meal_logs_bad_date_400" time="0.064" /><testcase classname="tests.test_security_fixes.TestRegisterRace" name="test_duplicate_email_400_not_500" time="5.313" /><testcase classname="tests.test_security_fixes.TestRateLimits" name="test_register_6th_returns_429" time="5.856" /><testcase classname="tests.test_security_fixes.TestRateLimits" name="test_login_6th_returns_429" time="6.212" /><testcase classname="tests.test_security_fixes.TestRateLimits" name="test_ai_ask_11th_returns_429" time="5.066" /><testcase classname="tests.test_security_fixes.TestRateLimits" name="test_scan_food_6th_returns_429" time="5.223" /><testcase classname="tests.test_security_fixes.TestLifespan" name="test_foods_seeded_35" time="4.545"><failure message="AssertionError: expected 35 foods, got 1000&#10;assert 1000 == 35&#10; +  where 1000 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])">self = &lt;test_security_fixes.TestLifespan object at 0xfc9a754dcbd0&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a744bd5d0&gt;
+
+    def test_foods_seeded_35(self, session):
+        _restart_backend()
+        r = session.get(f"{API}/foods", params={"limit": 1000}, timeout=15)
+        assert r.status_code == 200
+        foods = r.json()
+&gt;       assert len(foods) == 35, f"expected 35 foods, got {len(foods)}"
+E       AssertionError: expected 35 foods, got 1000
+E       assert 1000 == 35
+E        +  where 1000 = len([{'id': 'food-aam-panna', 'name': 'Aam Panna', 'hindi_name': 'आम पन्ना', 'category': 'beverage', ...}, {'id': 'food-pi...ond-cardamom-cake', 'name': 'Almond cardamom cake', 'hindi_name': 'Badam elaichi cake', 'category': 'snack', ...}, ...])
+
+tests/test_security_fixes.py:338: AssertionError</failure></testcase><testcase classname="tests.test_security_fixes.TestLifespan" name="test_no_on_event_in_source" time="0.000" /><testcase classname="tests.test_security_fixes.TestN1Fix" name="test_meal_logs_shape_after_three_foods" time="4.809" /><testcase classname="tests.test_security_fixes.TestN1Fix" name="test_is_favorite_correct_per_food" time="0.440" /><testcase classname="tests.test_security_fixes.TestN1Fix" name="test_personal_tier_dialysis_vs_unknown" time="0.734"><failure message="AssertionError: assert 'RED' == 'YELLOW'&#10;  &#10;  - YELLOW&#10;  + RED">self = &lt;test_security_fixes.TestN1Fix object at 0xfc9a754de790&gt;
+session = &lt;requests.sessions.Session object at 0xfc9a744bd5d0&gt;
+
+    def test_personal_tier_dialysis_vs_unknown(self, session):
+        u1 = _register(session)  # unknown
+        u2 = _register(session)
+        session.post(f"{API}/auth/stage", headers=u2["headers"], json={"stage": "dialysis"}, timeout=15)
+        r1 = session.get(f"{API}/foods/food-atta-roti", headers=u1["headers"], timeout=15)
+        r2 = session.get(f"{API}/foods/food-atta-roti", headers=u2["headers"], timeout=15)
+        assert r1.status_code == 200 and r2.status_code == 200
+&gt;       assert r1.json()["food"]["personal_tier"] == "YELLOW"
+E       AssertionError: assert 'RED' == 'YELLOW'
+E         
+E         - YELLOW
+E         + RED
+
+tests/test_security_fixes.py:390: AssertionError</failure></testcase><testcase classname="tests.test_security_fixes.TestShapesRegression" name="test_register_and_login_shape" time="4.775" /><testcase classname="tests.test_security_fixes.TestShapesRegression" name="test_food_detail_shape" time="0.066" /><testcase classname="tests.test_security_fixes.TestShapesRegression" name="test_weekly_report_shape" time="0.345" /><testcase classname="tests.test_security_fixes.TestShapesRegression" name="test_favorite_toggle_shape" time="0.337" /><testcase classname="tests.test_vegetables_snacks_guide" name="test_vegetables_guide_shape" time="0.138"><failure message="AssertionError: assert 12 == 8&#10; +  where 12 = len([{'name': 'Tomato (fresh)', 'hindi': 'Tamatar / टमाटर', 'serving': '1 small (60 g)', 'potassium_mg': 142, ...}, {'name...}, {'name': 'Kaddu (Pumpkin)', 'hindi': 'Kaddu / कद्दू', 'serving': '1 katori (100 g)', 'potassium_mg': 340, ...}, ...])">token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc'
+
+    def test_vegetables_guide_shape(token):
+        r = requests.get(
+            f"{BASE_URL}/api/vegetables/guide",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        data = r.json()
+    
+        for tier in ("GREEN", "YELLOW", "RED"):
+            assert tier in data, f"missing tier {tier}"
+            sec = data[tier]
+            assert "title" in sec and isinstance(sec["title"], str)
+            assert "subtitle" in sec and isinstance(sec["subtitle"], str)
+            assert "vegetables" in sec and isinstance(sec["vegetables"], list)
+    
+        assert len(data["GREEN"]["vegetables"]) == 10
+&gt;       assert len(data["YELLOW"]["vegetables"]) == 8
+E       AssertionError: assert 12 == 8
+E        +  where 12 = len([{'name': 'Tomato (fresh)', 'hindi': 'Tamatar / टमाटर', 'serving': '1 small (60 g)', 'potassium_mg': 142, ...}, {'name...}, {'name': 'Kaddu (Pumpkin)', 'hindi': 'Kaddu / कद्दू', 'serving': '1 katori (100 g)', 'potassium_mg': 340, ...}, ...])
+
+tests/test_vegetables_snacks_guide.py:41: AssertionError</failure></testcase><testcase classname="tests.test_vegetables_snacks_guide" name="test_veg_green_has_lauki_linked" time="0.111" /><testcase classname="tests.test_vegetables_snacks_guide" name="test_veg_red_has_potato_high_k" time="0.103" /><testcase classname="tests.test_vegetables_snacks_guide" name="test_veg_red_has_sajina_linked" time="0.129" /><testcase classname="tests.test_vegetables_snacks_guide" name="test_snacks_guide_shape" time="0.126"><failure message="AssertionError: assert 11 == 8&#10; +  where 11 = len([{'name': 'Roasted Chana (small handful)', 'hindi': 'Bhuna chana / भुना चना', 'serving': '2 tbsp (20 g)', 'potassium_m...5, ...}, {'name': 'Idli (1 piece)', 'hindi': 'Idli / इडली', 'serving': '1 piece (60 g)', 'potassium_mg': 90, ...}, ...])">token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjk3OGNmNi0zNmQ2LTRlNmItODQxZS1hNjFiZDU0NDc1ZjIiLCJleHAiOjE3OTU4NTAyODZ9.L2EMfWe0T52Udci36F62KH1w32uXoqEHGkS7JZTt3Sc'
+
+    def test_snacks_guide_shape(token):
+        r = requests.get(
+            f"{BASE_URL}/api/snacks/guide",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        data = r.json()
+    
+        for tier in ("GREEN", "YELLOW", "RED"):
+            assert tier in data, f"missing tier {tier}"
+            sec = data[tier]
+            assert "title" in sec and isinstance(sec["title"], str)
+            assert "subtitle" in sec and isinstance(sec["subtitle"], str)
+            assert "snacks" in sec and isinstance(sec["snacks"], list)
+    
+        assert len(data["GREEN"]["snacks"]) == 6
+&gt;       assert len(data["YELLOW"]["snacks"]) == 8
+E       AssertionError: assert 11 == 8
+E        +  where 11 = len([{'name': 'Roasted Chana (small handful)', 'hindi': 'Bhuna chana / भुना चना', 'serving': '2 tbsp (20 g)', 'potassium_m...5, ...}, {'name': 'Idli (1 piece)', 'hindi': 'Idli / इडली', 'serving': '1 piece (60 g)', 'potassium_mg': 90, ...}, ...])
+
+tests/test_vegetables_snacks_guide.py:104: AssertionError</failure></testcase><testcase classname="tests.test_vegetables_snacks_guide" name="test_snacks_green_has_makhana" time="0.107" /><testcase classname="tests.test_vegetables_snacks_guide" name="test_snacks_red_has_namkeen_and_maggi" time="0.138" /></testsuite></testsuites>
